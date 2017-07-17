@@ -57,21 +57,21 @@ namespace MeshLib
 		\param he the input halfedge
 		\return the face he attaches
 		*/
-		tFace   halfedgeFace(tHalfEdge he);
+		static tFace   halfedgeFace(tHalfEdge he);
 		//halfedge->vertex
 		/*!
 		The target vertex of a halfedge.
 		\param he the input halfedge.
 		\return the target vertex of he.
 		*/
-		tVertex halfedgeVertex(tHalfEdge he);
+		static tVertex halfedgeVertex(tHalfEdge he);
 		//halfedge->vertex
 		/*!
 		The target vertex of a halfedge.
 		\param he the input halfedge.
 		\return the target vertex of he.
 		*/
-		tVertex halfedgeTarget(tHalfEdge he);
+		static tVertex halfedgeTarget(tHalfEdge he);
 		//halfedge->vertex
 		/*!
 		The source vertex of a halfedge.

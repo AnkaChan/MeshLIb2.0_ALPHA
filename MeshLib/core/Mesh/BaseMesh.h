@@ -645,7 +645,7 @@ inline CEdge * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::halfedgeEdge( tHalfEdge
 template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 inline CVertex * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::halfedgeVertex( tHalfEdge  he )
 {
-	return (CVertex*)he->vertex();
+	return (CVertex*)he->     vertex();
 };
 
 //access he->v
