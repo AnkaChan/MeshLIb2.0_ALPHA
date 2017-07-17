@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 #include <string>
-#include <array>
+#include <list>
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
 #include "HalfEdge.h"
@@ -81,7 +81,7 @@ namespace MeshLib{
 
 	/*!	Adjacent edges, temporarily used for loading the mesh
 	 */
-	std::array<CHalfEdge*> & arhe() { return m_arhe; };
+	std::list<CHalfEdge*> & arhe() { return m_arhe; };
   protected:
 
     /*! Vertex ID. 
@@ -108,7 +108,7 @@ namespace MeshLib{
 
 	/*! List of adjacent edges, such that current vertex is the end vertex of the edge with smaller id
 	 */
-	std::array<CHalfEdge*,8> m_arhe;
+	std::list<CHalfEdge*> m_arhe;
 
   }; //class CVertex
 
