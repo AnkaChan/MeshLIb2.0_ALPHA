@@ -49,7 +49,7 @@ namespace MeshLib
 		\param f attaching face
 		\return halfedge, whose target is v, attaching face is f. NULL if no such an halfedge exists.
 		*/
-		tHalfEdge   corner(tVertex v, tFace f);
+		static tHalfEdge   corner(tVertex v, tFace f);
 
 		//halfedge->face
 		/*!
@@ -286,7 +286,6 @@ namespace MeshLib
 	\return the edge connecting both v0 and v1, NULL if no such edge exists.
 	*/
 	//use the edge list associated with each vertex to locate the edge
-
 	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 	inline tEdge Interface<CVertex, CEdge, CFace, CHalfEdge>::vertexEdge(tVertex v0, tVertex v1)
 	{
@@ -313,6 +312,42 @@ namespace MeshLib
 		he = (CHalfEdge*)e->halfedge(1);
 		assert(he->vertex() == v1 && he->he_prev()->vertex() == v0);
 		return he;
+	}
+
+	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+	inline tHalfEdge Interface<CVertex, CEdge, CFace, CHalfEdge>::corner(tVertex v, tFace f)
+	{
+		CHalfEdge * he = faceMostCcwHalfEdge(f);
+		do {
+			if (he->vertex() == v)
+				return (CHalfEdge*)he;
+			he = faceNextCcwHalfEdge(he);
+		} while (he != faceMostCcwHalfEdge(f));
+		return NULL;
+	}
+
+	//access he->f
+	/*!
+	The face a halfedge attaching to.
+	\param he the input halfedge
+	\return the face he attaches
+	*/
+	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+	inline tFace Interface<CVertex, CEdge, CFace, CHalfEdge>::halfedgeFace(tHalfEdge he)
+	{
+		return (CFace*)he->face();
+	}
+
+	//access he->v
+	/*!
+	The target vertex of a halfedge.
+	\param he the input halfedge.
+	\return the target vertex of he.
+	*/
+	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+	inline tVertex Interface<CVertex, CEdge, CFace, CHalfEdge>::halfedgeVertex(tHalfEdge he)
+	{
+		return (CVertex*)he->vertex();
 	}
 
 }
