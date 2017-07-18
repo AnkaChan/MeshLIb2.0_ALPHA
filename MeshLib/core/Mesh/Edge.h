@@ -48,7 +48,7 @@ public:
 	/*!	
 		whether the edge is on the boundary.
 	*/
-	bool		  boundary() { return m_halfedge == NULL; };
+	bool		  boundary() { return m_halfedge->he_sym() == NULL; };
 	/*!
 		The dual halfedge to the input halfedge
 		\param he halfedge attached to the current edge
