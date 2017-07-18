@@ -62,7 +62,7 @@ namespace MeshLib{
 
 	/*! One incoming halfedge of the vertex .
 	*/
-    CHalfEdge * & halfedge() { return m_halfedge; };
+	CHalfEdge * & halfedge() { return m_halfedge; };//return m_arhe.size() ? m_arhe.front()->prev() : nullptr;
 	/*! the string of the vertex. 
 	*/
 	std::string & string() { return m_string;};
