@@ -1269,8 +1269,8 @@ template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 inline CEdge * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::vertexEdge( tVertex  v0, tVertex  v1 )
 {
 	//CVertex * pV = (v0->id() < v1->id() )? v0: v1;
-	std::list<CHalfEdge*> & ledges0 = vertexEdges(v0);
-	std::list<CHalfEdge*> & ledges1 = vertexEdges(v1);
+	std::list<CHalfEdge*> & ledges0 = v0->arhe()//vertexEdges(v0);
+	std::list<CHalfEdge*> & ledges1 =v1->arhe()// vertexEdges(v1);
 
 	for( std::list<CHalfEdge*>::iterator heiter = ledges0.begin(); heiter != ledges0.end(); heiter ++ )
 	{
