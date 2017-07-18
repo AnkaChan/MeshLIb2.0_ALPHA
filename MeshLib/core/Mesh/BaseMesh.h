@@ -293,7 +293,7 @@ public:
 	\return the halfedge[i] attaching to edge e.
 	*/
 
-	tHalfEdge edgeHalfedge( tEdge  e, int id);
+	tHalfEdge edgeHalfedge( tEdge  e);
 
 	//face->halfedge
 	/*!
@@ -436,7 +436,7 @@ public:
 	\param v2 end vertex of the edge
 	\return pointer to the new edge
 	*/
-	tEdge     createEdge(	tVertex v1, tVertex v2 );
+	tEdge     createEdge(tVertex v1, tVertex v2 );
 	/*
 	return halfedge from v1 to v2
 	*/
@@ -449,8 +449,9 @@ public:
 	\param v an array of vertices
 	\param id face id
 	\return pointer to the new face
+	//create a triangle*/
 	
-	tFace     createFace(   tVertex  v[], int id ); //create a triangle*/
+	tFace     createFace(   tVertex  v[], int id ); 
 	/*! Create a face
 	\param v an array of vertices
 	\param id face id
@@ -559,8 +560,6 @@ CFace * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::edgeFace2( tEdge   e )
 
 // here i want to add a null judge but i didnt 
 
-
-
 //access he->f
 /*!
 	The face a halfedge attaching to. 
@@ -645,7 +644,7 @@ inline CEdge * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::halfedgeEdge( tHalfEdge
 template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 inline CVertex * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::halfedgeVertex( tHalfEdge  he )
 {
-	return (CVertex*)he->     vertex();
+	return (CVertex*)he->vertex();
 };
 
 //access he->v
@@ -1083,32 +1082,32 @@ void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::read_obj( const char * filename )
 template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 CHalfEdge* CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>:: query_hedge(tVertex v1, tVertex v2)
 {  
-	for (std::list<tHalfEdge>::iterator heiter = v1->arhe().begin(); heiter != ivecv1->arhe().end(); ++heiter)
+	for (std::list<tHalfEdge>::iterator heiter = v1->arhe().begin(); heiter != v1->arhe().end(); ++heiter)
 	{
 		tHalfEdge he = *heiter;
 		if (he->vertex() == v2) return he;
 	}
 	//return nullptr;//
 	return NULL;
-}
+};
 
 
 template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::enter_hedge(tHalfEdge he, tVertex v1) 
 {
-	Vertex v2 = he->vertex();
+	tVertex v2 = he->vertex();
 	/*if (sdebug >= 1) {
 		valid(v1); valid(v2);
 		assertx(!query_hedge(v1, v2) && !v1->_arhe.contains(he));
 	}*/
 	v1->arhe().push_back(he);
-	tHalfEdge hes = he->sym() = query_hedge(v2, v1);
+	tHalfEdge hes = he->he_sym() = query_hedge(v2, v1);
 	if (hes) {
-		assertx(!hes->sym());
-		hes->sym() = he;
+		//assertx(!hes->he_sym());
+		hes->he_sym() = he;
 		tEdge e = hes->edge();
 		he->edge() = e;
-		if (he->vert()->id()>hes->vert()->id()) e->halfedge() = he;
+		if (he->vertex()->id()>hes->vertex()->id()) e->halfedge() = he;
 	}
 	else {                                           //hes不存在 说明v1v2之间没有边 需new一个边
 		tEdge e = new CEdge();
@@ -1124,45 +1123,89 @@ void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::enter_hedge(tHalfEdge he, tVer
 	\return pointer to the new face
 	*/
 //i did find nowhere we use this createfece so i didnt update it .
-//template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-//CFace * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::createFace( tVertex  va[] , int id )
-//{
-//	tFace f = new CFace();
-//	assert(f != NULL);
-//	f->id() = id;
-//	m_faces.push_back( f );
-//	m_map_face.insert( std::pair<int,tFace>(id,f) );
-//	tHalfEdge hep = NULL;
-//	//int nv = va.num();
-//	int nv = 3;
-//	for (int i = 0; i < nv; i++) {//i=0							//先new he123 和点连起来 并视情况new e123 最后调整he123的值
-//		tVertex v2 = va[i + 1 == nv ? 0 : i + 1];
-//		tHalfEdge he = new CHalfEdge;
-//		he->prev = hep;
-//		// he->next is set below
-//		he->vert = v2;
-//		enter_hedge(he, va[i]);
-//		// he->sym and he->edge were set in enter_hedge
-//		he->face = f;
-//		hep = he;
-//	}
-//	//assertx(hep);               // HH_ASSUME(hep);
-//	tHalfEdge helast = hep;  //此时 he123的next皆为空 he1的prev是null为终止条件 依次为21next1prev3next赋值
-//	for (;;) {
-//		tHalfEdge hepp = hep->prev;
-//		if (!hepp) break;
-//		hepp->next = hep;
-//		hep = hepp;
-//	}
-//	hep->prev = helast;
-//	helast->next = hep;
-//	f->herep = helast;          // such that f->herep->vert==va[0]  //f->herep is he3 指向v0 
-//	_facenum = max(_facenum, id + 1);
-//	//if (sdebug >= 3) ok();
-//	return f;//此时he123的sys被处理为null 或取已有值
-//
-//
-//};
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+CFace * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::createFace( tVertex  v[] , int id )
+{
+	tFace f = new CFace();
+	assert(f != NULL);
+	f->id() = id;
+	m_faces.push_back( f );
+	m_map_face.insert( std::pair<int,tFace>(id,f) );
+	tHalfEdge hep = NULL;
+	//int nv = va.num();
+	int nv = 3;
+	for (int i = 0; i < nv; i++) {//i=0							//先new he123 和点连起来 并视情况new e123 最后调整he123的值
+		tVertex v2 = v[i + 1 == nv ? 0 : i + 1];
+		tHalfEdge he = new CHalfEdge;
+		he->he_prev() = hep;
+		// he->next is set below
+		he->vertex() = v2;
+		enter_hedge(he, v[i]);
+		// he->sym and he->edge were set in enter_hedge
+		he->face() = f;
+		hep = he;
+	}
+	//assertx(hep);               // HH_ASSUME(hep);
+	tHalfEdge helast = hep;  //此时 he123的next皆为空 he1的prev是null为终止条件 依次为21next1prev3next赋值
+	for (;;) {
+		tHalfEdge hepp = hep->he_prev();
+		if (!hepp) break;
+		hepp->he_next() = hep;
+		hep = hepp;
+	}
+	hep->he_prev() = helast;
+	helast->he_next() = hep;
+	f->halfedge() = helast;          // such that f->herep->vert==va[0]  //f->herep is he3 指向v0 
+	//_facenum = max(_facenum, id + 1);
+	//if (sdebug >= 3) ok();
+	return f;//此时he123的sys被处理为null 或取已有值
+
+
+};
+
+/*! Create a face
+\param v an array of vertices
+\param id face id
+\return pointer to the new face
+*/
+
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+CFace * CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::createFace(std::vector<tVertex> &  v, int id)
+{
+	tFace f = new CFace();
+	f->id() = id;
+	m_faces.push_back(f);
+	m_map_face.insert(std::pair<int, tFace>(id, f));
+
+	tHalfEdge hep = NULL;
+	int nv = v.size();
+	for (int i = 0; i < nv; i++) {
+		tVertex v2 = v[i + 1 == nv ? 0 : i + 1];
+		tHalfEdge he = new CHalfEdge;
+		he->he_prev() = hep;
+		// he->next is set below
+		he->vertex() = v2;
+		//One incoming halfedge of the vertex , but always re assign each vertex many times
+		//is assignment copy cost large time?
+		he->vertex()->halfedge() = he;
+		enter_hedge(he, v[i]);
+		// he->sym and he->edge were set in enter_hedge
+		he->face() = f;
+		hep = he;
+	}
+	tHalfEdge helast = hep;
+	for (;;) {
+		tHalfEdge hepp = hep->he_prev();
+		if (!hepp) break;
+		hepp->he_next() = hep;
+		hep = hepp;
+	}
+	hep->he_prev() = helast;
+	helast->he_next() = hep;
+	f->halfedge() = helast;          // such that f->herep->vert==va[0]  //f->herep is he3 point to v0 
+	return f;
+
+};
 
 
 //access id->v
@@ -1269,15 +1312,15 @@ template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 inline CEdge * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::vertexEdge( tVertex  v0, tVertex  v1 )
 {
 	//CVertex * pV = (v0->id() < v1->id() )? v0: v1;
-	std::list<CHalfEdge*> & ledges0 = v0->arhe()//vertexEdges(v0);
-	std::list<CHalfEdge*> & ledges1 =v1->arhe()// vertexEdges(v1);
+	std::list<CHalfEdge*> & lhes0 = v0->arhe();//vertexEdges(v0);
+	std::list<CHalfEdge*> & lhes1 = v1->arhe();// vertexEdges(v1);
 
-	for( std::list<CHalfEdge*>::iterator heiter = ledges0.begin(); heiter != ledges0.end(); heiter ++ )
+	for( std::list<CHalfEdge*>::iterator heiter = lhes0.begin(); heiter != lhes0.end(); heiter ++ )
 	{
 		CHalfEdge * pH =  *heiter;
 		if( pH->source() == v0 && pH->target() == v1 ) return pH->edge();
 	}
-	for (std::list<CHalfEdge*>::iterator heiter = ledges1.begin(); heiter != ledges1.end(); heiter++)
+	for (std::list<CHalfEdge*>::iterator heiter = lhes1.begin(); heiter != lhes1.end(); heiter++)
 	{
 		CHalfEdge * pH = *heiter;
 		if (pH->source() == v1 && pH->target() == v0) return pH->edge();
@@ -1314,11 +1357,19 @@ Access the edge list of a vertex, {e} such that e->vertex1() == v
 \return the list of adjacent edges
 */
 
-//access vertex->arhe
+//return edges around vertex
 template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 inline std::list<CEdge*> & CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::vertexEdges( tVertex  v0 )
 {
-	return (std::list<CEdge*> &)v0->arhe()
+	std::list<CHalfEdge*> & lhe0 = v0->arhe();
+	std::list<CEdge*>  ledges;
+
+	for (std::list<CHalfEdge*>::iterator heiter = ledges0.begin(); heiter != ledges0.end(); heiter++)
+	{
+		CHalfEdge * pH = *heiter;
+		ledges.push_back(pH->edge());
+	}
+	return ledges;
 };
 
 //access vertex->halfedge
@@ -1507,75 +1558,9 @@ void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::read_m( const char * input )
 		}
 	}
 	
-	//labelBoundary();
-
-	//Label boundary edges
-	for(std::list<CEdge*>::iterator eiter= m_edges.begin() ; eiter != m_edges.end() ; ++ eiter )
-	{
-		CEdge *     edge = *eiter;
-		CHalfEdge * he[2];
-
-		he[0] = edgeHalfedge( edge, 0 );
-		he[1] = edgeHalfedge( edge, 1 );
-		
-		assert( he[0] != NULL );
-		
-
-		if( he[1] != NULL )
-		{
-			assert( he[0]->target() == he[1]->source() && he[0]->source() == he[1]->target() );
-
-			if( he[0]->target()->id() < he[0]->source()->id() )
-			{
-				edge->halfedge(0 ) = he[1];
-				edge->halfedge(1 ) = he[0];
-			}
-
-			assert( edgeVertex1(edge)->id() < edgeVertex2(edge)->id() );
-		}
-		else
-		{
-			he[0]->vertex()->boundary() = true;
-			he[0]->he_prev()->vertex()->boundary()  = true;
-		}
-
-	}
-
-	std::list<CVertex*> dangling_verts;
-	//Label boundary edges
-	for(std::list<CVertex*>::iterator viter = m_verts.begin();  viter != m_verts.end() ; ++ viter )
-	{
-		CVertex *     v = *viter;
-		if( v->halfedge() != NULL ) continue;
-		dangling_verts.push_back( v );
-	}
-
-	for( std::list<CVertex*>::iterator  viter = dangling_verts.begin() ; viter != dangling_verts.end(); ++ viter )
-	{
-		CVertex * v = *viter;
-		m_verts.remove( v );
-		delete v;
-		v = NULL;
-	}
-
-	//Arrange the boundary half_edge of boundary vertices, to make its halfedge
-	//to be the most ccw in half_edge
-
-	for(std::list<CVertex*>::iterator viter = m_verts.begin();  viter != m_verts.end() ; ++ viter )
-	{
-		CVertex *     v = *viter;
-		if( !v->boundary() ) continue;
-
-		CHalfEdge * he = vertexMostCcwInHalfEdge( v );
-		while( he->he_sym() != NULL )
-		{
-			he =  vertexNextCcwInHalfEdge ( he );
-		}
-		v->halfedge() = he;
-	}
+	labelBoundary();//为啥写了不用 by iron
 
 	//read in the traits
-
 	for(std::list<CVertex*>::iterator viter = m_verts.begin();  viter != m_verts.end() ; ++ viter )
 	{
 		CVertex *     v = *viter;
@@ -1857,9 +1842,9 @@ template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 void CBaseMesh<CVertex, CEdge, CFace, CHalfEdge>::remove_hedge(tHalfEdge he, tVertex v1)
 {
 	tVertex v2 = he->vertex();
-	he->sym() == query_hedge(v2, v1);
+	he->he_sym() == query_hedge(v2, v1);
 	tEdge e = he->edge();
-	tHalfEdge hes = he->sym();
+	tHalfEdge hes = he->he_sym();
 	if (hes) {
 		hes->sym() = nullptr;
 		if (e->halfedge() == he) e->halfedge() = hes;
@@ -2008,137 +1993,49 @@ void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::read_off( const char * input )
 
 };
 
-
 /*!
 	Label boundary edges, vertices
 */
 template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::labelBoundary( void )
+void CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::labelBoundary()
 {
 	
 	//Label boundary edges
-	for(std::list<CEdge*>::iterator eiter= m_edges.begin() ; eiter != m_edges.end() ; ++ eiter )
+	for (std::list<CEdge*>::iterator eiter = m_edges.begin(); eiter != m_edges.end(); ++eiter)
 	{
 		CEdge *     edge = *eiter;
 		CHalfEdge * he = edge->halfedge();
 
-		assert(he!= NULL);
-		if (he->sym() == NULL)
+		assert(he != NULL);
+		if (he->he_sym() == NULL)
 		{
-			edge->boundary() = true;
+			//edge->boundary() = true;
 			he->target()->boundary() = true;
 			he->source()->boundary() = true;
 
 		}
-
-	//	CEdge *     edge = *eiter;
-	//	CHalfEdge * he[2];
-
-	//	he[0] = (CHalfEdge*)edge->halfedge(0);
-	//	he[1] = (CHalfEdge*)edge->halfedge(1);
-	//	
-	//	assert( he[0] != NULL );
-	//	
-	//	if( he[1] != NULL )
-	//	{
-	//		assert( he[0]->target() == he[1]->source() && he[0]->source() == he[1]->target() );
-
-	//		if( he[0]->target()->id() < he[0]->source()->id() )
-	//		{
-	//			edge->halfedge(0 ) = he[1];
-	//			edge->halfedge(1 ) = he[0];
-	//		}
-
-	//		assert( edgeVertex1(edge)->id() < edgeVertex2(edge)->id() );
-	//	}
-	//	else
-	//	{
-	//		he[0]->vertex()->boundary() = true;
-	//		he[0]->he_prev()->vertex()->boundary()  = true;
-	//	}
-
-	//}
-
-	//std::list<CVertex*> dangling_verts;
-	////Label boundary edges
-	//for(std::list<CVertex*>::iterator viter = m_verts.begin();  viter != m_verts.end() ; ++ viter )
-	//{
-	//	tVertex     v = *viter;
-	//	if( v->halfedge() != NULL ) continue;
-	//	dangling_verts.push_back( v );
-	//}
-
-	//for( std::list<CVertex*>::iterator  viter = dangling_verts.begin() ; viter != dangling_verts.end(); ++ viter )
-	//{
-	//	tVertex v = *viter;
-	//	m_verts.remove( v );
-	//	delete v;
-	//	v = NULL;
-	//}
-
-	////may be there is no need to do so      by iron.
-	////Arrange the boundary half_edge of boundary vertices, to make its halfedge
-	////to be the most ccw in half_edge
-
-	//for(std::list<CVertex*>::iterator viter = m_verts.begin();  viter != m_verts.end() ; ++ viter )
-	//{
-	//	tVertex     v = *viter;
-	//	if( !v->boundary() ) continue;
-
-	//	CHalfEdge * he = (CHalfEdge*)v->halfedge();
-	//	while( he->he_sym() != NULL )
-	//	{
-	//		he = (CHalfEdge*)he->ccw_rotate_about_target();
-	//	}
-	//	v->halfedge() = he;
-	//}
-
-
-};
-
-/*! Create a face
-	\param v an array of vertices
-	\param id face id
-	\return pointer to the new face
-	*/
-
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-CFace * CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>::createFace( std::vector<tVertex> &  v, int id )
-{
-	tFace f = new CFace();
-	f->id() = id;
-	m_faces.push_back( f );
-	m_map_face.insert( std::pair<int,tFace>(id,f) );
-
-	tHalfEdge hep = NULL;
-	int nv = v.size();
-	for (int i = 0; i < nv; i++) {
-		tVertex v2 = va[i + 1 == nv ? 0 : i + 1];
-		tHalfEdge he = new CHalfEdge;
-		he->prev() = hep;
-		// he->next is set below
-		he->vertex() = v2;
-		//One incoming halfedge of the vertex , but always re assign each vertex many times
-		//is assignment copy cost large time?
-		he->vertex()->halfedge() = he;
-		enter_hedge(he, va[i]);
-		// he->sym and he->edge were set in enter_hedge
-		he->face() = f;
-		hep = he;
-	}            
-	tHalfEdge helast = hep; 
-	for (;;) {
-		tHalfEdge hepp = hep->prev();
-		if (!hepp) break;
-		hepp->next() = hep;
-		hep = hepp;
 	}
-	hep->prev() = helast;
-	helast->next() = hep;
-	f->herep = helast;          // such that f->herep->vert==va[0]  //f->herep is he3 指向v0 
-	return f;
+
+	//may be there is no need to do so      by iron.
+	//Arrange the boundary half_edge of boundary vertices, to make its halfedge
+	//to be the most ccw in half_edge
+
+	for (std::list<CVertex*>::iterator viter = m_verts.begin(); viter != m_verts.end(); ++viter)
+	{
+		CVertex *     v = *viter;
+		if (!v->boundary()) continue;
+
+		CHalfEdge * he = vertexMostCcwInHalfEdge(v);
+		//it has been done in function vertexMostCcwInHalfEdge .
+		/*while( he->he_sym() != NULL )
+		{
+		he =  vertexNextCcwInHalfEdge ( he );
+		}*/
+		v->halfedge() = he;
+	}
 
 };
+
 
 /*!
 	Write an .g file.
