@@ -9,10 +9,10 @@
 #ifndef _MESHLIB_HALFEDGE_H_
 #define _MESHLIB_HALFEDGE_H_
 
-#include  <assert.h>
+#include <assert.h>
 #include <math.h>
 #include <string>
-#include "Edge.h"
+//#include "Edge.h"
 
 namespace MeshLib{
 
@@ -35,21 +35,21 @@ public:
 	~CHalfEdge(){};
 
 	/*! Pointer to the edge attaching to the current halfedge. */
-	CEdge       *   &  edge()    { return m_edge;   };
+	CEdge       *   &  edge() { return m_edge; };
 	/*! Target vertex of the current halfedge. */
-	CVertex     *   &  vertex()  { return m_vertex; };
+	CVertex     *   &  vertex() { return m_vertex; };
 	/*! Target vertex of the current halfedge. */
-	CVertex     *   &  target()  { return m_vertex; };
+	CVertex     *   &  target() { return m_vertex; };
 	/*! Source vertex of the current halfedge. */
-	CVertex     *   &  source()  { return m_prev->vertex();};
+	CVertex     *   &  source() { return m_prev->vertex(); };
 	/*! Previous halfedge of the current halfedge. */
-	CHalfEdge *  &  he_prev() { return m_prev;};
+	CHalfEdge *  &  he_prev() { return m_prev; };
 	/*! Next halfedge of the current halfedge. */
-	CHalfEdge *  &  he_next() { return m_next;};
+	CHalfEdge *  &  he_next() { return m_next; };
 	/*! The dual halfedge of the current halfedge. */
-	CHalfEdge * & he_sym()  { return m_sym; };
+	CHalfEdge *  &  he_sym() { return m_sym; };
 	/*! The face, to which the current halfedge attach. */
-	CFace     * & face()    { return m_face;};
+	CFace     * & face() { return m_face; };
 	/*! Rotate the halfedge about the target vertex ccwly. 
 		\return if the current halfedge is the most ccw in halfedge of its target vertex, which is on boundary, return NULL. 	
 	*/
@@ -90,12 +90,10 @@ protected:
 	std::string       m_string;
 };
 
-//roate the halfedge about its target vertex CCWly
-
 inline CHalfEdge * CHalfEdge::ccw_rotate_about_target()
 {
 	CHalfEdge * he_dual = he_sym();
-	if( he_dual == NULL ) return NULL;
+	if (he_dual == NULL) return NULL;
 
 	return he_dual->he_prev();
 };
@@ -124,10 +122,9 @@ inline CHalfEdge * CHalfEdge::ccw_rotate_about_source()
 inline CHalfEdge * CHalfEdge::clw_rotate_about_source()
 {
 	CHalfEdge * he = he_sym();
-	if( he == NULL ) return NULL;
+	if (he == NULL) return NULL;
 	return he->he_next();
 };
-
 }//namespace MeshLib
 
 #endif //_MESHLIB_HALFEDGE_H_ defined

@@ -1,7 +1,7 @@
 /*!
 *      \file Vertex.h
 *      \brief Base class of vertex
-*	   \author by Very Hard To Please
+*	   \author Iron
 *      \date 15/07/2010
 *
 */
@@ -9,7 +9,7 @@
 #ifndef  _MESHLIB_VERTEX_H_
 #define  _MESHLIB_VERTEX_H_
 
-#include <stdlib.h>
+#include <stdlib.h>// why he include this lib ?
 #include <string>
 #include <list>
 #include "../Geometry/Point.h"
@@ -18,7 +18,7 @@
 
 namespace MeshLib{
 
-  class CHalfEdge;
+  //class CHalfEdge;
 
   /*!
   \brief CVertex class, which is the base class of all kinds of vertex classes
@@ -27,11 +27,12 @@ namespace MeshLib{
   class CVertex
   {
   public:
+	  typedef std::list<CHalfEdge*> CHalfEdgePtrList;
 	  /*!
 	  CVertex constructor
 	  here what the other data will be initialize?
 	  */
-      CVertex(){ m_halfedge = NULL; m_boundary = false; };
+      CVertex() { m_halfedge = NULL; m_boundary = false; };//construcor should be writen in the .h?
 	  /*!
 	  CVertex destructor 
 	  */
@@ -39,13 +40,13 @@ namespace MeshLib{
 
 	/*! The point of the vertex
 	*/
-    CPoint & point()    { return m_point;};
+	CPoint & point() { return m_point; };
 	/*! The normal of the vertex
 	*/
-    CPoint & normal()   { return m_normal; };
+	CPoint & normal() { return m_normal; };
 	/*! The texutre coordinates of the vertex
 	*/
-	CPoint2 & uv()       { return m_uv; };
+	CPoint2 & uv() { return m_uv; };
 
 	/*! The most counter clockwise outgoing halfedge of the vertex .
 	*/
@@ -65,13 +66,13 @@ namespace MeshLib{
 	CHalfEdge * & halfedge() { return m_halfedge; };//return m_arhe.size() ? m_arhe.front()->prev() : nullptr;
 	/*! the string of the vertex. 
 	*/
-	std::string & string() { return m_string;};
+	std::string & string() { return m_string; };
 	/*! Vertex id. 
 	*/
     int  & id() { return m_id; };
 	/*! Whether the vertex is on the boundary. 
 	*/
-    bool & boundary() { return m_boundary;};
+    bool & boundary() { return m_boundary; };
     /*! Convert vertex traits to string. 
 	*/
 	void _to_string()   {};
@@ -113,98 +114,98 @@ namespace MeshLib{
   }; //class CVertex
 
 
-/*! \brief The most counter clockwise incoming halfedge of the vertex
- *  \return the most CCW in halfedge
-*/
-inline CHalfEdge *  CVertex::most_ccw_in_halfedge()  
-{ 
-	//for interior vertex
-	if( !m_boundary )
-	{
-		return m_halfedge; //current half edge is the most ccw in halfedge 
-	}
+ /*! \brief The most counter clockwise incoming halfedge of the vertex
+	 *   \return the most CCW in halfedge
+	 \update
+	 */
+  inline CHalfEdge *  CVertex::most_ccw_in_halfedge()
+  {
+	  //for interior vertex
+	  if (!m_boundary)
+	  {
+		  return m_halfedge; //current half edge is the most ccw in halfedge 
+	  }
 
-	//for boundary vertex
-	CHalfEdge * he = m_halfedge->ccw_rotate_about_target();
-	//rotate to the most ccw in halfedge
-	while( he != NULL )
-	{
-		m_halfedge = he;
-		he = m_halfedge->ccw_rotate_about_target();
-	}
-	// the halfedge of the vertex becomes the most ccw in halfedge
-	return m_halfedge;
-};
+	  //for boundary vertex
+	  CHalfEdge * he = m_halfedge->ccw_rotate_about_target();
+	  //rotate to the most ccw in halfedge
+	  while (he != NULL)
+	  {
+		  m_halfedge = he;
+		  he = m_halfedge->ccw_rotate_about_target();
+	  }
+	  // the halfedge of the vertex becomes the most ccw in halfedge
+	  return m_halfedge;
+  };
 
-//most clockwise in halfedge
+  //most clockwise in halfedge
+  //update
 
-inline CHalfEdge *  CVertex::most_clw_in_halfedge()  
-{ 
-	//for interior vertex 
-	if( !m_boundary )
-	{
-		return most_ccw_in_halfedge()->ccw_rotate_about_target(); //the most ccw in halfedge rotate ccwly once to get the most clw in halfedge
-	}
-	//for boundary vertex
-	CHalfEdge * he = m_halfedge->clw_rotate_about_target();
-	//rotate to the most clw in halfedge
-	while( he != NULL )
-	{
-		m_halfedge = he;
-		he = m_halfedge->clw_rotate_about_target();
-	}
+  inline CHalfEdge *  CVertex::most_clw_in_halfedge()
+  {
+	  //for interior vertex 
+	  if (!m_boundary)
+	  {
+		  return most_ccw_in_halfedge()->ccw_rotate_about_target(); //the most ccw in halfedge rotate ccwly once to get the most clw in halfedge
+	  }
+	  //for boundary vertex
+	  CHalfEdge * he = m_halfedge->clw_rotate_about_target();
+	  //rotate to the most clw in halfedge
+	  while (he != NULL)
+	  {
+		  m_halfedge = he;
+		  he = m_halfedge->clw_rotate_about_target();
+	  }
 
-	return m_halfedge;
-};
+	  return m_halfedge;
+  };
 
-//most counter clockwise out halfedge
+  //most counter clockwise out halfedge
 
-inline CHalfEdge *  CVertex::most_ccw_out_halfedge()  
-{ 
-	//for interior vertex
-	if( !m_boundary )
-	{
-		return most_ccw_in_halfedge()->he_sym(); //most ccw out halfedge is the dual of the most ccw in halfedge
-	}
+  inline CHalfEdge *  CVertex::most_ccw_out_halfedge()
+  {
+	  //for interior vertex
+	  if (!m_boundary)
+	  {
+		  return most_ccw_in_halfedge()->he_sym(); //most ccw out halfedge is the dual of the most ccw in halfedge
+	  }
 
-	//for boundary vertex
-	CHalfEdge * he = m_halfedge->he_next();
-	//get the out halfedge which is the next halfedge of the most ccw in halfedge
-	CHalfEdge * ne = he->ccw_rotate_about_source();
-	//rotate ccwly around the source vertex
-	while( ne != NULL )
-	{
-		he = ne;
-		ne = he->ccw_rotate_about_source();
-	}
+	  //for boundary vertex
+	  CHalfEdge * he = m_halfedge->he_next();
+	  //get the out halfedge which is the next halfedge of the most ccw in halfedge
+	  CHalfEdge * ne = he->ccw_rotate_about_source();
+	  //rotate ccwly around the source vertex
+	  while (ne != NULL)
+	  {
+		  he = ne;
+		  ne = he->ccw_rotate_about_source();
+	  }
 
-	return he;
-};
+	  return he;
+  };
 
-//most clockwise out halfedge
+  //most clockwise out halfedge
 
-inline CHalfEdge * CVertex::most_clw_out_halfedge()  
-{ 
-	//for interior vertex
-	if( !m_boundary )
-	{
-		return most_ccw_out_halfedge()->ccw_rotate_about_source();  //most ccw out halfedge rotate ccwly once about the source
-	}
-	//get one out halfedge
-	CHalfEdge * he = m_halfedge->he_next();
-	//rotate the out halfedge clwly about the source
-	CHalfEdge * ne = he->clw_rotate_about_source();
-	
-	while( ne != NULL )
-	{
-		he = ne;
-		ne = he->clw_rotate_about_source();
-	}
+  inline CHalfEdge * CVertex::most_clw_out_halfedge()
+  {
+	  //for interior vertex
+	  if (!m_boundary)
+	  {
+		  return most_ccw_out_halfedge()->ccw_rotate_about_source();  //most ccw out halfedge rotate ccwly once about the source
+	  }
+	  //get one out halfedge
+	  CHalfEdge * he = m_halfedge->he_next();
+	  //rotate the out halfedge clwly about the source
+	  CHalfEdge * ne = he->clw_rotate_about_source();
 
-	return he;
-};
+	  while (ne != NULL)
+	  {
+		  he = ne;
+		  ne = he->clw_rotate_about_source();
+	  }
 
-
+	  return he;
+  };
 
 }//name space MeshLib
 
