@@ -27,7 +27,7 @@
 #include "../Parser/StrUtil.h"
 
 namespace MeshLib{
-	//class CHalfEdge;
+	//class HalfEdgeType;
 /*!
 * \brief CBaseMesh, base class for all types of mesh classes
 *
@@ -37,10 +37,10 @@ namespace MeshLib{
 *  supporting .obj, .m and .off file formats. It offers Euler operators, each geometric primative
 *  can access its neighbors freely. 
 *  
-* \tparam CVertex   vertex   class, derived from MeshLib::CVertex   class
-* \tparam CEdge     edge     class, derived from MeshLib::CEdge     class
-* \tparam CFace     face     class, derived from MeshLib::CFace     class
-* \tparam CHalfEdge halfedge class, derived from MeshLib::CHalfEdge class
+* \tparam VertexType   vertex   class, derived from MeshLib::CVertex   class
+* \tparam EdgeType     edge     class, derived from MeshLib::EdgeType     class
+* \tparam FaceType     face     class, derived from MeshLib::FaceType     class
+* \tparam HalfEdgeType halfedge class, derived from MeshLib::HalfEdgeType class
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
@@ -48,10 +48,10 @@ class CBaseMesh
 {
 public:
 	// pointer to Vertices, Halfedges, Edges, Face and Solid
-	typedef VertexType   * tVertex;
+	typedef VertexType   * VertexPtr;
 	typedef HalfEdgeType * HalfEdgePtr;
-	typedef EdgeType     * tEdge;
-	typedef FaceType     * tFace;
+	typedef EdgeType     * EdgePtr;
+	typedef FaceType     * FacePtr;
 
 	//constructor and destructor
 	/*!
@@ -120,11 +120,11 @@ public:
 	/*! whether a vertex is on the boundary
 	\param v the pointer to the vertex
 	*/
-	bool    isBoundary( tVertex  v );
+	bool    isBoundary( VertexPtr  v );
 	/*! whether an edge is on the boundary
 	\param e the pointer to the edge
 	*/
-	bool    isBoundary( tEdge    e );
+	bool    isBoundary( EdgePtr    e );
 	/*! whether a halfedge is on the boundary
 	\param he the pointer to the halfedge
 	*/
@@ -136,13 +136,13 @@ public:
 	\param id the vertex id
 	\return the vertex, whose ID equals to id. NULL, if there is no such a vertex.
 	*/
-	tVertex idVertex( int id );
+	VertexPtr idVertex( int id );
 	/*!
 	The vertex id
 	\param v the input vertex
 	\return the vertex id.
 	*/
-	int     vertexId( tVertex  v );
+	int     vertexId( VertexPtr  v );
 
 	//access face - id
 	/*!
@@ -150,13 +150,13 @@ public:
 	\param id the face id
 	\return the face, whose ID equals to id. NULL, if there is no such a face.
 	*/
-	tFace   idFace( int id );
+	FacePtr   idFace( int id );
 	/*!
 	The face id
 	\param f the input face
 	\return the face id.
 	*/
-	int     faceId( tFace  f );
+	int     faceId( FacePtr  f );
 
 	//access edge - edge key, vertex
 	/*!
@@ -165,7 +165,7 @@ public:
 	\param v1 the other vertex of the edge
 	\return the edge connecting both v0 and v1, NULL if no such edge exists.
 	*/
-	tEdge   vertexEdge( tVertex v0, tVertex v1 );
+	EdgePtr   vertexEdge( VertexPtr v0, VertexPtr v1 );
 
 	//access halfedge - halfedge key, vertex
 	/*!
@@ -175,14 +175,14 @@ public:
 	\return the halfedge connecting both v0 and v1, NULL if no such edge exists.
 	*/
 	
-	HalfEdgePtr   vertexHalfedge( tVertex v0, tVertex v1 );
+	HalfEdgePtr   vertexHalfedge( VertexPtr v0, VertexPtr v1 );
 	/*!
 	Access a halfedge by its target vertex, and attaching face.
 	\param v target vertex 
 	\param f attaching face
 	\return halfedge, whose target is v, attaching face is f. NULL if no such an halfedge exists.
 	*/
-	HalfEdgePtr   corner( tVertex v, tFace f);
+	HalfEdgePtr   corner( VertexPtr v, FacePtr f);
 
 	//halfedge->face
 	/*!
@@ -190,28 +190,28 @@ public:
 	\param he the input halfedge
 	\return the face he attaches
 	*/
-	tFace   halfedgeFace( HalfEdgePtr he );
+	FacePtr   halfedgeFace( HalfEdgePtr he );
 	//halfedge->vertex
 	/*!
 	The target vertex of a halfedge. 
 	\param he the input halfedge.
 	\return the target vertex of he.
 	*/
-	tVertex halfedgeVertex( HalfEdgePtr he );
+	VertexPtr halfedgeVertex( HalfEdgePtr he );
 	//halfedge->vertex
 	/*!
 	The target vertex of a halfedge. 
 	\param he the input halfedge.
 	\return the target vertex of he.
 	*/
-	tVertex halfedgeTarget( HalfEdgePtr he );
+	VertexPtr halfedgeTarget( HalfEdgePtr he );
 	//halfedge->vertex
 	/*!
 	The source vertex of a halfedge. 
 	\param he the input halfedge.
 	\return the source vertex of he.
 	*/
-	tVertex halfedgeSource( HalfEdgePtr he );
+	VertexPtr halfedgeSource( HalfEdgePtr he );
 
 	//halfedge->next
 	/*!
@@ -242,21 +242,21 @@ public:
 	\return the edge of he.
 	*/
 
-	tEdge       halfedgeEdge( HalfEdgePtr he );
+	EdgePtr       halfedgeEdge( HalfEdgePtr he );
 	//v->halfedge
 	/*!
 	The halfedge targeting at a vertex. 
 	\param v the input vertex.
 	\return the halfedge targeting at v, which is the most ccw in halfedge of v.
 	*/
-	HalfEdgePtr   vertexHalfedge( tVertex v );
+	HalfEdgePtr   vertexHalfedge( VertexPtr v );
 	//v->edges
 	/*!
 	The edge list attaching to the vertex v, such that v is the first vertex of the edge
 	\param v the input vertex.
 	\return the reference to the edge list
 	*/
-	std::list<tEdge> &  vertexEdges( tVertex v );
+	std::list<EdgePtr> &  vertexEdges( VertexPtr v );
 
 	//edge->vertex
 	/*!
@@ -264,13 +264,13 @@ public:
 	\param e the input edge.
 	\return the first vertex of e.
 	*/
-	tVertex edgeVertex1( tEdge  e );
+	VertexPtr edgeVertex1( EdgePtr  e );
 	/*!
 	The second vertex of an edge.
 	\param e the input edge.
 	\return the second vertex of e.
 	*/
-	tVertex edgeVertex2( tEdge  e );
+	VertexPtr edgeVertex2( EdgePtr  e );
 
 	//edge->face
 	/*!
@@ -278,13 +278,13 @@ public:
 	\param e the input edge.
 	\return the first face attaching to e.
 	*/
-	tFace edgeFace1( tEdge  e );
+	FacePtr edgeFace1( EdgePtr  e );
 	/*!
 	The second face attaching to an edge.
 	\param e the input edge.
 	\return the second face attaching to e.
 	*/
-	tFace edgeFace2( tEdge  e );
+	FacePtr edgeFace2( EdgePtr  e );
 
 	//edge->halfedge
 	/*!
@@ -294,7 +294,7 @@ public:
 	\return the halfedge[i] attaching to edge e.
 	*/
 
-	HalfEdgePtr edgeHalfedge( tEdge  e);
+	HalfEdgePtr edgeHalfedge( EdgePtr  e);
 
 	//face->halfedge
 	/*!
@@ -303,7 +303,7 @@ public:
 	\return the first halfedge attaching to f.
 	*/
 
-	HalfEdgePtr faceHalfedge( tFace f );
+	HalfEdgePtr faceHalfedge( FacePtr f );
 
 	//Euler operations
 	/*!
@@ -311,7 +311,7 @@ public:
 	\param v the input vertex.
 	\return the most Clw Out HalfEdge of v.
 	*/
-	HalfEdgePtr vertexMostClwOutHalfEdge( tVertex  v );
+	HalfEdgePtr vertexMostClwOutHalfEdge( VertexPtr  v );
 	/*!
 	The next Ccw Out HalfEdge 
 	\param he the input halfedge .
@@ -325,7 +325,7 @@ public:
 	\param v the input vertex.
 	\return the most Ccw Out HalfEdge of v.
 	*/
-	HalfEdgePtr vertexMostCcwOutHalfEdge( tVertex  v );
+	HalfEdgePtr vertexMostCcwOutHalfEdge( VertexPtr  v );
 	/*!
 	The next Clw Out HalfEdge 
 	\param he the input halfedge .
@@ -338,7 +338,7 @@ public:
 	\param v the input vertex.
 	\return the most Clw In HalfEdge of v.
 	*/
-	HalfEdgePtr vertexMostClwInHalfEdge( tVertex  v );
+	HalfEdgePtr vertexMostClwInHalfEdge( VertexPtr  v );
 	/*!
 	The next Ccw In HalfEdge 
 	\param he the input halfedge .
@@ -351,7 +351,7 @@ public:
 	\param v the input vertex.
 	\return the most Ccw In HalfEdge of v.
 	*/
-	HalfEdgePtr vertexMostCcwInHalfEdge( tVertex  v );
+	HalfEdgePtr vertexMostCcwInHalfEdge( VertexPtr  v );
 	/*!
 	The next Clw In HalfEdge 
 	\param he the input halfedge .
@@ -365,13 +365,13 @@ public:
 	\return the most Clw HalfEdge of f.
 	*/
 	
-	HalfEdgePtr faceMostClwHalfEdge( tFace  face );
+	HalfEdgePtr faceMostClwHalfEdge( FacePtr  face );
 	/*!
 	The most Ccw HalfEdge of a face
 	\param face the input face.
 	\return the most Ccw HalfEdge of f.
 	*/
-	HalfEdgePtr faceMostCcwHalfEdge( tFace  face );
+	HalfEdgePtr faceMostCcwHalfEdge( FacePtr  face );
 	/*!
 	The next Ccw HalfEdge of a halfedge in a face
 	\param he the input halfedge.
@@ -391,20 +391,20 @@ public:
 	\param e the input edge
 	\return the length of the edge e
 	*/
-	double edgeLength( tEdge e );
+	double edgeLength( EdgePtr e );
 
 	/*!
 	List of the edges of the mesh.
 	*/
-	std::list<tEdge>   & edges()		{ return m_edges; };
+	std::list<EdgePtr>   & edges()		{ return m_edges; };
 	/*!
 	List of the faces of the mesh.
 	*/
-	std::list<tFace>   & faces()		{ return m_faces; };
+	std::list<FacePtr>   & faces()		{ return m_faces; };
 	/*!
 	List of the vertices of the mesh.
 	*/
-	std::list<tVertex> & vertices()	{ return m_verts; };
+	std::list<VertexPtr> & vertices()	{ return m_verts; };
 /*
 	bool with_uv() { return m_with_texture; };
 	bool with_normal() { return m_with_normal; };
@@ -412,18 +412,18 @@ public:
 protected:
 
   /*! list of edges */
-  std::list<tEdge>                          m_edges;
+  std::list<EdgePtr>                          m_edges;
   /*! list of vertices */
-  std::list<tVertex>                        m_verts;
+  std::list<VertexPtr>                        m_verts;
   /*! list of faces */
-  std::list<tFace>							m_faces;
+  std::list<FacePtr>							m_faces;
 
   //maps
 
   /*! map between vetex and its id*/
-  std::map<int, tVertex>                    m_map_vert;
+  std::map<int, VertexPtr>                    m_map_vert;
   /*! map between face and its id*/
-  std::map<int, tFace>						m_map_face;
+  std::map<int, FacePtr>						m_map_face;
 
 
 public:
@@ -431,42 +431,42 @@ public:
 	\param id Vertex id
 	\return pointer to the new vertex
 	*/
-	tVertex   createVertex(   int id = 0 );
+	VertexPtr   createVertex(   int id = 0 );
 	/*! Create an edge
 	\param v1 end vertex of the edge
 	\param v2 end vertex of the edge
 	\return pointer to the new edge
 	*/
-	tEdge     createEdge(tVertex v1, tVertex v2 );
+	EdgePtr     createEdge(VertexPtr v1, VertexPtr v2 );
 	/*
 	return halfedge from v1 to v2
 	*/
-	HalfEdgePtr query_hedge(tVertex v1, tVertex v2);
+	HalfEdgePtr query_hedge(VertexPtr v1, VertexPtr v2);
 	/*
 	enter halfedge on vextex v1
 	*/
-	void	  enter_hedge(HalfEdgePtr he, tVertex v1);
+	void	  enter_hedge(HalfEdgePtr he, VertexPtr v1);
 	/*! Create a face
 	\param v an array of vertices
 	\param id face id
 	\return pointer to the new face
 	//create a triangle*/
 	
-	tFace     createFace(   tVertex  v[], int id ); 
+	FacePtr     createFace(   VertexPtr  v[], int id ); 
 	/*! Create a face
 	\param v an array of vertices
 	\param id face id
 	\return pointer to the new face
 	*/
-	tFace     createFace(   std::vector<tVertex> &  v, int id ); //create a triangle
+	FacePtr     createFace(   std::vector<VertexPtr> &  v, int id ); //create a triangle
 	/*
 	remove halfedge from vertex v1
 	*/
-	void	  remove_hedge(HalfEdgePtr he, tVertex v1);
+	void	  remove_hedge(HalfEdgePtr he, VertexPtr v1);
 	/*! delete one face
 	\param pFace the face to be deleted
 	*/
-	void      deleteFace( tFace  f );
+	void      deleteFace( FacePtr  f );
 	
 	/*! whether the vertex is with texture coordinates */
 	bool      m_with_texture;
@@ -494,7 +494,7 @@ The first vertex of an edge.
 \return the first vertex of e.
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-VertexType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeVertex1(tEdge   e)
+VertexType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeVertex1(EdgePtr   e)
 {
 	assert(e->halfedge() != NULL);
 	return (VertexType*)e->halfedge()->source();
@@ -507,7 +507,7 @@ The second vertex of an edge.
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-VertexType *  CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeVertex2(tEdge   e)
+VertexType *  CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeVertex2(EdgePtr   e)
 {
 	assert(e->halfedge() != NULL);
 	return (VertexType*)e->halfedge()->target();
@@ -520,7 +520,7 @@ The first face attaching to an edge.
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeFace1(tEdge   e)
+FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeFace1(EdgePtr   e)
 {
 	assert(e->halfedge() != NULL);
 	return (FaceType*)e->halfedge()->face();
@@ -534,7 +534,7 @@ The halfedge attaching to an edge.
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeHalfedge(tEdge   e)
+HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeHalfedge(EdgePtr   e)
 {
 	return (HalfEdgeType*)e->halfedge();
 };
@@ -547,7 +547,7 @@ The second face attaching to an edge.
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeFace2(tEdge   e)
+FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeFace2(EdgePtr   e)
 {
 	//assert( e->halfedge()->sym()!= NULL );
 	if (e->halfedge()->sym() == NULL)return NULL
@@ -580,7 +580,7 @@ The first halfedge attaching to a face f.
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceHalfedge(tFace   f)
+inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceHalfedge(FacePtr   f)
 {
 	return (HalfEdgeType*)f->halfedge();
 };
@@ -674,7 +674,7 @@ inline VertexType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::hal
 \param v the pointer to the vertex
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline bool CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(tVertex   v)
+inline bool CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(VertexPtr   v)
 {
 	return v->boundary();
 };
@@ -682,7 +682,7 @@ inline bool CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(
 \param e the pointer to the edge
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline bool CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(tEdge   e)
+inline bool CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(EdgePtr   e)
 {
 	if (e->halfedge()->sym() == NULL) return true;
 	return false;
@@ -730,7 +730,7 @@ The most Clw Out HalfEdge of a vertex
 \return the most Clw Out HalfEdge of v.
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType *  CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostClwOutHalfEdge(tVertex   v)
+inline HalfEdgeType *  CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostClwOutHalfEdge(VertexPtr   v)
 {
 	return (HalfEdgeType*)v->most_clw_out_halfedge();
 };
@@ -740,7 +740,7 @@ The next Ccw Out HalfEdge
 \return the next Ccw Out HalfEdge, sharing the same source of he.
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostCcwOutHalfEdge(tVertex   v)
+inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostCcwOutHalfEdge(VertexPtr   v)
 {
 	return (HalfEdgeType*)v->most_ccw_out_halfedge();
 };
@@ -752,7 +752,7 @@ Access a halfedge by its target vertex, and attaching face.
 \return halfedge, whose target is v, attaching face is f. NULL if no such an halfedge exists.
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::corner(tVertex  v, tFace  f)
+inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::corner(VertexPtr  v, FacePtr  f)
 {
 	HalfEdgeType * he = faceMostCcwHalfEdge(f);
 	do {
@@ -790,7 +790,7 @@ The most Clw In HalfEdge of a vertex
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostClwInHalfEdge(tVertex   v)
+inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostClwInHalfEdge(VertexPtr   v)
 {
 	return (HalfEdgeType*)v->most_clw_in_halfedge();
 };
@@ -801,7 +801,7 @@ The most Ccw In HalfEdge of a vertex
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostCcwInHalfEdge(tVertex   v)
+inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostCcwInHalfEdge(VertexPtr   v)
 {
 	return (HalfEdgeType*)v->most_ccw_in_halfedge();
 };
@@ -855,7 +855,7 @@ The most Ccw HalfEdge of a face
 \return the most Ccw HalfEdge of f.
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType *  CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceMostCcwHalfEdge(tFace   face)
+inline HalfEdgeType *  CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceMostCcwHalfEdge(FacePtr   face)
 {
 	return (HalfEdgeType*)face->halfedge();
 };
@@ -864,7 +864,7 @@ The most Clw HalfEdge in a face
 \param face the input face.
 \return the most Clw HalfEdge in a face.
 */template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceMostClwHalfEdge(tFace   face)
+inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceMostClwHalfEdge(FacePtr   face)
 {
 	return (HalfEdgeType*)face->halfedge()->he_next();
 };
@@ -928,7 +928,7 @@ CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::~CBaseMesh()
 Edge length
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-double CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeLength(tEdge  e)
+double CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeLength(EdgePtr  e)
 {
 	VertexType * v1 = edgeVertex1(e);
 	VertexType * v2 = edgeVertex2(e);
@@ -1080,12 +1080,12 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::read_obj(const cha
 Find halfedge from v1 to v2
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-HalfEdgeType* CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::query_hedge(tVertex v1, tVertex v2)
+HalfEdgeType* CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::query_hedge(VertexPtr v1, VertexPtr v2)
 {
 	for (VertexType::CHalfEdgePtrList::iterator heiter = v1->arhe().begin(); heiter != v1->arhe().end(); ++heiter)
 	{
 		HalfEdgePtr he= (HalfEdgePtr)*heiter;
-		if ((tVertex)he->vertex() == v2) return he;
+		if ((VertexPtr)he->vertex() == v2) return he;
 	}
 	//return nullptr;//
 	return NULL;
@@ -1093,9 +1093,9 @@ HalfEdgeType* CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::query_hed
 
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::enter_hedge(HalfEdgePtr he, tVertex v1)
+void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::enter_hedge(HalfEdgePtr he, VertexPtr v1)
 {
-	tVertex v2 = (tVertex) he->vertex();
+	VertexPtr v2 = (VertexPtr) he->vertex();
 	/*if (sdebug >= 1) {
 	valid(v1); valid(v2);
 	assertx(!query_hedge(v1, v2) && !v1->_arhe.contains(he));
@@ -1107,12 +1107,12 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::enter_hedge(HalfEd
 	if (hes) {
 		//assertx(!hes->he_sym());
 		hes->he_sym() = he;
-		tEdge e =(tEdge) hes->edge();
+		EdgePtr e =(EdgePtr) hes->edge();
 		he->edge() = e;
 		if (he->vertex()->id()>hes->vertex()->id()) e->halfedge() = he;
 	}
 	else {                                           //hes不存在 说明v1v2之间没有边 需new一个边
-		tEdge e = new EdgeType();
+		EdgePtr e = new EdgeType();
 		e->halfedge() = he;
 		he->edge() = e;
 		m_edges.push_back(e);
@@ -1126,18 +1126,18 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::enter_hedge(HalfEd
 */
 //i did find nowhere we use this createfece so i didnt update it .
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createFace(tVertex  v[], int id)
+FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createFace(VertexPtr  v[], int id)
 {
-	tFace f = new FaceType();
+	FacePtr f = new FaceType();
 	assert(f != NULL);
 	f->id() = id;
 	m_faces.push_back(f);
-	m_map_face.insert(std::pair<int, tFace>(id, f));
+	m_map_face.insert(std::pair<int, FacePtr>(id, f));
 	HalfEdgePtr hep = NULL;
 	//int nv = va.num();
 	int nv = 3;
 	for (int i = 0; i < nv; i++) {//i=0							//先new he123 和点连起来 并视情况new e123 最后调整he123的值
-		tVertex v2 = v[i + 1 == nv ? 0 : i + 1];
+		VertexPtr v2 = v[i + 1 == nv ? 0 : i + 1];
 		HalfEdgePtr he = new HalfEdgeType;
 		he->he_prev() = hep;
 		// he->next is set below
@@ -1172,17 +1172,17 @@ FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createFace(t
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createFace(std::vector<tVertex> &  v, int id)
+FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createFace(std::vector<VertexPtr> &  v, int id)
 {
-	tFace f = new FaceType();
+	FacePtr f = new FaceType();
 	f->id() = id;
 	m_faces.push_back(f);
-	m_map_face.insert(std::pair<int, tFace>(id, f));
+	m_map_face.insert(std::pair<int, FacePtr>(id, f));
 
 	HalfEdgePtr hep = NULL;
 	int nv = v.size();
 	for (int i = 0; i < nv; i++) {
-		tVertex v2 = v[i + 1 == nv ? 0 : i + 1];
+		VertexPtr v2 = v[i + 1 == nv ? 0 : i + 1];
 		HalfEdgePtr he = new HalfEdgeType;
 		he->he_prev() = (CHalfEdge*)hep;//子类的值可以赋给父类 反过来 ？ 不知道 忘了
 		// he->next is set below
@@ -1229,7 +1229,7 @@ The vertex id
 \return the vertex id.
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline int CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexId(tVertex   v)
+inline int CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexId(VertexPtr   v)
 {
 	return v->id();
 };
@@ -1253,7 +1253,7 @@ The face id
 \return the face id.
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline int CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceId(tFace   f)
+inline int CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceId(FacePtr   f)
 {
 	return f->id();
 };
@@ -1265,19 +1265,19 @@ inline int CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceId(tFace
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-EdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createEdge(tVertex  v1, tVertex  v2)
+EdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createEdge(VertexPtr  v1, VertexPtr  v2)
 {
 	//there is no need to have this function really
 	//there is no need to introduce edgelist on every vertex
 
-	//tVertex pV = ( v1->id()<v2->id())?v1:v2;
-	//std::list<CEdge*> & ledges = (std::list<CEdge*> &) pV->edges();
+	//VertexPtr pV = ( v1->id()<v2->id())?v1:v2;
+	//std::list<EdgeType*> & ledges = (std::list<EdgeType*> &) pV->edges();
 
 	//
-	//for( std::list<CEdge*>::iterator te = ledges.begin(); te != ledges.end(); te ++ )
+	//for( std::list<EdgeType*>::iterator te = ledges.begin(); te != ledges.end(); te ++ )
 	//{
-	//	CEdge	  * pE = *te;
-	//	CHalfEdge * pH = (CHalfEdge*) pE->halfedge(0);
+	//	EdgeType	  * pE = *te;
+	//	HalfEdgeType * pH = (HalfEdgeType*) pE->halfedge(0);
 	//
 	//	if( pH->source() == v1 && pH->target() == v2 ) 
 	//	{
@@ -1290,7 +1290,7 @@ EdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createEdge(t
 	//}
 
 	////new edge
-	//CEdge * e = new CEdge;
+	//EdgeType * e = new EdgeType;
 	//assert( e != NULL );
 	//m_edges.push_back( e );
 	//e->id() = (int)m_edges.size();
@@ -1311,21 +1311,21 @@ Access an edge by its two end vertices
 //use the edge list associated with each vertex to locate the edge
 //return edge with v0 and v1 or return NULL
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline EdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdge(tVertex  v0, tVertex  v1)
+inline EdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdge(VertexPtr  v0, VertexPtr  v1)
 {
-	//CVertex * pV = (v0->id() < v1->id() )? v0: v1;
+	//VertexType * pV = (v0->id() < v1->id() )? v0: v1;
 	std::list<HalfEdgePtr> & lhes0 = (std::list<HalfEdgePtr>&)v0->arhe();//vertexEdges(v0);
 	std::list<HalfEdgePtr> & lhes1 = (std::list<HalfEdgePtr>&)v1->arhe();//vertexEdges(v1);
 
 	for (std::list<HalfEdgeType*>::iterator heiter = lhes0.begin(); heiter != lhes0.end(); heiter++)
 	{
 		HalfEdgeType * pH = *heiter;
-		if (pH->source() == v0 && pH->target() == v1) return (tEdge)pH->edge();
+		if (pH->source() == v0 && pH->target() == v1) return (EdgePtr)pH->edge();
 	}
 	for (std::list<HalfEdgeType*>::iterator heiter = lhes1.begin(); heiter != lhes1.end(); heiter++)
 	{
 		HalfEdgeType * pH = *heiter;
-		if (pH->source() == v1 && pH->target() == v0) return  (tEdge)pH->edge();
+		if (pH->source() == v1 && pH->target() == v0) return  (EdgePtr)pH->edge();
 	}
 
 	return NULL;
@@ -1340,9 +1340,8 @@ Access a halfedge by its two end vertices
 
 //access vertex->halfedge from v0 to v1
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(tVertex  v0, tVertex  v1)
+inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(VertexPtr  v0, VertexPtr  v1)
 {
-
 	std::list<EdgeType*> & ledges0 = vertexEdges(v0);
 	for (std::list<EdgeType*>::iterator heiter = ledges0.begin(); heiter != ledges0.end(); heiter++)
 	{
@@ -1360,8 +1359,14 @@ Access the edge list of a vertex, {e} such that e->vertex1() == v
 */
 
 //return edges around vertex
+//
+//A
+//BUG
+//BUGBUG
+//BUGBUGBUG
+//
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline std::list<EdgeType*> & CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdges(tVertex  v0)
+inline std::list<EdgeType*> & CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdges(VertexPtr  v0)
 {
 	std::list<HalfEdgeType*> & lhe0 = v0->arhe();
 	std::list<EdgeType*>  ledges;
@@ -1381,7 +1386,7 @@ The halfedge targeting at a vertex.
 \return the halfedge targeting at v, which is the most ccw in halfedge of v.
 */
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(tVertex  v)
+inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(VertexPtr  v)
 {
 	return (HalfEdgeType*)v->halfedge();
 };
@@ -1429,7 +1434,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::read_m(const char 
 				p[i] = strutil::parseString<float>(token);
 			}
 
-			tVertex v = createVertex(id);
+			VertexPtr v = createVertex(id);
 			v->point() = p;
 			v->id() = id;
 
@@ -1475,7 +1480,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::read_m(const char 
 				v.push_back(idVertex(vid));
 			}
 
-			tFace f = createFace(v, id);
+			FacePtr f = createFace(v, id);
 
 			if (!stokenizer.nextToken("\t\r\n")) continue;
 			token = stokenizer.getToken();
@@ -1514,7 +1519,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::read_m(const char 
 			VertexType * v0 = idVertex(id0);
 			VertexType * v1 = idVertex(id1);
 
-			tEdge edge = vertexEdge(v0, v1);
+			EdgePtr edge = vertexEdge(v0, v1);
 
 			if (!stokenizer.nextToken("\t\r\n")) continue;
 			token = stokenizer.getToken();
@@ -1642,7 +1647,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_m(const char
 	//remove vertices
 	for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
 	{
-		tVertex v = *viter;
+		VertexPtr v = *viter;
 
 		_os << "Vertex " << v->id();
 
@@ -1659,7 +1664,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_m(const char
 
 	for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
 	{
-		tFace f = *fiter;
+		FacePtr f = *fiter;
 
 		_os << "Face " << f->id();
 		HalfEdgePtr he = faceHalfedge(f);
@@ -1677,7 +1682,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_m(const char
 
 	for (std::list<EdgeType*>::iterator eiter = m_edges.begin(); eiter != m_edges.end(); eiter++)
 	{
-		tEdge e = *eiter;
+		EdgePtr e = *eiter;
 		if (e->string().size() > 0)
 		{
 			_os << "Edge " << edgeVertex1(e)->id() << " " << edgeVertex2(e)->id() << " ";
@@ -1687,7 +1692,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_m(const char
 
 	for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
 	{
-		tFace f = *fiter;
+		FacePtr f = *fiter;
 
 		HalfEdgePtr he = faceHalfedge(f);
 
@@ -1724,13 +1729,13 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_obj(const ch
 	int vid = 1;
 	for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
 	{
-		tVertex v = *viter;
+		VertexPtr v = *viter;
 		v->id() = vid++;
 	}
 
 	for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
 	{
-		tVertex v = *viter;
+		VertexPtr v = *viter;
 
 		_os << "v";
 
@@ -1743,7 +1748,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_obj(const ch
 
 	for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
 	{
-		tVertex v = *viter;
+		VertexPtr v = *viter;
 
 		_os << "vt";
 
@@ -1756,7 +1761,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_obj(const ch
 
 	for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
 	{
-		tVertex v = *viter;
+		VertexPtr v = *viter;
 
 		_os << "vn";
 
@@ -1770,7 +1775,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_obj(const ch
 
 	for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
 	{
-		tFace f = *fiter;
+		FacePtr f = *fiter;
 
 		_os << "f";
 
@@ -1808,13 +1813,13 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_off(const ch
 	int vid = 0;
 	for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
 	{
-		tVertex v = *viter;
+		VertexPtr v = *viter;
 		v->id() = vid++;
 	}
 
 	for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
 	{
-		tVertex v = *viter;
+		VertexPtr v = *viter;
 		_os << v->point()[0] << " " << v->point()[1] << " " << v->point()[2] << std::endl;
 		//_os << v->normal()[0] << " " << v->normal()[1]<< " " << v->normal()[2]<< std::endl;
 	}
@@ -1822,7 +1827,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_off(const ch
 
 	for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
 	{
-		tFace f = *fiter;
+		FacePtr f = *fiter;
 
 		_os << "3";
 
@@ -1841,11 +1846,11 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_off(const ch
 
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::remove_hedge(HalfEdgePtr he, tVertex v1)
+void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::remove_hedge(HalfEdgePtr he, VertexPtr v1)
 {
-	tVertex v2 = he->vertex();
+	VertexPtr v2 = he->vertex();
 	he->he_sym() == query_hedge(v2, v1);
-	tEdge e = he->edge();
+	EdgePtr e = he->edge();
 	HalfEdgePtr hes = he->he_sym();
 	if (hes) {
 		hes->sym() = nullptr;
@@ -1867,9 +1872,9 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::remove_hedge(HalfE
 */
 
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::deleteFace(tFace  f)
+void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::deleteFace(FacePtr  f)
 {
-	std::map<int, tFace>::iterator fiter = m_map_face.find(f->id());
+	std::map<int, FacePtr>::iterator fiter = m_map_face.find(f->id());
 	if (fiter != m_map_face.end())
 	{
 		m_map_face.erase(fiter);
@@ -1877,11 +1882,11 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::deleteFace(tFace  
 	m_faces.remove(f);
 
 	HalfEdgePtr he = f->halfedge(), hef = he;
-	tVertex v1 = he->prev()->vert();
+	VertexPtr v1 = he->prev()->vert();
 	for (;;)
 	{
 		HalfEdgePtr hen = he->next();
-		tVertex v1n = he->vertex();
+		VertexPtr v1n = he->vertex();
 		remove_hedge(he, v1);
 		delete he; he = hen;
 		v1 = v1n;
@@ -2058,7 +2063,7 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_g(const char
 	//remove vertices
 	for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
 	{
-		tVertex v = *viter;
+		VertexPtr v = *viter;
 
 		_os << "Vertex " << v->id();
 
@@ -2075,16 +2080,16 @@ void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_g(const char
 
 	for (std::list<EdgeType*>::iterator eiter = m_edges.begin(); eiter != m_edges.end(); eiter++)
 	{
-		tEdge e = *eiter;
+		EdgePtr e = *eiter;
 
 		_os << "Edge " << e->id() << " ";
-		tVertex v1 = edgeVertex1(e);
-		tVertex v2 = edgeVertex2(e);
+		VertexPtr v1 = edgeVertex1(e);
+		VertexPtr v2 = edgeVertex2(e);
 		_os << v1->id() << " " << v2->id() << std::endl;
 	}
 	for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
 	{
-		tFace f = *fiter;
+		FacePtr f = *fiter;
 
 		_os << "Face " << f->id();
 		HalfEdgePtr he = faceHalfedge(f);

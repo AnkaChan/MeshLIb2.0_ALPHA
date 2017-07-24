@@ -21,7 +21,7 @@ class CEdge;
 class CFace;
 
 /*!
-*	\brief CHalfEdge Base class of all kinds of halfedges.
+*	\brief HalfEdgeType Base class of all kinds of halfedges.
 */
 class CHalfEdge
 {

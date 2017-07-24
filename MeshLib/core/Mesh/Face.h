@@ -14,20 +14,20 @@
 #include "../Geometry/Point.h"
 #include "HalfEdge.h"
 namespace MeshLib{
-//class CHalfEdge;
+//class HalfEdgeType;
 
 /*!
-	\brief CFace base class of all kinds of face classes
+	\brief FaceType base class of all kinds of face classes
 */
 class CFace
 {
 public:
 	/*!	
-	CFace constructor
+	FaceType constructor
 	*/
 	CFace() { m_halfedge = NULL; };
 	/*!
-	CFace destructor
+	FaceType destructor
 	*/
 	~CFace(){};
 	/*!
