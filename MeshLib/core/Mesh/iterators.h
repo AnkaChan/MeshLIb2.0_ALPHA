@@ -13,7 +13,6 @@
 
 namespace MeshLib{
 
-
 //v->out halfedge
 /*!
 	\brief VertexOutHalfedgeIterator, transverse all the outgoing halfedges of a vertex ccwly.
@@ -81,6 +80,13 @@ private:
 		Current halfedge.
 	*/
 	HalfEdgeType * m_halfedge;
+};
+
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+class VOutHEIterator
+{
+public:
+	VOutHEIterator(VertexType * V) {};
 };
 
 //v->in halfedge
