@@ -25,12 +25,12 @@ namespace MeshLib
 /*!
 	\brief CLoopSegment Boundary loop  segment class.	
 	\tparam CVertex Vertex type
-	\tparam CEdge   Edge   type
-	\tparam CFace   Face   type
-	\tparam CHalfEdge HalfEdge type
+	\tparam EdgeType   Edge   type
+	\tparam FaceType   Face   type
+	\tparam HalfEdgeType HalfEdge type
 */
 
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 class CLoopSegment
 {
 public:
@@ -39,7 +39,7 @@ public:
 		\param pMesh  pointer to the current mesh
 		\param pH halfedge on the boundary loop
 	*/
-	CLoopSegment(CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>* pMesh, std::vector<CHalfEdge*> & pHs )
+	CLoopSegment(CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType>* pMesh, std::vector<HalfEdgeType*> & pHs )
 	{
 		m_pMesh = pMesh;
 
@@ -59,27 +59,27 @@ public:
 	/*!
 	The vector of haledges on the current boundary loop segment.
 	*/
-	std::vector<CHalfEdge*>  & halfedges() 
+	std::vector<HalfEdgeType*>  & halfedges() 
 	{
 		return m_halfedges;
 	}
 	/*!
 		Starting vertex
 	*/
-	CVertex * start()
+	VertexType * start()
 	{
 		if( m_halfedges.size() == 0 ) return NULL;
-		CHalfEdge * he = m_halfedges[0];
+		HalfEdgeType * he = m_halfedges[0];
 		return m_pMesh->halfedgeSource( he );
 	}
 	/*!
 		ending vertex
 	*/
-	CVertex * end()
+	VertexType * end()
 	{
 		if( m_halfedges.size() == 0 ) return NULL;
 		size_t n = m_halfedges.size();
-		CHalfEdge * he = m_halfedges[n-1];
+		HalfEdgeType * he = m_halfedges[n-1];
 		return m_pMesh->halfedgeTarget( he );
 	}
 	
@@ -87,27 +87,27 @@ protected:
 	/*!
 		The mesh pointer
 	*/
-	CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>		* m_pMesh;
+	CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType>		* m_pMesh;
 	
 	/*!
 		The vector of consecutive halfedges along the boundary loop.
 	*/
-	std::vector<CHalfEdge*>							  m_halfedges;
+	std::vector<HalfEdgeType*>							  m_halfedges;
 
 };
 
 /*!
 	\brief CLoop Boundary loop  class.	
 	\tparam CVertex Vertex type
-	\tparam CEdge   Edge   type
-	\tparam CFace   Face   type
-	\tparam CHalfEdge HalfEdge type
+	\tparam EdgeType   Edge   type
+	\tparam FaceType   Face   type
+	\tparam HalfEdgeType HalfEdge type
 */
 
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 class CLoop
 {
-	typedef CLoopSegment<CVertex,CEdge, CFace, CHalfEdge> TSegment;
+	typedef CLoopSegment<VertexType,EdgeType, FaceType, HalfEdgeType> TSegment;
 
 public:
 	/*!
@@ -115,12 +115,12 @@ public:
 		\param pMesh  pointer to the current mesh
 		\param pH halfedge on the boundary loop
 	*/
-	 CLoop( CBaseMesh<CVertex, CEdge,CFace, CHalfEdge> * pMesh, CHalfEdge * pH );
+	 CLoop( CBaseMesh<VertexType, EdgeType,FaceType, HalfEdgeType> * pMesh, HalfEdgeType * pH );
 	/*!
 		Constructor of the CLoop
 		\param pMesh  pointer to the current mesh
 	*/
-	 CLoop( CBaseMesh<CVertex, CEdge,CFace, CHalfEdge> * pMesh ) { m_pMesh = pMesh; m_length = 0; m_pHalfedge = NULL; };
+	 CLoop( CBaseMesh<VertexType, EdgeType,FaceType, HalfEdgeType> * pMesh ) { m_pMesh = pMesh; m_length = 0; m_pHalfedge = NULL; };
 	 /*!
 		Destructor of CLoop.
 	 */
@@ -129,7 +129,7 @@ public:
 	/*!
 	The list of haledges on the current boundary loop.
 	*/
-	std::list<CHalfEdge*>  & halfedges()
+	std::list<HalfEdgeType*>  & halfedges()
 	{
 		return m_halfedges;
 	}
@@ -160,24 +160,24 @@ public:
 		divide the loop to segments
 		\param markers, the array of markers, the first marker is the starting one
 	*/
-	void divide( std::vector<CVertex*> & markers );
+	void divide( std::vector<VertexType*> & markers );
 
 protected:
 	/*!
 		Pointer to the current mesh.
 	*/
-	CBaseMesh<CVertex,CEdge,CFace,CHalfEdge>		* m_pMesh;
+	CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType>		* m_pMesh;
 	/*! The length of the current boundary loop.
 	*/
 	double											  m_length;
 	/*!
 		Starting halfedge of the current boundary loop.
 	*/
-	CHalfEdge										* m_pHalfedge;
+	HalfEdgeType										* m_pHalfedge;
 	/*!
 		List of consecutive halfedges along the boundary loop.
 	*/
-	std::list<CHalfEdge*>							  m_halfedges;
+	std::list<HalfEdgeType*>							  m_halfedges;
 	/*!
 		Vector of segments	 
 	*/
@@ -187,22 +187,22 @@ protected:
 /*!
 	\brief CBoundary Boundary  class.	
 	\tparam CVertex Vertex type
-	\tparam CEdge   Edge   type
-	\tparam CFace   Face   type
-	\tparam CHalfEdge HalfEdge type
+	\tparam EdgeType   Edge   type
+	\tparam FaceType   Face   type
+	\tparam HalfEdgeType HalfEdge type
 */
 
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 class CBoundary
 {
-	typedef CLoop<CVertex,CEdge, CFace, CHalfEdge> TLoop;
+	typedef CLoop<VertexType,EdgeType, FaceType, HalfEdgeType> TLoop;
 
 public:
 	/*!
 	CBoundary constructor
 	\param pMesh pointer to the current mesh
 	*/
-	CBoundary( CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * pMesh );
+	CBoundary( CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * pMesh );
 	/*!
 	CBoundary destructor
 	*/
@@ -219,7 +219,7 @@ protected:
 	/*!
 		Pointer to the current mesh.
 	*/
-	CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * m_pMesh;
+	CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * m_pMesh;
 	/*!
 		List of boundary loops.
 	*/
@@ -228,7 +228,7 @@ protected:
 		Bubble sort the loops
 		\param loops the vector of loops
 	*/
-	void _bubble_sort( std::vector<CLoop<CVertex, CEdge, CFace, CHalfEdge>*> & loops);
+	void _bubble_sort( std::vector<CLoop<VertexType, EdgeType, FaceType, HalfEdgeType>*> & loops);
 };
 
 /*!
@@ -236,28 +236,28 @@ protected:
 	\param pMesh pointer to the current mesh
 	\param pH  halfedge on the current boundary loop
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-CLoop<CVertex, CEdge, CFace, CHalfEdge>::CLoop( CBaseMesh<CVertex, CEdge, CFace, CHalfEdge> * pMesh, CHalfEdge * pH )
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+CLoop<VertexType, EdgeType, FaceType, HalfEdgeType>::CLoop( CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType> * pMesh, HalfEdgeType * pH )
 {
 	m_pMesh     = pMesh;
 	m_pHalfedge = pH;
 
 	m_length = 0;
-	CHalfEdge * he = pH;
+	HalfEdgeType * he = pH;
 	//trace the boundary loop
 	do{
-		CVertex * v = (CVertex*)he->target();
+		VertexType * v = (VertexType*)he->target();
 		he = m_pMesh->vertexMostClwOutHalfEdge( v );
 		m_halfedges.push_back( he );
-    m_length += m_pMesh->edgeLength( (CEdge*)he->edge() );
+    m_length += m_pMesh->edgeLength( (EdgeType*)he->edge() );
 	}while( he != m_pHalfedge );
 }
 
 /*!
 CLoop destructor, clean up the list of halfedges in the loop
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-CLoop<CVertex, CEdge, CFace, CHalfEdge>::~CLoop()
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+CLoop<VertexType, EdgeType, FaceType, HalfEdgeType>::~CLoop()
 {
 	m_halfedges.clear();
 
@@ -274,11 +274,11 @@ CLoop<CVertex, CEdge, CFace, CHalfEdge>::~CLoop()
 	bubble sort  a vector of boundary loop objects, according to their lengths
 	\param loops vector of loops
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-void CBoundary<CVertex, CEdge, CFace, CHalfEdge>::_bubble_sort( std::vector<CLoop<CVertex, CEdge, CFace, CHalfEdge>*> & loops)
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+void CBoundary<VertexType, EdgeType, FaceType, HalfEdgeType>::_bubble_sort( std::vector<CLoop<VertexType, EdgeType, FaceType, HalfEdgeType>*> & loops)
 {
       int i, j, flag = 1;    // set flag to 1 to start first pass
-      CLoop<CVertex,CEdge,CFace,CHalfEdge> * temp;             // holding variable
+      CLoop<VertexType,EdgeType,FaceType,HalfEdgeType> * temp;             // holding variable
       int numLength = (int)loops.size( ); 
       for(i = 1; (i <= numLength) && flag; i++)
      {
@@ -300,53 +300,53 @@ void CBoundary<CVertex, CEdge, CFace, CHalfEdge>::_bubble_sort( std::vector<CLoo
 	CBoundary constructor
 	\param pMesh the current mesh
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-CBoundary<CVertex, CEdge, CFace, CHalfEdge>::CBoundary( CBaseMesh<CVertex, CEdge, CFace, CHalfEdge> * pMesh )
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+CBoundary<VertexType, EdgeType, FaceType, HalfEdgeType>::CBoundary( CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType> * pMesh )
 {
 	m_pMesh = pMesh;
 	//collect all boundary halfedges
-	std::set<CHalfEdge*> boundary_hes;
-	for( MeshEdgeIterator<CVertex, CEdge, CFace, CHalfEdge> eiter( m_pMesh); !eiter.end(); eiter ++ )
+	std::set<HalfEdgeType*> boundary_hes;
+	for( MeshEdgeIterator<VertexType, EdgeType, FaceType, HalfEdgeType> eiter( m_pMesh); !eiter.end(); eiter ++ )
 	{
-		CEdge * e = *eiter;
+		EdgeType * e = *eiter;
 		if( !m_pMesh->isBoundary(e) ) continue;
 
-		CHalfEdge * he = m_pMesh->edgeHalfedge( e, 0);
+		HalfEdgeType * he = m_pMesh->edgeHalfedge( e, 0);
 		boundary_hes.insert( he );
 	}
 	//trace all the boundary loops
 	while( !boundary_hes.empty() )
 	{
 		//get the first boundary halfedge
-		std::set<CHalfEdge*>::iterator siter = boundary_hes.begin();
-		CHalfEdge * he = *siter;
+		std::set<HalfEdgeType*>::iterator siter = boundary_hes.begin();
+		HalfEdgeType * he = *siter;
 		//trace along this boundary halfedge
-		CLoop<CVertex, CEdge, CFace, CHalfEdge> * pL = new CLoop<CVertex, CEdge, CFace, CHalfEdge>( m_pMesh, he );
+		CLoop<VertexType, EdgeType, FaceType, HalfEdgeType> * pL = new CLoop<VertexType, EdgeType, FaceType, HalfEdgeType>( m_pMesh, he );
 		assert(pL);
 		m_loops.push_back( pL );
 		//remove all the boundary halfedges, which are in the same boundary loop as the head, from the halfedge list
-		for( std::list<CHalfEdge*>::iterator hiter = pL->halfedges().begin(); 
+		for( std::list<HalfEdgeType*>::iterator hiter = pL->halfedges().begin(); 
 			hiter != pL->halfedges().end(); hiter ++ )
 		{
-			CHalfEdge * he = *hiter;
+			HalfEdgeType * he = *hiter;
 			siter = boundary_hes.find( he );
 			if( siter == boundary_hes.end() ) continue;
 			boundary_hes.erase( siter );
 		}
 	}
 	
-	//std::sort( vlps.begin(), vlps.end(), loop_compare<CVertex,CFace,CEdge,CHalfEdge> );
+	//std::sort( vlps.begin(), vlps.end(), loop_compare<CVertex,FaceType,EdgeType,HalfEdgeType> );
 	_bubble_sort( m_loops );
 }
 
 /*!	CBoundary destructor, delete all boundary loop objects.
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-CBoundary<CVertex, CEdge, CFace, CHalfEdge>::~CBoundary()
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+CBoundary<VertexType, EdgeType, FaceType, HalfEdgeType>::~CBoundary()
 {
 	for( int i = 0; i < (int)m_loops.size(); i ++ )
 	{
-		CLoop<CVertex, CEdge, CFace, CHalfEdge> * pL = m_loops[i];
+		CLoop<VertexType, EdgeType, FaceType, HalfEdgeType> * pL = m_loops[i];
 		delete pL;
 	}
 };
@@ -355,16 +355,16 @@ CBoundary<CVertex, CEdge, CFace, CHalfEdge>::~CBoundary()
 	Output the loop to a file
 	\param file_name the name of the file
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-void CLoop<CVertex, CEdge, CFace, CHalfEdge>::write( const char * file_name )
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+void CLoop<VertexType, EdgeType, FaceType, HalfEdgeType>::write( const char * file_name )
 {
 	std::ofstream myfile;
 	myfile.open (file_name);
-	for( std::list<CHalfEdge*>::iterator hiter = m_halfedges.begin(); hiter != m_halfedges.end(); hiter ++ )
+	for( std::list<HalfEdgeType*>::iterator hiter = m_halfedges.begin(); hiter != m_halfedges.end(); hiter ++ )
 	{
-		CHalfEdge * pH = *hiter;
-		CVertex * pV = m_pMesh->halfedgeSource(pH);
-		CVertex * pW = m_pMesh->halfedgeTarget(pH);
+		HalfEdgeType * pH = *hiter;
+		VertexType * pV = m_pMesh->halfedgeSource(pH);
+		VertexType * pW = m_pMesh->halfedgeTarget(pH);
 		myfile << pV->id() << " " << pW->id() << std::endl;
 	}
 	myfile.close();
@@ -374,8 +374,8 @@ void CLoop<CVertex, CEdge, CFace, CHalfEdge>::write( const char * file_name )
 	Output the loop to a file
 	\param file_name the name of the file
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-void CLoop<CVertex, CEdge, CFace, CHalfEdge>::read( const char * file_name )
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+void CLoop<VertexType, EdgeType, FaceType, HalfEdgeType>::read( const char * file_name )
 {
 	std::ifstream myfile;
 	myfile.open (file_name);
@@ -386,10 +386,10 @@ void CLoop<CVertex, CEdge, CFace, CHalfEdge>::read( const char * file_name )
 		{
 			int source, target;
 			myfile >> source >> target;
-			CVertex * pS = m_pMesh->idVertex( source );
-			CVertex * pT = m_pMesh->idVertex( target );
-			CEdge   * pE = m_pMesh->vertexEdge( pS, pT );
-			CHalfEdge * pH = m_pMesh->edgeHalfedge(pE,0);
+			VertexType * pS = m_pMesh->idVertex( source );
+			VertexType * pT = m_pMesh->idVertex( target );
+			EdgeType   * pE = m_pMesh->vertexEdge( pS, pT );
+			HalfEdgeType * pH = m_pMesh->edgeHalfedge(pE,0);
 			m_halfedges.push_back( pH );
 		}
 		myfile.close();
@@ -402,20 +402,20 @@ void CLoop<CVertex, CEdge, CFace, CHalfEdge>::read( const char * file_name )
 	Divide the loop to segments
 	\param markers
 */
-template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-void CLoop<CVertex, CEdge, CFace, CHalfEdge>::divide( std::vector<CVertex*> & markers )
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+void CLoop<VertexType, EdgeType, FaceType, HalfEdgeType>::divide( std::vector<VertexType*> & markers )
 {
-	std::deque<CHalfEdge*> queue;
-	for( std::list<CHalfEdge*>::iterator hiter = m_halfedges.begin(); hiter != m_halfedges.end(); hiter ++ )
+	std::deque<HalfEdgeType*> queue;
+	for( std::list<HalfEdgeType*>::iterator hiter = m_halfedges.begin(); hiter != m_halfedges.end(); hiter ++ )
 	{
-		CHalfEdge * ph = *hiter;
+		HalfEdgeType * ph = *hiter;
 		queue.push_back( ph );
 	}
 
 	size_t n = 0;
 	while( true )
 	{
-		CHalfEdge * ph = queue.front();
+		HalfEdgeType * ph = queue.front();
 		if( m_pMesh->halfedgeSource( ph ) == markers[0] ) break;
 		queue.pop_front();
 		queue.push_back( ph );
@@ -431,8 +431,8 @@ void CLoop<CVertex, CEdge, CFace, CHalfEdge>::divide( std::vector<CVertex*> & ma
 
 	for( size_t i = 0; i < markers.size(); i ++ )
 	{
-		std::vector<CHalfEdge*> hes;
-		CHalfEdge * ph = queue.front();
+		std::vector<HalfEdgeType*> hes;
+		HalfEdgeType * ph = queue.front();
 		queue.pop_front();
 		assert( m_pMesh->halfedgeSource( ph ) == markers[i] );
 		hes.push_back( ph );

@@ -1,7 +1,7 @@
 /*!
 *      \file Face.h
 *      \brief Base class of face
-*	   \author by Very Hard To Please
+*	   \author Iron
 *      \date 15/07/2017
 *
 */
@@ -12,24 +12,22 @@
 #include <assert.h>
 #include <string>
 #include "../Geometry/Point.h"
-
+#include "HalfEdge.h"
 namespace MeshLib{
-
-
-class CHalfEdge;
+//class HalfEdgeType;
 
 /*!
-	\brief CFace base class of all kinds of face classes
+	\brief FaceType base class of all kinds of face classes
 */
 class CFace
 {
 public:
 	/*!	
-	CFace constructor
+	FaceType constructor
 	*/
-	CFace(){ m_halfedge = NULL; };
+	CFace() { m_halfedge = NULL; };
 	/*!
-	CFace destructor
+	FaceType destructor
 	*/
 	~CFace(){};
 	/*!
@@ -39,15 +37,15 @@ public:
 	/*!
 		The reference to the current face id
 	*/
-	int		            & id()          { return m_id;      };
+	int		            & id() { return m_id; };
 	/*!
 		The value of the current face id.
 	*/
-	const int             id() const { return m_id;      };
+	//const int             id() const { return m_id; };
 	/*!
 		The string of the current face.
 	*/
-	std::string			& string()     { return m_string; };
+	std::string			& string() { return m_string; };
 	/*!
 		Convert face traits to the string.
 	*/

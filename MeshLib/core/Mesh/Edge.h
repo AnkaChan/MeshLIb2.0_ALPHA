@@ -1,7 +1,7 @@
 /*!
 *      \file Edge.h
 *      \brief Base class of edge
-*	   \author by Very Hard To Please
+*	   \author Iron
 *      \date 15/07/2017
 *
 */
@@ -14,11 +14,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string>
-
+#include "HalfEdge.h"
 namespace MeshLib{
 
-class CHalfEdge;
-class CVertex;
+//class CHalfEdge;
+//class CVertex;
 
 /*!
 \brief CEdge class, which is the base class of all kinds of edge classes
@@ -29,7 +29,7 @@ public:
 	/*!
 		CEdge constructor, set both halfedge pointers to be NULL.
 	*/
-	CEdge(){ m_halfedge = NULL; };
+	CEdge() { m_halfedge = NULL; };
 	/*!
 		CEdge destructor.
 	*/
@@ -41,20 +41,19 @@ public:
 
 	/*!
 		The halfedge attached to the current edge
-		\param id either 0 or 1
-		\return the halfedge[id]
+		
 	*/
-	CHalfEdge * & halfedge() { return m_halfedge;};
+	CHalfEdge * & halfedge() { return m_halfedge; };
 	/*!	
 		whether the edge is on the boundary.
 	*/
-	bool		  boundary() { return m_halfedge->he_sym() == NULL; };
+	bool		  boundary() { return (m_halfedge->he_sym() == NULL);};
 	/*!
 		The dual halfedge to the input halfedge
 		\param he halfedge attached to the current edge
 		\return the other halfedge attached to the current edge
 	*/
-	CHalfEdge * & other(CHalfEdge * he) { return he->he_sym(); };
+	CHalfEdge * & other(CHalfEdge*  ph) { return ph->he_sym(); };
     /*!
 		The string of the current edge.
 	*/
@@ -75,14 +74,13 @@ protected:
 	/*!
 		The string associated to the current edge.
 	*/
+	//bool			 m_isboubdary;
     std::string      m_string;
 	/*!
 		Edge ID
 	 */
 	int				 m_id;
 };
-
-
 
 
 

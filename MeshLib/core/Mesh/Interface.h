@@ -2,29 +2,50 @@
 
 namespace MeshLib 
 {
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
+	/*!
+	* \brief Interface, interface to acess data from geometric classes:
+	* \tparam VertexType   vertex   class, derived from MeshLib::CVertex   class
+	* \tparam EdgeType     edge     class, derived from MeshLib::EdgeType     class
+	* \tparam FaceType     face     class, derived from MeshLib::FaceType     class
+	* \tparam HalfEdgeType halfedge class, derived from MeshLib::HalfEdgeType class
+	*
+	*  This class is a static class, which requires no instantiation before using.
+	*
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	class Interface
 	{
 		// pointer to Vertices, Halfedges, Edges, Face and Solid
-		typedef CVertex   * tVertex;
-		typedef CHalfEdge * tHalfEdge;
-		typedef CEdge     * tEdge;
-		typedef CFace     * tFace;
+		typedef VertexType   * VertexPtr;
+		typedef HalfEdgeType * HalfEdgePtr;
+		typedef EdgeType     * EdgePtr;
+		typedef FaceType     * FacePtr;
 
 		//is boundary
 		/*! whether a vertex is on the boundary
 		\param v the pointer to the vertex
 		*/
-		static bool    isBoundary(tVertex  v);
+		static bool    isBoundary(VertexPtr  v);
 		/*! whether an edge is on the boundary
 		\param e the pointer to the edge
 		*/
-		static bool    isBoundary(tEdge    e);
+		static bool    isBoundary(EdgePtr    e);
 		/*! whether a halfedge is on the boundary
 		\param he the pointer to the halfedge
 		*/
-		static bool    isBoundary(tHalfEdge  he);
-
+		static bool    isBoundary(HalfEdgePtr  he);
+		/*!
+		The vertex id
+		\param v the input vertex
+		\return the vertex id.
+		*/
+		static int     vertexId(VertexPtr  v);
+		/*!
+		The face id
+		\param f the input face
+		\return the face id.
+		*/
+		static int     faceId(FacePtr  f);
 		//access edge - edge key, vertex
 		/*!
 		Access an edge by its two end vertices
@@ -32,7 +53,7 @@ namespace MeshLib
 		\param v1 the other vertex of the edge
 		\return the edge connecting both v0 and v1, NULL if no such edge exists.
 		*/
-		static tEdge   vertexEdge(tVertex v0, tVertex v1);
+		static EdgePtr   vertexEdge(VertexPtr v0, VertexPtr v1);
 
 		//access halfedge - halfedge key, vertex
 		/*!
@@ -42,14 +63,14 @@ namespace MeshLib
 		\return the halfedge connecting both v0 and v1, NULL if no such edge exists.
 		*/
 
-		static tHalfEdge   vertexHalfedge(tVertex v0, tVertex v1);
+		static HalfEdgePtr   vertexHalfedge(VertexPtr v0, VertexPtr v1);
 		/*!
 		Access a halfedge by its target vertex, and attaching face.
 		\param v target vertex
 		\param f attaching face
 		\return halfedge, whose target is v, attaching face is f. NULL if no such an halfedge exists.
 		*/
-		static tHalfEdge   corner(tVertex v, tFace f);
+		static HalfEdgePtr   corner(VertexPtr v, FacePtr f);
 
 		//halfedge->face
 		/*!
@@ -57,28 +78,28 @@ namespace MeshLib
 		\param he the input halfedge
 		\return the face he attaches
 		*/
-		static tFace   halfedgeFace(tHalfEdge he);
+		static FacePtr   halfedgeFace(HalfEdgePtr he);
 		//halfedge->vertex
 		/*!
 		The target vertex of a halfedge.
 		\param he the input halfedge.
 		\return the target vertex of he.
 		*/
-		static tVertex halfedgeVertex(tHalfEdge he);
+		static VertexPtr halfedgeVertex(HalfEdgePtr he);
 		//halfedge->vertex
 		/*!
 		The target vertex of a halfedge.
 		\param he the input halfedge.
 		\return the target vertex of he.
 		*/
-		static tVertex halfedgeTarget(tHalfEdge he);
+		static VertexPtr halfedgeTarget(HalfEdgePtr he);
 		//halfedge->vertex
 		/*!
 		The source vertex of a halfedge.
 		\param he the input halfedge.
 		\return the source vertex of he.
 		*/
-		tVertex halfedgeSource(tHalfEdge he);
+		static VertexPtr halfedgeSource(HalfEdgePtr he);
 
 		//halfedge->next
 		/*!
@@ -87,21 +108,21 @@ namespace MeshLib
 		\return the next halfedge of he.
 		*/
 
-		tHalfEdge   halfedgeNext(tHalfEdge he);
+		static HalfEdgePtr   halfedgeNext(HalfEdgePtr he);
 		//halfedge->prev
 		/*!
 		The previous halfedge of a halfedge.
 		\param he the input halfedge.
 		\return the next halfedge of he.
 		*/
-		tHalfEdge   halfedgePrev(tHalfEdge he);
+		static HalfEdgePtr   halfedgePrev(HalfEdgePtr he);
 		//halfedge->sym
 		/*!
 		The dual halfedge of a halfedge.
 		\param he the input halfedge.
 		\return the dual halfedge of he.
 		*/
-		tHalfEdge   halfedgeSym(tHalfEdge he);
+		static HalfEdgePtr   halfedgeSym(HalfEdgePtr he);
 		//halfedge->edge
 		/*!
 		The edge of a halfedge.
@@ -109,21 +130,21 @@ namespace MeshLib
 		\return the edge of he.
 		*/
 
-		tEdge       halfedgeEdge(tHalfEdge he);
+		static EdgePtr       halfedgeEdge(HalfEdgePtr he);
 		//v->halfedge
 		/*!
 		The halfedge targeting at a vertex.
 		\param v the input vertex.
 		\return the halfedge targeting at v, which is the most ccw in halfedge of v.
 		*/
-		tHalfEdge   vertexHalfedge(tVertex v);
+		static HalfEdgePtr   vertexHalfedge(VertexPtr v);
 		//v->edges
 		/*!
 		The edge list attaching to the vertex v, such that v is the first vertex of the edge
 		\param v the input vertex.
 		\return the reference to the edge list
 		*/
-		std::list<tEdge> &  vertexEdges(tVertex v);
+		static std::list<EdgePtr> &  vertexEdges(VertexPtr v);
 
 		//edge->vertex
 		/*!
@@ -131,13 +152,13 @@ namespace MeshLib
 		\param e the input edge.
 		\return the first vertex of e.
 		*/
-		tVertex edgeVertex1(tEdge  e);
+		VertexPtr edgeVertex1(EdgePtr  e);
 		/*!
 		The second vertex of an edge.
 		\param e the input edge.
 		\return the second vertex of e.
 		*/
-		tVertex edgeVertex2(tEdge  e);
+		VertexPtr edgeVertex2(EdgePtr  e);
 
 		//edge->face
 		/*!
@@ -145,13 +166,13 @@ namespace MeshLib
 		\param e the input edge.
 		\return the first face attaching to e.
 		*/
-		tFace edgeFace1(tEdge  e);
+		FacePtr edgeFace1(EdgePtr  e);
 		/*!
 		The second face attaching to an edge.
 		\param e the input edge.
 		\return the second face attaching to e.
 		*/
-		tFace edgeFace2(tEdge  e);
+		FacePtr edgeFace2(EdgePtr  e);
 
 		//edge->halfedge
 		/*!
@@ -161,7 +182,7 @@ namespace MeshLib
 		\return the halfedge[i] attaching to edge e.
 		*/
 
-		tHalfEdge edgeHalfedge(tEdge  e, int id);
+		HalfEdgePtr edgeHalfedge(EdgePtr  e, int id);
 
 		//face->halfedge
 		/*!
@@ -170,7 +191,7 @@ namespace MeshLib
 		\return the first halfedge attaching to f.
 		*/
 
-		tHalfEdge faceHalfedge(tFace f);
+		HalfEdgePtr faceHalfedge(FacePtr f);
 
 		//Euler operations
 		/*!
@@ -178,53 +199,53 @@ namespace MeshLib
 		\param v the input vertex.
 		\return the most Clw Out HalfEdge of v.
 		*/
-		tHalfEdge vertexMostClwOutHalfEdge(tVertex  v);
+		HalfEdgePtr vertexMostClwOutHalfEdge(VertexPtr  v);
 		/*!
 		The next Ccw Out HalfEdge
 		\param he the input halfedge .
 		\return the next Ccw Out HalfEdge, sharing the same source of he.
 		*/
 
-		tHalfEdge vertexNextCcwOutHalfEdge(tHalfEdge  he);
+		HalfEdgePtr vertexNextCcwOutHalfEdge(HalfEdgePtr  he);
 
 		/*!
 		The most Ccw Out HalfEdge of a vertex
 		\param v the input vertex.
 		\return the most Ccw Out HalfEdge of v.
 		*/
-		tHalfEdge vertexMostCcwOutHalfEdge(tVertex  v);
+		HalfEdgePtr vertexMostCcwOutHalfEdge(VertexPtr  v);
 		/*!
 		The next Clw Out HalfEdge
 		\param he the input halfedge .
 		\return the next Clw Out HalfEdge, sharing the same source of he.
 		*/
-		tHalfEdge vertexNextClwOutHalfEdge(tHalfEdge  he);
+		HalfEdgePtr vertexNextClwOutHalfEdge(HalfEdgePtr  he);
 
 		/*!
 		The most Clw In HalfEdge of a vertex
 		\param v the input vertex.
 		\return the most Clw In HalfEdge of v.
 		*/
-		tHalfEdge vertexMostClwInHalfEdge(tVertex  v);
+		HalfEdgePtr vertexMostClwInHalfEdge(VertexPtr  v);
 		/*!
 		The next Ccw In HalfEdge
 		\param he the input halfedge .
 		\return the next Ccw In HalfEdge, sharing the same target of he.
 		*/
-		tHalfEdge vertexNextCcwInHalfEdge(tHalfEdge  he);
+		HalfEdgePtr vertexNextCcwInHalfEdge(HalfEdgePtr  he);
 
 		/*!
 		The most Ccw In HalfEdge of a vertex
 		\param v the input vertex.
 		\return the most Ccw In HalfEdge of v.
 		*/
-		tHalfEdge vertexMostCcwInHalfEdge(tVertex  v);
+		HalfEdgePtr vertexMostCcwInHalfEdge(VertexPtr  v);
 		/*!
 		The next Clw In HalfEdge
 		\param he the input halfedge .
 		\return the next Clw In HalfEdge, sharing the same target of he.
 		*/
-		tHalfEdge vertexNextClwInHalfEdge(tHalfEdge  he);
+		HalfEdgePtr vertexNextClwInHalfEdge(HalfEdgePtr  he);
 
 		/*!
 		The most Clw HalfEdge of a face
@@ -232,25 +253,25 @@ namespace MeshLib
 		\return the most Clw HalfEdge of f.
 		*/
 
-		tHalfEdge faceMostClwHalfEdge(tFace  face);
+		HalfEdgePtr faceMostClwHalfEdge(FacePtr  face);
 		/*!
 		The most Ccw HalfEdge of a face
 		\param face the input face.
 		\return the most Ccw HalfEdge of f.
 		*/
-		tHalfEdge faceMostCcwHalfEdge(tFace  face);
+		HalfEdgePtr faceMostCcwHalfEdge(FacePtr  face);
 		/*!
 		The next Ccw HalfEdge of a halfedge in a face
 		\param he the input halfedge.
 		\return the next Ccw HalfEdge of he in a face.
 		*/
-		tHalfEdge faceNextCcwHalfEdge(tHalfEdge  he);
+		HalfEdgePtr faceNextCcwHalfEdge(HalfEdgePtr  he);
 		/*!
 		The next Clw HalfEdge of a halfedge in a face
 		\param he the input halfedge.
 		\return the next Clw HalfEdge of he in a face.
 		*/
-		tHalfEdge faceNextClwHalfEdge(tHalfEdge  he);
+		HalfEdgePtr faceNextClwHalfEdge(HalfEdgePtr  he);
 
 
 		/*!
@@ -258,24 +279,49 @@ namespace MeshLib
 		\param e the input edge
 		\return the length of the edge e
 		*/
-		double edgeLength(tEdge e);
+		double edgeLength(EdgePtr e);
 
 	};
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-	inline bool Interface<CVertex, CEdge, CFace, CHalfEdge>::isBoundary(tVertex v)
+	/*! whether a vertex is on the boundary
+	\param v the pointer to the vertex
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline bool Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(VertexPtr v)
 	{
 		return v->boundary();
 	}
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-	inline bool Interface<CVertex, CEdge, CFace, CHalfEdge>::isBoundary(tEdge e)
+	/*! whether a edge is on the boundary
+	\param e the pointer to the edge
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline bool Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(EdgePtr e)
 	{
 		return (e->halfedge()->sym() == NULL);
 	}
-
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-	inline bool Interface<CVertex, CEdge, CFace, CHalfEdge>::isBoundary(tHalfEdge he)
+	/*! whether a halfedge is on the boundary
+	\param he the pointer to the halfedge
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline bool Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(HalfEdgePtr he)
 	{
 		return (he->he_sym() == NULL);
+	}
+	//access v->id
+	/*!
+	The vertex id
+	\param v the input vertex
+	\return the vertex id.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline int Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexId(VertexPtr v)
+	{
+		return v->id();
+	}
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline int Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceId(FacePtr f)
+	{
+		return f->id();
 	}
 
 	//access vertex->edge
@@ -286,41 +332,43 @@ namespace MeshLib
 	\return the edge connecting both v0 and v1, NULL if no such edge exists.
 	*/
 	//use the edge list associated with each vertex to locate the edge
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-	inline tEdge Interface<CVertex, CEdge, CFace, CHalfEdge>::vertexEdge(tVertex v0, tVertex v1)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline EdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdge(VertexPtr v0, VertexPtr v1)
 	{
-		CVertex * pV = (v0->id() < v1->id()) ? v0 : v1;
-		std::list<CEdge*> & ledges = vertexEdges(pV);
+		//VertexType * pV = (v0->id() < v1->id() )? v0: v1;
+		std::list<HalfEdgePtr> & lhes0 = (std::list<HalfEdgePtr>&)v0->arhe();//vertexEdges(v0);
+		std::list<HalfEdgePtr> & lhes1 = (std::list<HalfEdgePtr>&)v1->arhe();//vertexEdges(v1);
 
-		for (std::list<CEdge*>::iterator eiter = ledges.begin(); eiter != ledges.end(); eiter++)
+		for (HalfEdgePtr pH : lhes0)
 		{
-			CEdge * pE = *eiter;
-			CHalfEdge * pH = edgeHalfedge(pE, 0);
-			if (pH->source() == v0 && pH->target() == v1) return pE;
-			if (pH->source() == v1 && pH->target() == v0) return pE;
+			if (pH->source() == v0 && pH->target() == v1) return (EdgePtr)pH->edge();
+		}
+		for (HalfEdgePtr pH : lhes1)
+		{
+			if (pH->source() == v1 && pH->target() == v0) return  (EdgePtr)pH->edge();
+		}
+
+		return NULL;
+	}
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(VertexPtr v0, VertexPtr v1)
+	{
+		std::list<EdgePtr> & ledges0 = vertexEdges(v0);
+		for (EdgePtr pH : ledges0)
+		{
+			if (pH->source() == v0 && pH->target() == v1) return pH;
 		}
 		return NULL;
 	}
 
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-	inline tHalfEdge Interface<CVertex, CEdge, CFace, CHalfEdge>::vertexHalfedge(tVertex v0, tVertex v1)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::corner(VertexPtr v, FacePtr f)
 	{
-		CEdge * e = vertexEdge(v0, v1);
-		assert(e != NULL);
-		CHalfEdge * he = (CHalfEdge*)e->halfedge(0);
-		if (he->vertex() == v1 && he->he_prev()->vertex() == v0) return he;
-		he = (CHalfEdge*)e->halfedge(1);
-		assert(he->vertex() == v1 && he->he_prev()->vertex() == v0);
-		return he;
-	}
-
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-	inline tHalfEdge Interface<CVertex, CEdge, CFace, CHalfEdge>::corner(tVertex v, tFace f)
-	{
-		CHalfEdge * he = faceMostCcwHalfEdge(f);
+		HalfEdgePtr he = faceMostCcwHalfEdge(f);
 		do {
 			if (he->vertex() == v)
-				return (CHalfEdge*)he;
+				return (HalfEdgePtr)he;
 			he = faceNextCcwHalfEdge(he);
 		} while (he != faceMostCcwHalfEdge(f));
 		return NULL;
@@ -332,10 +380,10 @@ namespace MeshLib
 	\param he the input halfedge
 	\return the face he attaches
 	*/
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-	inline tFace Interface<CVertex, CEdge, CFace, CHalfEdge>::halfedgeFace(tHalfEdge he)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline FaceType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeFace(HalfEdgePtr he)
 	{
-		return (CFace*)he->face();
+		return (FacePtr)he->face();
 	}
 
 	//access he->v
@@ -344,10 +392,113 @@ namespace MeshLib
 	\param he the input halfedge.
 	\return the target vertex of he.
 	*/
-	template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
-	inline tVertex Interface<CVertex, CEdge, CFace, CHalfEdge>::halfedgeVertex(tHalfEdge he)
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline VertexType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeVertex(HalfEdgePtr he)
 	{
-		return (CVertex*)he->vertex();
+		return (VertexPtr)he->vertex();
 	}
 
+	//access he->v
+	/*!
+	The target vertex of a halfedge.
+	\param he the input halfedge.
+	\return the target vertex of he.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline VertexType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeTarget(HalfEdgePtr he)
+	{
+		return (VertexPtr)he->vertex();
+	}
+
+	//access he->v
+	/*!
+	The source vertex of a halfedge.
+	\param he the input halfedge.
+	\return the source vertex of he.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline VertexType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeSource(HalfEdgePtr he)
+	{
+		return (VertexPtr)he->he_prev()->vertex();
+	}
+
+	//access he->next
+	/*!
+	The next halfedge of a halfedge.
+	\param he the input halfedge.
+	\return the next halfedge of he.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeNext(HalfEdgePtr he)
+	{
+		return (HalfEdgePtr)he->he_next();
+	}
+
+	//access he->prev
+	/*!
+	The previous halfedge of a halfedge.
+	\param he the input halfedge.
+	\return the next halfedge of he.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgePrev(HalfEdgePtr he)
+	{
+		return (HalfEdgePtr)he->he_prev();
+	}
+
+	//access he->sym
+	/*!
+	The dual halfedge of a halfedge.
+	\param he the input halfedge.
+	\return the dual halfedge of he.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeSym(HalfEdgePtr he)
+	{
+		return (HalfEdgePtr)he->he_sym();
+	}
+
+	//access he->edge
+	/*!
+	The edge of a halfedge.
+	\param he the input halfedge.
+	\return the edge of he.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline EdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeEdge(HalfEdgePtr  he)
+	{
+		return (EdgePtr)he->edge();
+	}
+
+	//access vertex->halfedge
+	/*!
+	The halfedge targeting at a vertex.
+	\param v the input vertex.
+	\return the halfedge targeting at v, which is the most ccw in halfedge of v.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(VertexPtr v)
+	{
+		return (HalfEdgePtr)v->halfedge();
+	}
+	
+	/*!
+	Access the edge list of a vertex, {e} such that e->vertex1() == v
+	\param v vertex
+	\return the list of adjacent edges
+	*/
+	//return edges around vertex
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline std::list<EdgeType *> Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdges(VertexPtr v)
+	{
+		std::list<HalfEdgePtr> & lhe0 = v0->arhe();
+		std::list<EdgePtr>  ledges;
+
+		for (HalfEdgePtr pH : lhe0)
+		{
+			ledges.push_back(pH->edge());
+		}
+		return ledges;
+	}
 }
