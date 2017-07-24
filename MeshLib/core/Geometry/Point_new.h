@@ -26,8 +26,9 @@ namespace MeshLib
 	class CPoint : public Eigen::Vector3d {
 
 	public:
+		CPoint(const CPoint & v) : Eigen::Vector3d(v[0], v[1], v[2]) {};
 		CPoint() : Eigen::Vector3d(0.0, 0.0, 0.0) {};
-
+		CPoint(double v0, double v1, double v2) : Eigen::Vector3d(v0, v1, v2) {};
 		CPoint(Eigen::Vector3d v) : Eigen::Vector3d(v) {};
 
 		/*!
