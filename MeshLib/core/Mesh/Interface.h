@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 namespace MeshLib 
 {
@@ -13,7 +13,7 @@ namespace MeshLib
 	*
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	class Interface
+	class CInterface
 	{
 		// pointer to Vertices, Halfedges, Edges, Face and Solid
 		typedef VertexType   * VertexPtr;
@@ -144,7 +144,7 @@ namespace MeshLib
 		\param v the input vertex.
 		\return the reference to the edge list
 		*/
-		static std::list<EdgePtr> &  vertexEdges(VertexPtr v);
+		static std::list<EdgePtr>    vertexEdges(VertexPtr v);
 
 		//edge->vertex
 		/*!
@@ -182,7 +182,7 @@ namespace MeshLib
 		\return the halfedge[i] attaching to edge e.
 		*/
 
-		static HalfEdgePtr edgeHalfedge(EdgePtr  e, int id);
+		static HalfEdgePtr edgeHalfedge(EdgePtr  e);
 
 		//face->halfedge
 		/*!
@@ -219,33 +219,33 @@ namespace MeshLib
 		\param he the input halfedge .
 		\return the next Clw Out HalfEdge, sharing the same source of he.
 		*/
-		HalfEdgePtr vertexNextClwOutHalfEdge(HalfEdgePtr  he);
+		static HalfEdgePtr vertexNextClwOutHalfEdge(HalfEdgePtr  he);
 
 		/*!
 		The most Clw In HalfEdge of a vertex
 		\param v the input vertex.
 		\return the most Clw In HalfEdge of v.
 		*/
-		HalfEdgePtr vertexMostClwInHalfEdge(VertexPtr  v);
+		static HalfEdgePtr vertexMostClwInHalfEdge(VertexPtr  v);
 		/*!
 		The next Ccw In HalfEdge
 		\param he the input halfedge .
 		\return the next Ccw In HalfEdge, sharing the same target of he.
 		*/
-		HalfEdgePtr vertexNextCcwInHalfEdge(HalfEdgePtr  he);
+		static HalfEdgePtr vertexNextCcwInHalfEdge(HalfEdgePtr  he);
 
 		/*!
 		The most Ccw In HalfEdge of a vertex
 		\param v the input vertex.
 		\return the most Ccw In HalfEdge of v.
 		*/
-		HalfEdgePtr vertexMostCcwInHalfEdge(VertexPtr  v);
+		static HalfEdgePtr vertexMostCcwInHalfEdge(VertexPtr  v);
 		/*!
 		The next Clw In HalfEdge
 		\param he the input halfedge .
 		\return the next Clw In HalfEdge, sharing the same target of he.
 		*/
-		HalfEdgePtr vertexNextClwInHalfEdge(HalfEdgePtr  he);
+		static HalfEdgePtr vertexNextClwInHalfEdge(HalfEdgePtr  he);
 
 		/*!
 		The most Clw HalfEdge of a face
@@ -253,25 +253,25 @@ namespace MeshLib
 		\return the most Clw HalfEdge of f.
 		*/
 
-		HalfEdgePtr faceMostClwHalfEdge(FacePtr  face);
+		static HalfEdgePtr faceMostClwHalfEdge(FacePtr  face);
 		/*!
 		The most Ccw HalfEdge of a face
 		\param face the input face.
 		\return the most Ccw HalfEdge of f.
 		*/
-		HalfEdgePtr faceMostCcwHalfEdge(FacePtr  face);
+		static HalfEdgePtr faceMostCcwHalfEdge(FacePtr  face);
 		/*!
 		The next Ccw HalfEdge of a halfedge in a face
 		\param he the input halfedge.
 		\return the next Ccw HalfEdge of he in a face.
 		*/
-		HalfEdgePtr faceNextCcwHalfEdge(HalfEdgePtr  he);
+		static HalfEdgePtr faceNextCcwHalfEdge(HalfEdgePtr  he);
 		/*!
 		The next Clw HalfEdge of a halfedge in a face
 		\param he the input halfedge.
 		\return the next Clw HalfEdge of he in a face.
 		*/
-		HalfEdgePtr faceNextClwHalfEdge(HalfEdgePtr  he);
+		static HalfEdgePtr faceNextClwHalfEdge(HalfEdgePtr  he);
 
 
 		/*!
@@ -279,14 +279,14 @@ namespace MeshLib
 		\param e the input edge
 		\return the length of the edge e
 		*/
-		double edgeLength(EdgePtr e);
+		static double edgeLength(EdgePtr e);
 
 	};
 	/*! whether a vertex is on the boundary
 	\param v the pointer to the vertex
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline bool Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(VertexPtr v)
+	inline bool CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(VertexPtr v)
 	{
 		return v->boundary();
 	}
@@ -294,7 +294,7 @@ namespace MeshLib
 	\param e the pointer to the edge
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline bool Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(EdgePtr e)
+	inline bool CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(EdgePtr e)
 	{
 		return (e->halfedge()->sym() == NULL);
 	}
@@ -302,7 +302,7 @@ namespace MeshLib
 	\param he the pointer to the halfedge
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline bool Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(HalfEdgePtr he)
+	inline bool CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::isBoundary(HalfEdgePtr he)
 	{
 		return (he->he_sym() == NULL);
 	}
@@ -313,13 +313,13 @@ namespace MeshLib
 	\return the vertex id.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline int Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexId(VertexPtr v)
+	inline int CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexId(VertexPtr v)
 	{
 		return v->id();
 	}
 
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline int Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceId(FacePtr f)
+	inline int CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceId(FacePtr f)
 	{
 		return f->id();
 	}
@@ -333,7 +333,7 @@ namespace MeshLib
 	*/
 	//use the edge list associated with each vertex to locate the edge
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline EdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdge(VertexPtr v0, VertexPtr v1)
+	inline EdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdge(VertexPtr v0, VertexPtr v1)
 	{
 		//VertexType * pV = (v0->id() < v1->id() )? v0: v1;
 		std::list<HalfEdgePtr> & lhes0 = (std::list<HalfEdgePtr>&)v0->arhe();//vertexEdges(v0);
@@ -352,7 +352,7 @@ namespace MeshLib
 	}
 
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(VertexPtr v0, VertexPtr v1)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(VertexPtr v0, VertexPtr v1)
 	{
 		std::list<EdgePtr> & ledges0 = vertexEdges(v0);
 		for (EdgePtr pH : ledges0)
@@ -363,7 +363,7 @@ namespace MeshLib
 	}
 
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::corner(VertexPtr v, FacePtr f)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::corner(VertexPtr v, FacePtr f)
 	{
 		HalfEdgePtr he = faceMostCcwHalfEdge(f);
 		do {
@@ -381,7 +381,7 @@ namespace MeshLib
 	\return the face he attaches
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline FaceType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeFace(HalfEdgePtr he)
+	inline FaceType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeFace(HalfEdgePtr he)
 	{
 		return (FacePtr)he->face();
 	}
@@ -394,7 +394,7 @@ namespace MeshLib
 	*/
 
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline VertexType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeVertex(HalfEdgePtr he)
+	inline VertexType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeVertex(HalfEdgePtr he)
 	{
 		return (VertexPtr)he->vertex();
 	}
@@ -406,7 +406,7 @@ namespace MeshLib
 	\return the target vertex of he.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline VertexType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeTarget(HalfEdgePtr he)
+	inline VertexType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeTarget(HalfEdgePtr he)
 	{
 		return (VertexPtr)he->vertex();
 	}
@@ -418,7 +418,7 @@ namespace MeshLib
 	\return the source vertex of he.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline VertexType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeSource(HalfEdgePtr he)
+	inline VertexType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeSource(HalfEdgePtr he)
 	{
 		return (VertexPtr)he->he_prev()->vertex();
 	}
@@ -430,7 +430,7 @@ namespace MeshLib
 	\return the next halfedge of he.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeNext(HalfEdgePtr he)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeNext(HalfEdgePtr he)
 	{
 		return (HalfEdgePtr)he->he_next();
 	}
@@ -442,7 +442,7 @@ namespace MeshLib
 	\return the next halfedge of he.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgePrev(HalfEdgePtr he)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgePrev(HalfEdgePtr he)
 	{
 		return (HalfEdgePtr)he->he_prev();
 	}
@@ -454,7 +454,7 @@ namespace MeshLib
 	\return the dual halfedge of he.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeSym(HalfEdgePtr he)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeSym(HalfEdgePtr he)
 	{
 		return (HalfEdgePtr)he->he_sym();
 	}
@@ -466,7 +466,7 @@ namespace MeshLib
 	\return the edge of he.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline EdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeEdge(HalfEdgePtr  he)
+	inline EdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeEdge(HalfEdgePtr  he)
 	{
 		return (EdgePtr)he->edge();
 	}
@@ -478,7 +478,7 @@ namespace MeshLib
 	\return the halfedge targeting at v, which is the most ccw in halfedge of v.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(VertexPtr v)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexHalfedge(VertexPtr v)
 	{
 		return (HalfEdgePtr)v->halfedge();
 	}
@@ -490,7 +490,7 @@ namespace MeshLib
 	*/
 	//return edges around vertex
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline std::list<EdgeType *> Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdges(VertexPtr v)
+	inline std::list<EdgeType *> CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexEdges(VertexPtr v)
 	{
 		VertexType::CHalfEdgePtrList& lhe0 = v0->arhe();
 		std::list<EdgePtr>  ledges;
@@ -509,7 +509,7 @@ namespace MeshLib
 	\return the halfedge targeting at v, which is the most ccw in halfedge of v.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline VertexType* Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeVertex1(EdgePtr e)
+	inline VertexType* CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeVertex1(EdgePtr e)
 	{
 		assert(e->halfedge() != NULL);
 		return (VertexType*)e->halfedge()->source();
@@ -521,7 +521,7 @@ namespace MeshLib
 	\return the first vertex of e.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline VertexType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeVertex2(EdgePtr e)
+	inline VertexType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeVertex2(EdgePtr e)
 	{
 		assert(e->halfedge() != NULL);
 		return (VertexType*)e->halfedge()->target();
@@ -533,7 +533,7 @@ namespace MeshLib
 	\return the first face attaching to e.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline FaceType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeFace1(EdgePtr e)
+	inline FaceType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeFace1(EdgePtr e)
 	{
 		assert(e->halfedge() != NULL);
 		return (FaceType*)e->halfedge()->face();
@@ -546,10 +546,10 @@ namespace MeshLib
 	\return the first face attaching to e.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline FaceType* Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeFace2(EdgePtr e)
+	inline FaceType* CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeFace2(EdgePtr e)
 	{
 		//assert( e->halfedge()->sym()!= NULL );
-		if (e->halfedge()->sym() == NULL)return NULL
+		if (e->halfedge()->sym() == NULL) return NULL
 		else
 		{
 			return (FaceType*)e->halfedge()->sym()->face();
@@ -563,7 +563,7 @@ namespace MeshLib
 	\return the halfedge attaching to edge e.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeHalfedge(EdgePtr e, int id)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeHalfedge(EdgePtr e)
 	{
 		return (HalfEdgeType*)e->halfedge();
 	}
@@ -575,7 +575,7 @@ namespace MeshLib
 	\return the first halfedge attaching to f.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceHalfedge(FacePtr f)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceHalfedge(FacePtr f)
 	{
 		return (HalfEdgeType*)f->halfedge();
 	}
@@ -588,7 +588,7 @@ namespace MeshLib
 	\return the most Clw Out HalfEdge of v.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostClwOutHalfEdge(VertexPtr v)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostClwOutHalfEdge(VertexPtr v)
 	{
 		return (HalfEdgeType*)v->most_clw_out_halfedge();
 	}
@@ -599,15 +599,127 @@ namespace MeshLib
 	\return the next Ccw Out HalfEdge, sharing the same source of he.
 	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgeType * Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexNextCcwOutHalfEdge(HalfEdgePtr he)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexNextCcwOutHalfEdge(HalfEdgePtr he)
 	{
 		return (HalfEdgeType*)he->ccw_rotate_about_source();
 	}
 
+	/*!
+	The next Ccw Out HalfEdge
+	\param v the input vertex.
+	\return the next Ccw Out HalfEdge, sharing the same source of he.
+	*/
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline HalfEdgePtr MeshLib::Interface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostCcwOutHalfEdge(VertexPtr v)
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostCcwOutHalfEdge(VertexPtr v)
 	{
-		return HalfEdgePtr();
+		return (HalfEdgeType*)v->most_ccw_out_halfedge();
 	}
 
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexNextClwOutHalfEdge(HalfEdgePtr he)	
+	{
+		assert(he->he_sym() != NULL);
+		return (HalfEdgeType*)he->clw_rotate_about_source();
+	}
+
+	/*!
+	The most Clw In HalfEdge of a vertex
+	\param v the input vertex.
+	\return the most Clw In HalfEdge of v.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostClwInHalfEdge(VertexPtr v)
+	{
+		return (HalfEdgeType*)v->most_clw_in_halfedge();
+	}
+
+	/*!
+	The next Ccw In HalfEdge
+	\param he the input halfedge .
+	\return the next Ccw In HalfEdge, sharing the same target of he.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexNextCcwInHalfEdge(HalfEdgePtr he)
+	{
+		assert(he->he_sym() != NULL);
+		return (HalfEdgeType*)he->ccw_rotate_about_target();
+	}
+
+	/*!
+	The most Ccw In HalfEdge of a vertex
+	\param v the input vertex.
+	\return the most Clw In HalfEdge of v.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexMostCcwInHalfEdge(VertexPtr   v)
+	{
+		return (HalfEdgeType*)v->most_ccw_in_halfedge();
+	};
+
+	/*!
+	The next Clw In HalfEdge
+	\param he the input halfedge .
+	\return the next Clw In HalfEdge, sharing the same target of he.
+	*/ 
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexNextClwInHalfEdge(HalfEdgePtr he)
+	{
+		return (HalfEdgeType*)he->clw_rotate_about_target();
+	}
+
+	/*!
+	The most Clw HalfEdge in a face
+	\param face the input face.
+	\return the most Clw HalfEdge in a face.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceMostClwHalfEdge(FacePtr face)
+	{
+		return (HalfEdgeType*)face->halfedge()->he_next();
+	}
+
+	/*!
+	The most Ccw HalfEdge of a face
+	\param face the input face.
+	\return the most Ccw HalfEdge of f.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceMostCcwHalfEdge(FacePtr face)
+	{
+		return (HalfEdgeType*)face->halfedge();
+	}
+
+	/*!
+	The next Ccw HalfEdge of a halfedge in a face
+	\param he the input halfedge.
+	\return the next Ccw HalfEdge of he in a face.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceNextCcwHalfEdge(HalfEdgePtr he)
+	{
+		return (HalfEdgeType*)he->he_next();
+	}
+
+	/*!
+	The next Ccw HalfEdge of a halfedge in a face
+	\param he the input halfedge.
+	\return the next Ccw HalfEdge of he in a face.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::faceNextClwHalfEdge(HalfEdgePtr he)
+	{
+		return (HalfEdgeType*)he->he_next();
+	}
+
+	/*!
+	Edge length
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline double CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::edgeLength(EdgePtr e)
+	{
+		VertexType * v1 = edgeVertex1(e);
+		VertexType * v2 = edgeVertex2(e);
+
+		return (v1->point() - v2->point()).norm();
+	}
 }

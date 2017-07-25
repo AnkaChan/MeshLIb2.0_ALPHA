@@ -826,7 +826,7 @@ The next Clw In HalfEdge
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::vertexNextClwInHalfEdge(HalfEdgePtr   he)
 {
-	return (HalfEdgeType*)he->clw_rotate_about_target();
+	return (HalfEdgeType*)he->clw_rotate_about_target();  
 };
 /*!
 The next Clw HalfEdge of a halfedge in a face
@@ -863,10 +863,11 @@ inline HalfEdgeType *  CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::
 The most Clw HalfEdge in a face
 \param face the input face.
 \return the most Clw HalfEdge in a face.
-*/template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+*/
+template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 inline HalfEdgeType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::faceMostClwHalfEdge(FacePtr   face)
 {
-	return (HalfEdgeType*)face->halfedge()->he_next();
+	return (HalfEdgeType*)face->halfedge()->he_next(); 
 };
 
 /*!
