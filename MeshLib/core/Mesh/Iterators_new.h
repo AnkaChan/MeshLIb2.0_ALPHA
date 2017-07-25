@@ -20,7 +20,7 @@ namespace MeshLib {
 		using CInterface::HalfEdgePtr;
 		using CInterface::FacePtr;
 
-		class VOutHEIterator : public std::iterator<std::forward_iterator_tag, VertexPtr> {
+		class VOutHEIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {
 		public:
 			VOutHEIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
 			VOutHEIterator(VertexPtr pV, VertexType::CHalfEdgePtrList::iterator iter) : _pV(pV), _iter(iter) {};
@@ -33,8 +33,8 @@ namespace MeshLib {
 			HalfEdgePtr& operator*() { return *_iter; }
 			HalfEdgePtr& value() { return *_iter; }
 
-			VertexType::CHalfEdgePtrList::iterator begin() { return _pV->arhe().begin();  }
-			VertexType::CHalfEdgePtrList::iterator end() { return _pV->arhe().end(); }
+			VOutHEIterator begin() { return VOutHEIterator(_pV);  }
+			VOutHEIterator end() { return VOutHEIterator(_pV, _pV->arhe().end()); }
 
 			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
 		private:
@@ -42,11 +42,34 @@ namespace MeshLib {
 			VertexPtr _pV;
 		};
 
-		class VCcwHEIterator {
+		class VCcwOutHEIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {
 		public:
-			VCcwHEIterator
-			VCcwHEIterator
+			VCcwOutHEIterator(VertexPtr pV) : _pV(pV), _pHE(Interface::vertexMostClwOutHalfEdge(pV)) {};
+			VCcwOutHEIterator(VertexPtr pV, HalfEdgePtr pHE) : _pV(pV), _pHE(pHE) {};
 
+			VCcwOutHEIterator& operator++() { 
+				_pHE = Interface::vertexNextCcwOutHalfEdge(_pHE); 
+				if (_pHE == Interface::vertexMostClwOutHalfEdge(_pV))
+					_pHE = NULL;
+				return *this; 
+			};
+			VCcwOutHEIterator  operator++(int) { 
+				VCcwOutHEIterator tmp(_pV, _Iter); 
+				_pHE = Interface::vertexNextCcwOutHalfEdge(_pHE); 
+				if (_pHE == Interface::vertexMostClwOutHalfEdge(_pV))
+					_pHE = NULL;
+				return tmp; 
+			};
+
+			bool operator==(const VCcwOutHEIterator& otherIter) { return _pHE == otherIter._pHE; }
+			bool operator!=(const VCcwOutHEIterator& otherIter) { return _pHE != otherIter._pHE; }
+			HalfEdgePtr operator*() { return _pHE; }
+			HalfEdgePtr value() { return _pHE; }
+
+			VCcwOutHEIterator begin() { return VCcwOutHEIterator(_pV); }
+			VCcwOutHEIterator end() { return  VCcwOutHEIterator(_pV, NULL); }
+
+			HalfEdgePtr get() { return _pHE; }
 		private:
 			VertexPtr _pV;
 			HalfEdgePtr _pHE;
