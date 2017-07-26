@@ -15,6 +15,7 @@ namespace MeshLib
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	class CInterface
 	{
+	public:
 		// pointer to Vertices, Halfedges, Edges, Face and Solid
 		typedef VertexType   * VertexPtr;
 		typedef HalfEdgeType * HalfEdgePtr;

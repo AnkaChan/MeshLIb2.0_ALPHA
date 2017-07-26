@@ -28,6 +28,7 @@ namespace MeshLib{
   {
   public:
 	  typedef std::list<CHalfEdge*> CHalfEdgePtrList;
+	  typedef std::list<CHalfEdge*>::iterator CHalfEdgePtrListIterator;
 	  /*!
 	  CVertex constructor
 	  here what the other data will be initialize?
