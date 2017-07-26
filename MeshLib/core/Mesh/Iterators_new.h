@@ -72,6 +72,50 @@ namespace MeshLib {
 			HalfEdgePtr _pHE;
 		};
 
+		class VInHEIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {
+		public:
+			VInHEIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
+			VInHEIterator(VertexPtr pV, VertexType::CHalfEdgePtrList::iterator iter) : _pV(pV), _iter(iter) {};
+
+			VInHEIterator& operator++() { ++_iter; return *this; };
+			VInHEIterator  operator++(int) { VInHEIterator tmp(_pV, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const VInHEIterator& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const VInHEIterator& otherIter) { return _iter != otherIter._iter; }
+			HalfEdgePtr& operator*() { return (HalfEdgePtr)(*_iter)->he_prev(); }//only diff
+			HalfEdgePtr& value() { return  (HalfEdgePtr)(*_iter)->he_prev(); }//msut we add this fuc?
+
+			VInHEIterator begin() { return VInHEIterator(_pV); }
+			VInHEIterator end() { return VInHEIterator(_pV, _pV->arhe().end()); }
+
+			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+		private:
+			VertexType::CHalfEdgePtrList::iterator _iter;
+			VertexPtr _pV;
+		};
+
+		class VVIterator : public std::iterator<std::forward_iterator_tag, VertexPtr> {//vertexptr ? 
+		public:
+			VVIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
+			VVIterator(VertexPtr pV, VertexType::CHalfEdgePtrList::iterator iter) : _pV(pV), _iter(iter) {};
+
+			VVIterator& operator++() { ++_iter; return *this; };
+			VVIterator  operator++(int) { VVIterator tmp(_pV, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const VVIterator& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const VVIterator& otherIter) { return _iter != otherIter._iter; }
+			VertexPtr& operator*() { return (VertexPtr)(*_iter)->vertex(); }
+			VertexPtr& value() { return (VertexPtr)(*_iter)->vertex(); }
+
+			VVIterator begin() { return VVIterator(_pV); }
+			VVIterator end() { return VVIterator(_pV, _pV->arhe().end()); }
+
+			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+		private:
+			VertexType::CHalfEdgePtrList::iterator _iter;
+			VertexPtr _pV;
+		};
+
 		class VEIterator {
 		public:
 			VEIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
@@ -82,6 +126,7 @@ namespace MeshLib {
 
 			bool operator==(const VEIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VEIterator& otherIter) { return _iter != otherIter._iter; }
+		
 			EdgePtr& operator*() { return halfedgeEdge(*_iter); }
 			EdgePtr& value() { return halfedgeEdge(*_iter); }
 
@@ -94,5 +139,129 @@ namespace MeshLib {
 			VertexPtr _pV;
 
 		};
+
+		class VFIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {//?
+		public:
+			VFIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
+			VFIterator(VertexPtr pV, VertexType::CHalfEdgePtrList::iterator iter) : _pV(pV), _iter(iter) {};
+
+			VFIterator& operator++() { ++_iter; return *this; };
+			VFIterator  operator++(int) { VFIterator tmp(_pV, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const VFIterator& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const VFIterator& otherIter) { return _iter != otherIter._iter; }
+			FacePtr& operator*() { return (FacePtr)*_iter->face(); }
+			FacePtr& value() { return (FacePtr)*_iter->face(); }
+
+			VFIterator begin() { return VFIterator(_pV);  }
+			VFIterator end() { return VFIterator(_pV, _pV->arhe().end()); }
+
+			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+		private:
+			VertexType::CHalfEdgePtrList::iterator _iter;
+			VertexPtr _pV;
+		};
+
+		// bad orgnize
+		class FHIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {// here inherited?
+		public:
+			FHIterator(FacePtr pF) : _pF(pF), _iter((HalfEdgePtr)pF->halfedge()) {};//here type cast
+			FHIterator(FacePtr pF, HalfEdgePtr iter) : _pF(pF), _iter(iter) {};
+
+			FHIterator& operator++() 
+			{
+				assert(_iter != NULL);
+				_iter= (HalfEdgePtr)_iter->he_next(); return *this; 
+				if (_iter == (HalfEdgePtr)_pF->halfedge()) { _iter = NULL; return; }
+			};
+			FHIterator  operator++(int) { FHIterator tmp(_pF, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const FHIterator& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const FHIterator& otherIter) { return _iter != otherIter._iter; }
+			HalfEdgePtr& operator*() { return _iter; }
+			HalfEdgePtr& value() { return _iter; }
+
+			FHIterator begin() { return (HalfEdgePtr)pF->halfedge(); }
+			FHIterator end() { return (HalfEdgePtr)pF->halfedge()->he_prev(); }
+
+			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+		private:
+			HalfEdgePtr _iter;
+			FacePtr _pF;
+		};
+
+		//class FEIterator
+		//class FVItertor
+
+
+		//we need pmesh
+		class MVIterator : public std::iterator<std::forward_iterator_tag, VertexPtr> {
+		public:
+			MVIterator(MeshPtr pM) : _pM(pM), _iter(pM->vertices().begin()) {};
+			MVIterator(MeshPtr pM, std::list<VertexPtr>::iterator iter) : _pM(pM), _iter(iter) {};
+
+			MVIterator& operator++() { ++_iter; return *this; };
+			MVIterator  operator++(int) { MVIterator tmp(_pM, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const MVIterator& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const MVIterator& otherIter) { return _iter != otherIter._iter; }
+			HalfEdgePtr& operator*() { return *_iter; }
+			HalfEdgePtr& value() { return *_iter; }
+
+			MVIterator begin() { return MVIterator(_pM); }
+			MVIterator end() { return MVIterator(_pM, _pM->vertices().end()); }
+
+			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+		private:
+			std::list<VertexPtr>::iterator _iter;
+			MeshPtr _pM;
+		};
+
+		class MFIterator : public std::iterator<std::forward_iterator_tag, FacePtr> {
+		public:
+			MFIterator(MeshPtr pM) : _pM(pM), _iter(pM->faces().begin()) {};
+			MFIterator(MeshPtr pM, std::list<FacePtr>::iterator iter) : _pM(pM), _iter(iter) {};
+
+			MFIterator& operator++() { ++_iter; return *this; };
+			MFIterator  operator++(int) { MFIterator tmp(_pM, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const MFIterator& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const MFIterator& otherIter) { return _iter != otherIter._iter; }
+			HalfEdgePtr& operator*() { return *_iter; }
+			HalfEdgePtr& value() { return *_iter; }
+
+			MFIterator begin() { return MFIterator(_pM); }
+			MFIterator end() { return MFIterator(_pM, _pM->faces().end()); }
+
+			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+		private:
+			std::list<FacePtr>::iterator _iter;
+			MeshPtr _pM;
+		};
+
+		class MEIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {
+		public:
+			MEIterator(MeshPtr pM) : _pM(pM), _iter(pM->edges().begin()) {};
+			MEIterator(MeshPtr pM, std::list<EdgePtr>::iterator iter) : _pM(pM), _iter(iter) {};
+
+			MEIterator& operator++() { ++_iter; return *this; };
+			MEIterator  operator++(int) { MEIterator tmp(_pM, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const MEIterator& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const MEIterator& otherIter) { return _iter != otherIter._iter; }
+			HalfEdgePtr& operator*() { return *_iter; }
+			HalfEdgePtr& value() { return *_iter; }
+
+			MEIterator begin() { return MEIterator(_pM); }
+			MEIterator end() { return MEIterator(_pM, _pM->edges().end()); }
+
+			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+		private:
+			std::list<EdgePtr>::iterator _iter;
+			MeshPtr _pM;
+		};
+
+		//class MHEIterator
+
 	};
 }
