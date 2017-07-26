@@ -1143,6 +1143,7 @@ FaceType * CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::createFace(V
 		he->he_prev() = hep;
 		// he->next is set below
 		he->vertex() = v2;
+		he->vertex()->halfedge() = he;
 		enter_hedge(he, v[i]);
 		// he->sym and he->edge were set in enter_hedge
 		he->face() = f;
