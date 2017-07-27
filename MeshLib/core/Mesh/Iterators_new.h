@@ -67,7 +67,7 @@ namespace MeshLib {
 			VCcwOutHEIterator begin() { return VCcwOutHEIterator(_pV); }
 			VCcwOutHEIterator end() { return  VCcwOutHEIterator(_pV, NULL); }
 
-			HalfEdgePtr get() { return _pHE; }
+			HalfEdgePtr get() { return _pHE; }//get what??
 		private:
 			VertexPtr _pV;
 			HalfEdgePtr _pHE;
@@ -76,7 +76,7 @@ namespace MeshLib {
 		class VInHEIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {
 		public:
 			VInHEIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
-			VInHEIterator(VertexPtr pV, VertexType::CHalfEdgePtrList::iterator iter) : _pV(pV), _iter(iter) {};
+			VInHEIterator(VertexPtr pV, CHalfEdgePtrListIterator iter) : _pV(pV), _iter(iter) {};
 
 			VInHEIterator& operator++() { ++_iter; return *this; };
 			VInHEIterator  operator++(int) { VInHEIterator tmp(_pV, _Iter); ++_iter; return tmp; };
@@ -89,16 +89,16 @@ namespace MeshLib {
 			VInHEIterator begin() { return VInHEIterator(_pV); }
 			VInHEIterator end() { return VInHEIterator(_pV, _pV->arhe().end()); }
 
-			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+			CHalfEdgePtrListIterator get() { return _iter; }
 		private:
-			VertexType::CHalfEdgePtrList::iterator _iter;
+			CHalfEdgePtrListIterator _iter;
 			VertexPtr _pV;
 		};
 
 		class VVIterator : public std::iterator<std::forward_iterator_tag, VertexPtr> {
 		public:
 			VVIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
-			VVIterator(VertexPtr pV, VertexType::CHalfEdgePtrList::iterator iter) : _pV(pV), _iter(iter) {};
+			VVIterator(VertexPtr pV, CHalfEdgePtrListIterator iter) : _pV(pV), _iter(iter) {};
 
 			VVIterator& operator++() { ++_iter; return *this; };
 			VVIterator  operator++(int) { VVIterator tmp(_pV, _Iter); ++_iter; return tmp; };
@@ -111,9 +111,9 @@ namespace MeshLib {
 			VVIterator begin() { return VVIterator(_pV); }
 			VVIterator end() { return VVIterator(_pV, _pV->arhe().end()); }
 
-			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+			CHalfEdgePtrListIterator get() { return _iter; }
 		private:
-			VertexType::CHalfEdgePtrList::iterator _iter;
+			CHalfEdgePtrListIterator _iter;
 			VertexPtr _pV;
 		};
 
@@ -142,10 +142,10 @@ namespace MeshLib {
 
 		};
 
-		class VFIterator : public std::iterator<std::forward_iterator_tag, FacePtr> {//?
+		class VFIterator : public std::iterator<std::forward_iterator_tag, FacePtr> {
 		public:
 			VFIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
-			VFIterator(VertexPtr pV, VertexType::CHalfEdgePtrList::iterator iter) : _pV(pV), _iter(iter) {};
+			VFIterator(VertexPtr pV, CHalfEdgePtrListIterator iter) : _pV(pV), _iter(iter) {};
 
 			VFIterator& operator++() { ++_iter; return *this; };
 			VFIterator  operator++(int) { VFIterator tmp(_pV, _Iter); ++_iter; return tmp; };
@@ -158,9 +158,9 @@ namespace MeshLib {
 			VFIterator begin() { return VFIterator(_pV);  }
 			VFIterator end() { return VFIterator(_pV, _pV->arhe().end()); }
 
-			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+			CHalfEdgePtrListIterator get() { return _iter; }
 		private:
-			VertexType::CHalfEdgePtrList::iterator _iter;
+			CHalfEdgePtrListIterator _iter;
 			VertexPtr _pV;
 		};
 
@@ -186,7 +186,7 @@ namespace MeshLib {
 			FHIterator begin() { return (HalfEdgePtr)pF->halfedge(); }
 			FHIterator end() { return (HalfEdgePtr)pF->halfedge()->he_prev(); }
 
-			VertexType::CHalfEdgePtrList::iterator get() { return _iter; }
+			CHalfEdgePtrListIterator get() { return _iter; }
 		private:
 			HalfEdgePtr _iter;
 			FacePtr _pF;
