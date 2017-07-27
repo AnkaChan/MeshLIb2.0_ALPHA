@@ -12,10 +12,11 @@
 
 namespace MeshLib {
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	class CIterators : private CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>{//private??
+	class CIterators : private CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>{
 	public:
 		typedef std::list<CHalfEdge*> CHalfEdgePtrList;
 		typedef std::list<CHalfEdge*>::iterator CHalfEdgePtrListIterator;
+		using CInterface::MeshPtr;//not work ?
 
 		class VOutHEIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {
 		public:
@@ -80,10 +81,10 @@ namespace MeshLib {
 			VInHEIterator& operator++() { ++_iter; return *this; };
 			VInHEIterator  operator++(int) { VInHEIterator tmp(_pV, _Iter); ++_iter; return tmp; };
 
-			bool operator==(const VInHEIterator& otherIter) { return _iter == otherIter._iter; }//bug?????
+			bool operator==(const VInHEIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VInHEIterator& otherIter) { return _iter != otherIter._iter; }
 			HalfEdgePtr& operator*() { return (HalfEdgePtr)(*_iter)->he_prev(); }//only diff
-			HalfEdgePtr& value() { return  (HalfEdgePtr)(*_iter)->he_prev(); }//msut we add this fuc?
+			HalfEdgePtr& value() { return  (HalfEdgePtr)(*_iter)->he_prev(); }//must we add this fuc?
 
 			VInHEIterator begin() { return VInHEIterator(_pV); }
 			VInHEIterator end() { return VInHEIterator(_pV, _pV->arhe().end()); }
@@ -94,7 +95,7 @@ namespace MeshLib {
 			VertexPtr _pV;
 		};
 
-		class VVIterator : public std::iterator<std::forward_iterator_tag, VertexPtr> {//vertexptr ? 
+		class VVIterator : public std::iterator<std::forward_iterator_tag, VertexPtr> {
 		public:
 			VVIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
 			VVIterator(VertexPtr pV, VertexType::CHalfEdgePtrList::iterator iter) : _pV(pV), _iter(iter) {};
