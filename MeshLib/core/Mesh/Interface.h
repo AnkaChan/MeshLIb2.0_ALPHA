@@ -21,6 +21,7 @@ namespace MeshLib
 		typedef HalfEdgeType * HalfEdgePtr;
 		typedef EdgeType     * EdgePtr;
 		typedef FaceType     * FacePtr;
+		CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>* MeshPtr;//need include base mesh£¿but when i need myMesh?
 
 		//is boundary
 		/*! whether a vertex is on the boundary
