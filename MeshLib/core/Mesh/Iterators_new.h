@@ -16,7 +16,7 @@ namespace MeshLib {
 	public:
 		typedef std::list<CHalfEdge*> CHalfEdgePtrList;
 		typedef std::list<CHalfEdge*>::iterator CHalfEdgePtrListIterator;
-		using CInterface::MeshPtr;//not work ?
+		using CInterface::MeshPtr;//may not work ?
 
 		class VOutHEIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {
 		public:
@@ -65,7 +65,7 @@ namespace MeshLib {
 			HalfEdgePtr value() { return _pHE; }
 
 			VCcwOutHEIterator begin() { return VCcwOutHEIterator(_pV); }
-			VCcwOutHEIterator end() { return  VCcwOutHEIterator(_pV, NULL); }
+			VCcwOutHEIterator end() { return  VCcwOutHEIterator(_pV, NULL); }//why null???may be a he ?
 
 			HalfEdgePtr get() { return _pHE; }//get what??
 		private:
@@ -172,9 +172,9 @@ namespace MeshLib {
 
 			FHIterator& operator++() 
 			{
-				assert(_iter != NULL);
-				_iter= (HalfEdgePtr)_iter->he_next(); return *this; 
-				if (_iter == (HalfEdgePtr)_pF->halfedge()) { _iter = NULL; return; }
+				_iter= (HalfEdgePtr)_iter->he_next();
+				if (_iter == (HalfEdgePtr)_pF->halfedge()) _iter = NULL;
+				return *this;
 			};
 			FHIterator  operator++(int) { FHIterator tmp(_pF, _Iter); ++_iter; return tmp; };
 
@@ -183,8 +183,9 @@ namespace MeshLib {
 			HalfEdgePtr& operator*() { return _iter; }
 			HalfEdgePtr& value() { return _iter; }
 
-			FHIterator begin() { return (HalfEdgePtr)pF->halfedge(); }
-			FHIterator end() { return (HalfEdgePtr)pF->halfedge()->he_prev(); }
+			FHIterator begin() { return FHIterator(_pF); }
+			FHIterator end() { return FHIterator(_pF,NULL); }
+			//FHIterator end() { return (HalfEdgePtr)pF->halfedge()->he_prev(); }
 
 			CHalfEdgePtrListIterator get() { return _iter; }
 		private:
