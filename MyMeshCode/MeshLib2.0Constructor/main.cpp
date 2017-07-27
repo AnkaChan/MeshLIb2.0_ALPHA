@@ -27,7 +27,7 @@ int main() {
 	for (Interface::HalfEdgePtr pHE : vheiter) {
 		std::cout << "This is the halfedge pointer:" << (int)pHE << std::endl;
 	}
-
+	  
 	auto find_zero = [] (const int& a) {return a == 0; };
 	auto zeros = std::find_if(v.begin(), v.end(), find_zero);
 

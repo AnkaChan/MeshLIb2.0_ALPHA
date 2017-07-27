@@ -27,8 +27,8 @@ namespace MeshLib {
 
 			bool operator==(const VOutHEIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VOutHEIterator& otherIter) { return _iter != otherIter._iter; }
-			HalfEdgePtr& operator*() { return *_iter; }
-			HalfEdgePtr& value() { return *_iter; }
+			HalfEdgePtr& operator*() { return (HalfEdgePtr)*_iter; }
+			HalfEdgePtr& value() { return (HalfEdgePtr)*_iter; }
 
 			VOutHEIterator begin() { return VOutHEIterator(_pV);  }
 			VOutHEIterator end() { return VOutHEIterator(_pV, _pV->arhe().end()); }
