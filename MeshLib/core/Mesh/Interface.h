@@ -1,8 +1,9 @@
 #pragma once
-#include"BaseMesh.h"
 
 namespace MeshLib
 {
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	class CBaseMesh;
 	/*!
 	* \brief Interface, interface to acess data from geometric classes:
 	* \tparam VertexType   vertex   class, derived from MeshLib::CVertex   class
