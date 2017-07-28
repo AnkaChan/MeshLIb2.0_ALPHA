@@ -4,4 +4,6 @@ The following class has pasted the debuging:
 
 MEIterator
 MVIterator
-VOutHEIterator 
+VOutHEIterator
+VCcwHEIterator
+VClwInHEIterator 

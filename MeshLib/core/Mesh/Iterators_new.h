@@ -5,9 +5,6 @@
 #include <vector>
 
 #include "Interface.h"
-#include "Vertex.h"
-#include "Face.h"
-#include "Edge.h"
 #include "HalfEdge.h"
 
 namespace MeshLib {
@@ -286,13 +283,62 @@ namespace MeshLib {
 		public:
 			VVIterator(VertexPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
 
-			VVIterator& operator++() { ++_iter; return *this; };
-			VVIterator  operator++(int) { VVIterator tmp(_pV, _Iter); ++_iter; return tmp; };
+			VVIterator& operator++() { 
+				if (isBoundary(_pV)) {
+					if (_pLastV != NULL) {
+						++_iter;
+						_pLastV = NULL;
+					}
+					else {
+						CHalfEdge * pLastHE = (*_iter)->he_prev();;
+						if (pLastHE->he_sym() != NULL)
+							++_iter;
+						else {
+							_pLastV = halfedgeSource((HalfEdgePtr)pLastHE);
+						}
+					}
+				}
+				else {
+					++_iter;
+				}
+
+				return *this; 
+			};
+			VVIterator  operator++(int) { 
+				VVIterator tmp(_pV, _Iter); if (isBoundary(_pV)) {
+					if (_pLastV != NULL) {
+						++_iter;
+						_pLastV = NULL;
+					}
+					else {
+						CHalfEdge * pLastHE = (*_iter)->he_prev();;
+						if (pLastHE->he_sym() != NULL)
+							++_iter;
+						else {
+							_pLastV = halfedgeSource((HalfEdgePtr)pLastHE);
+						}
+					}
+				}
+				else {
+					++_iter;
+				}
+				return tmp; 
+			};
 
 			bool operator==(const VVIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VVIterator& otherIter) { return _iter != otherIter._iter; }
-			VertexPtr& operator*() { return (VertexPtr)(*_iter)->vertex(); }
-			VertexPtr& value() { return (VertexPtr)(*_iter)->vertex(); }
+			VertexPtr operator*() { 
+				if (_pLastV != NULL)
+					return (VertexPtr)(*_iter)->target();
+				else
+					return _pLastV;
+			}
+			VertexPtr value() {
+				if (_pLastV != NULL)
+					return (VertexPtr)(*_iter)->target();
+				else
+					return _pLastV;
+			}
 
 			VVIterator begin() { return VVIterator(_pV); }
 			VVIterator end() { return VVIterator(_pV, _pV->arhe().end()); }
@@ -302,6 +348,7 @@ namespace MeshLib {
 			VVIterator(VertexPtr pV, CHalfEdgePtrListIterator iter) : _pV(pV), _iter(iter) {};
 			CHalfEdgePtrListIterator _iter;
 			VertexPtr _pV;
+			VertexPtr _pLastV = NULL;
 		};
 
 		class VCcwVIterator : public std::iterator<std::forward_iterator_tag, VertexPtr> {
