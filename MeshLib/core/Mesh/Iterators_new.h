@@ -16,6 +16,10 @@ namespace MeshLib {
 	public:
 		typedef std::list<CHalfEdge*> CHalfEdgePtrList;
 		typedef std::list<CHalfEdge*>::iterator CHalfEdgePtrListIterator;
+<<<<<<< HEAD
+		using CInterface::MeshPtr;//Iron:may not work ?
+=======
+>>>>>>> 618e9b22e0f4a4e294d96966892c317a03a6b774
 
 		class VOutHEIterator : public std::iterator<std::forward_iterator_tag, HalfEdgePtr> {
 		public:

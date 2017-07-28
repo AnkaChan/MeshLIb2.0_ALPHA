@@ -1,6 +1,6 @@
 #pragma once
 
-namespace MeshLib 
+namespace MeshLib
 {
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	class CBaseMesh;
