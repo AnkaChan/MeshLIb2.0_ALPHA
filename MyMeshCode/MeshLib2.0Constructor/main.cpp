@@ -27,19 +27,18 @@ int main() {
 	cout << "Iterating Edges." << endl;
 	for (auto pE : meIter) {
 		Interface::VertexPtr pV1, pV2;
-		cout << "The edge's length:" << Interface::edgeLength(pE);
-		getchar();
+		pV1 = Interface::edgeVertex1(pE);
+		pV2 = Interface::edgeVertex2(pE);
+
+		cout << "The edge's length:" << Interface::edgeLength(pE)
+			<< "\nThe two vertice are: " << Interface::vertexId(pV1) << ", " << Interface::vertexId(pV2) << endl;
+
+		cout << "Vertex 1: " << pV1->point() << endl;
+		cout << "Vertex 2: " << pV2->point() << endl;
 
 	}
 
-	Iterators::MEIterator meIter(&mesh);
-	cout << "Iterating Vertices." << endl;
-	for (auto pE : meIter) {
-		Interface::VertexPtr pV1, pV2;
-		cout << "The edge's length:" << Interface::edgeLength(pE);
-		getchar();
-
-	}
+	getchar();
 
 	Interface::VertexPtr pV = mesh.idVertex(10);
 	Iterators::VOutHEIterator vheiter(pV);
