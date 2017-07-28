@@ -12,7 +12,7 @@
 #include <stdlib.h>// why he include this lib ?
 #include <string>
 #include <list>
-#include "../Geometry/Point_new.h"
+#include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
 #include "HalfEdge.h"
 

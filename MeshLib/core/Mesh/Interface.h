@@ -14,16 +14,21 @@ namespace MeshLib
 	*  This class is a static class, which requires no instantiation before using.
 	*
 	*/
-	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
 	class CInterface
 	{
 	public:
+		typedef VertexType	  VertexType  ;
+		typedef HalfEdgeType  HalfEdgeType;
+		typedef EdgeType	  EdgeType	  ;
+		typedef FaceType	  FaceType	  ;
+
 		// pointer to Vertices, Halfedges, Edges, Face and Solid
 		typedef VertexType   * VertexPtr;
 		typedef HalfEdgeType * HalfEdgePtr;
 		typedef EdgeType     * EdgePtr;
 		typedef FaceType     * FacePtr;
-		typedef CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType> MeshType;
+		typedef MeshTemplate<VertexType, EdgeType, FaceType, HalfEdgeType> MeshType;
 		typedef MeshType* MeshPtr;//need include base mesh£¿but when i need myMesh?
 
 		//is boundary

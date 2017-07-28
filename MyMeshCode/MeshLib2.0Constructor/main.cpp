@@ -38,6 +38,12 @@ int main() {
 
 	}
 
+	Iterators::MVIterator mvIter(&mesh);
+	cout << "Iterating Edges." << endl;
+	for (auto pV : mvIter) {
+		cout << "Vertex id: " << Interface::vertexId(pV) << " Position: " << pV->point() << endl;
+	}
+
 	getchar();
 
 	Interface::VertexPtr pV = mesh.idVertex(10);
