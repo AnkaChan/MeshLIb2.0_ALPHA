@@ -50,12 +50,35 @@ int main() {
 	cout << "Iterating Edges." << endl;
 	for (auto pV : mvIter) {
 		cout << "Vertex id: " << Interface::vertexId(pV) << " Position: " << pV->point() << endl;
+		cout << "Iterating halfedges using halfedge list:" << endl;
+		cout << "The number of halfedges: " << pV->arhe().size() << endl;;
+
 		Iterators::VOutHEIterator voutheIter(pV);
 		for (auto pHE : voutheIter) {
 			cout << "The halfedge: " << pHE << endl;
 			Interface::VertexPtr pTargetV = Interface::halfedgeTarget(pHE);
 			cout << "Target vertex id: " << Interface::vertexId(pTargetV) << endl;
 		}
+		cout << "-----------------------------" << endl;
+		cout << "Iterating halfedges using halfedge conection(CCW):" << endl;
+		Iterators::VCcwOutHEIterator vccwheiter(pV);
+		for (Interface::HalfEdgePtr pHE : vccwheiter) {
+			std::cout << "The halfedge: " << pHE << std::endl;
+			Interface::VertexPtr pTargetV = Interface::halfedgeTarget(pHE);
+			Interface::VertexPtr pSourceV = Interface::halfedgeSource(pHE);
+			cout << "Target vertex id: " << Interface::vertexId(pTargetV) << " Source vertex id: " << Interface::vertexId(pSourceV) << endl;
+		}
+		cout << "-----------------------------" << endl;
+		cout << "Iterating halfedges using halfedge conection(CCW):" << endl;
+		Iterators::VClwInHEIterator vclwheiter(pV);
+		for (Interface::HalfEdgePtr pHE : vclwheiter) {
+			std::cout << "The halfedge: " << pHE << std::endl;
+			Interface::VertexPtr pTargetV = Interface::halfedgeTarget(pHE);
+			Interface::VertexPtr pSourceV = Interface::halfedgeSource(pHE);
+			cout << "Target vertex id: " << Interface::vertexId(pTargetV) << " Source vertex id: " << Interface::vertexId(pSourceV) << endl;
+		}
+		getchar();
+
 	}
 
 	getchar();

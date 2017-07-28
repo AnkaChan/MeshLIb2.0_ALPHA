@@ -25,6 +25,7 @@
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
 #include "../Parser/StrUtil.h"
+#include "Interface.h"
 
 namespace MeshLib{
 /*!
