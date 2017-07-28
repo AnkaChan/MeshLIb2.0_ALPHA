@@ -1,7 +1,7 @@
 #pragma once
 #include"BaseMesh.h"
 
-namespace MeshLib 
+namespace MeshLib
 {
 	/*!
 	* \brief Interface, interface to acess data from geometric classes:
@@ -22,8 +22,8 @@ namespace MeshLib
 		typedef HalfEdgeType * HalfEdgePtr;
 		typedef EdgeType     * EdgePtr;
 		typedef FaceType     * FacePtr;
-		typedef CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType> MeshType;//need include base mesh£¿but when i need myMesh?
-		typedef MeshType
+		typedef CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType> MeshType;
+		typedef MeshType	 * MeshPtr;
 
 		//is boundary
 		/*! whether a vertex is on the boundary
