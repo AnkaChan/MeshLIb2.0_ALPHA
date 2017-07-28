@@ -506,8 +506,8 @@ namespace MeshLib {
 			HalfEdgePtr& value() { return _iter; }
 
 			FHIterator begin() { return FHIterator(_pF); }
-			FHIterator end() { return FHIterator(_pF,NULL); }
-			//FHIterator end() { return (HalfEdgePtr)pF->halfedge()->he_prev(); }
+			FHIterator end() { return FHIterator(_pF, NULL); }
+			//FHIterator end() { return FHIterator(_pF, (HalfEdgePtr)pF->halfedge()->he_prev())); }
 
 			CHalfEdgePtrListIterator get() { return _iter; }
 		private:
@@ -516,7 +516,62 @@ namespace MeshLib {
 		};
 
 		//class FEIterator
+		class FEIterator : public std::iterator<std::forward_iterator_tag, EdgePtr> {
+		public:
+			FEIterator(FacePtr pF) : _pF(pF), _iter((HalfEdgePtr)pF->halfedge()) {};
+			FEIterator(FacePtr pF, HalfEdgePtr iter) : _pF(pF), _iter(iter) {};
+
+			FEIterator& operator++()
+			{
+				_iter = (HalfEdgePtr)_iter->he_next();
+				if (_iter == (HalfEdgePtr)_pF->halfedge()) _iter = NULL;
+				return *this;
+			};
+			FEIterator  operator++(int) { FEIterator tmp(_pF, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const FEIterator& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const FEIterator& otherIter) { return _iter != otherIter._iter; }
+			HalfEdgePtr& operator*() { return (EdgePtr)_iter->edge(); }
+			HalfEdgePtr& value() { return (EdgePtr)_iter->edge(); }
+
+			FEIterator begin() { return FEIterator(_pF); }
+			FEIterator end() { return FEIterator(_pF, NULL); }
+			//FEIterator end() { return FEIterator(_pF, (HalfEdgePtr)pF->halfedge()->he_prev()); }
+
+			CHalfEdgePtrListIterator get() { return _iter; }
+		private:
+			HalfEdgePtr _iter;
+			EdgePtr _pF;
+		};
+
 		//class FVItertor
+		class FVItertor : public std::iterator<std::forward_iterator_tag, VertexPtr> {
+		public:
+			FVItertor(FacePtr pF) : _pF(pF), _iter((HalfEdgePtr)pF->halfedge()) {};
+			FVItertor(FacePtr pF, HalfEdgePtr iter) : _pF(pF), _iter(iter) {};
+
+			FVItertor& operator++()
+			{
+				_iter = (HalfEdgePtr)_iter->he_next();
+				if (_iter == (HalfEdgePtr)_pF->halfedge()) _iter = NULL;
+				return *this;
+			};
+			FVItertor  operator++(int) { FVItertor tmp(_pF, _Iter); ++_iter; return tmp; };
+
+			bool operator==(const FVItertor& otherIter) { return _iter == otherIter._iter; }
+			bool operator!=(const FVItertor& otherIter) { return _iter != otherIter._iter; }
+			VertexPtr& operator*() { return (VertexPtr)_iter->vertex(); }
+			VertexPtr& value() { return (VertexPtr)_iter->vertex(); }
+
+			FVItertor begin() { return FVItertor(_pF); }
+			FVItertor end() { return FVItertor(_pF, NULL); }
+			//FVItertor end() { return FVItertor(_pF, (HalfEdgePtr)pF->halfedge()->he_prev()); }
+
+			CHalfEdgePtrListIterator get() { return _iter; }
+		private:
+			HalfEdgePtr _iter;
+			EdgePtr _pF;
+		};
 
 
 		//we need pmesh
