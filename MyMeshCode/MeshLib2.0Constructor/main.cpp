@@ -8,13 +8,21 @@
 #include <MeshLib/core/Mesh/Face.h>
 #include <MeshLib/core/Mesh/iterators_new.h>
 
+using namespace MeshLib;
+class myVertex : public CVertex {
+public:
+	int num = 0;
+};
+class myHalfedge : public CHalfEdge {
+public:
+	int num = 10;
+};
 using std::cout;
 using std::endl;
-using namespace MeshLib;
 int main() {
-	typedef CBaseMesh<CVertex, CEdge, CFace, CHalfEdge> CMesh;
-	typedef CInterface<CVertex, CEdge, CFace, CHalfEdge> Interface;
-	typedef CIterators<CVertex, CEdge, CFace, CHalfEdge> Iterators;
+	typedef CInterface<myVertex, CEdge, CFace, myHalfedge> Interface;
+	typedef CIteratorsI<Interface> Iterators;
+	typedef Interface::MeshType CMesh;
 
 	std::vector<int> v(10);
 	for (int& i : v) {
@@ -42,12 +50,18 @@ int main() {
 	cout << "Iterating Edges." << endl;
 	for (auto pV : mvIter) {
 		cout << "Vertex id: " << Interface::vertexId(pV) << " Position: " << pV->point() << endl;
+		Iterators::VOutHEIterator voutheIter(pV);
+		for (auto pHE : voutheIter) {
+			cout << "The halfedge: " << pHE << endl;
+			Interface::VertexPtr pTargetV = Interface::halfedgeTarget(pHE);
+			cout << "Target vertex id: " << Interface::vertexId(pTargetV) << endl;
+		}
 	}
 
 	getchar();
 
 	Interface::VertexPtr pV = mesh.idVertex(10);
-	Iterators::VOutHEIterator vheiter(pV);
+	Iterators::VCcwOutHEIterator vheiter(pV);
 	for (Interface::HalfEdgePtr pHE : vheiter) {
 		std::cout << "This is the halfedge pointer:" << (int)pHE << std::endl;
 	}

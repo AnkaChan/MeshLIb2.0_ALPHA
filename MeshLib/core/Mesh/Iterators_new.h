@@ -12,7 +12,7 @@
 
 namespace MeshLib {
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	class CIterators : private CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>{
+	struct CIterators : private CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>{
 	public:
 		typedef std::list<CHalfEdge*> CHalfEdgePtrList;
 		typedef std::list<CHalfEdge*>::iterator CHalfEdgePtrListIterator;
@@ -27,8 +27,8 @@ namespace MeshLib {
 
 			bool operator==(const VOutHEIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VOutHEIterator& otherIter) { return _iter != otherIter._iter; }
-			HalfEdgePtr& operator*() { return (HalfEdgePtr)*_iter; }
-			HalfEdgePtr& value() { return (HalfEdgePtr)*_iter; }
+			HalfEdgePtr operator*() { return (HalfEdgePtr)(*_iter); }
+			HalfEdgePtr value() { return (HalfEdgePtr)(*_iter); }
 
 			VOutHEIterator begin() { return VOutHEIterator(_pV);  }
 			VOutHEIterator end() { return VOutHEIterator(_pV, _pV->arhe().end()); }
@@ -51,12 +51,12 @@ namespace MeshLib {
 			VCcwOutHEIterator(const VertexPtr& pV, const HalfEdgePtr& pHE) : _pV(pV), _pHE(pHE) {};
 
 			VCcwOutHEIterator& operator++() { 
-				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pHE) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
+				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
 				return *this; 
 			};
 			VCcwOutHEIterator  operator++(int) { 
 				VCcwOutHEIterator tmp(_pV, _Iter); 
-				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pHE) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
+				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
 				return tmp; 
 			};
 			 
@@ -86,12 +86,12 @@ namespace MeshLib {
 			VClwInHEIterator(const VertexPtr& pV, const HalfEdgePtr& pHE) : _pV(pV), _pHE(pHE) {};
 
 			VClwInHEIterator& operator++() {
-				_pHE = _pHE == vertexMostClwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+				_pHE = _pHE == vertexMostClwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				return *this;
 			};
 			VClwInHEIterator  operator++(int) {
 				VClwInHEIterator tmp(pV, _pHE);
-				_pHE = _pHE == vertexMostClwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+				_pHE = _pHE == vertexMostClwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				return tmp;
 			};
 
@@ -115,12 +115,12 @@ namespace MeshLib {
 			VCcwFIterator(const VertexPtr& pV, const HalfEdgePtr& pHE) : _pV(pV), _pHE(pHE) {};
 
 			VCcwFIterator& operator++() {
-				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pHE) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
+				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
 				return *this;
 			};
 			VCcwFIterator  operator++(int) {
 				VCcwFIterator tmp(_pV, _Iter);
-				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pHE) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
+				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
 				return tmp;
 			};
 
@@ -144,12 +144,12 @@ namespace MeshLib {
 			VClwFIterator(const VertexPtr& pV, const HalfEdgePtr& pHE) : _pV(pV), _pHE(pHE) {};
 
 			VClwFIterator& operator++() {
-				_pHE = _pHE == vertexMostClwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+				_pHE = _pHE == vertexMostClwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				return *this;
 			};
 			VClwFIterator  operator++(int) {
 				VClwFIterator tmp(pV, _pHE);
-				_pHE = _pHE == vertexMostClwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+				_pHE = _pHE == vertexMostClwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				return tmp;
 			};
 
@@ -173,7 +173,7 @@ namespace MeshLib {
 
 			VCcwEIterator& operator++() {
 				if (isboundary(_pV)) {
-					if (_pHE == vertexMostCcwInHalfEdge(_pHE)){
+					if (_pHE == vertexMostCcwInHalfEdge(_pV)){
 						_pHE = (HalfEdgePtr)_pHE->he_prev();
 						reachBoundary = true;
 					}
@@ -184,7 +184,7 @@ namespace MeshLib {
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostCcwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostCcwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				}
 				return *this;
 			};
@@ -230,7 +230,7 @@ namespace MeshLib {
 
 			VClwEIterator& operator++() {
 				if (isboundary(_pV)) {
-					if (_pHE == vertexMostClwInHalfEdge(_pHE)) {
+					if (_pHE == vertexMostClwInHalfEdge(_pV)) {
 						_pHE = (HalfEdgePtr)_pHE->he_next();
 						reachBoundary = true;
 					}
@@ -242,14 +242,14 @@ namespace MeshLib {
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostClwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostClwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				}
 				return *this;
 			};
 			VClwEIterator  operator++(int) {
 				VClwEIterator tmp(pV, pHE);
 				if (isboundary(_pV)) {
-					if (_pHE == vertexMostClwInHalfEdge(_pHE)) {
+					if (_pHE == vertexMostClwInHalfEdge(_pV)) {
 						_pHE = (HalfEdgePtr)_pHE->he_next();
 						reachBoundary = true;
 					}
@@ -261,7 +261,7 @@ namespace MeshLib {
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostClwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostClwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				}
 				return tmp;
 			};
@@ -377,7 +377,7 @@ namespace MeshLib {
 
 			VClwVIterator& operator++() {
 				if (isboundary(_pV)) {
-					if (_pHE == vertexMostClwInHalfEdge(_pHE)) {
+					if (_pHE == vertexMostClwInHalfEdge(_pV)) {
 						_pHE = (HalfEdgePtr)_pHE->he_next();
 						reachBoundary = true;
 					}
@@ -389,14 +389,14 @@ namespace MeshLib {
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostClwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostClwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				}
 				return *this;
 			};
 			VClwVIterator  operator++(int) {
 				VClwVIterator tmp(pV, pHE);
 				if (isboundary(_pV)) {
-					if (_pHE == vertexMostClwInHalfEdge(_pHE)) {
+					if (_pHE == vertexMostClwInHalfEdge(_pV)) {
 						_pHE = (HalfEdgePtr)_pHE->he_next();
 						reachBoundary = true;
 					}
@@ -408,7 +408,7 @@ namespace MeshLib {
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostClwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostClwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				}
 				return tmp;
 			};
@@ -644,4 +644,8 @@ namespace MeshLib {
 		//class MHEIterator
 
 	};
+
+	template<typename Interface>
+	struct CIteratorsI : public CIterators<typename Interface::VertexType, typename Interface::EdgeType, typename Interface::FaceType, typename Interface::HalfEdgeType>
+	{};
 }
