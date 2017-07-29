@@ -584,6 +584,7 @@ namespace MeshLib
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
 	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::edgeHalfedge(EPtr e, int id)
 	{
+		//assert(id == 0 || id == 1);
 		return (HalfEdgeType*)(id == 0 ? e->halfedge() : e->halfedge()->he_sym());
 	}
 
