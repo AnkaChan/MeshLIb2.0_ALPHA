@@ -79,13 +79,13 @@ private:
 	std::map<std::string, Prop*> props;
 };
 
-template<typename VTYPE, typename E, typename F, typename H>
+template<typename V, typename E, typename F, typename H>
 class PropsHandle
 {
 	typedef MeshLib::CBaseMesh<V, E, F, H>	Mesh;
 
 public:
-	PropsHandle(MeshLib::CBaseMesh<V, E, F, H> * pm) { pmesh = pm; };
+	PropsHandle(Mesh * pm) { pmesh = pm; };
 	//friend element
 	friend class VLPIterator;
 	//add property
@@ -206,10 +206,15 @@ private:
 
 //add property
 template<typename V, typename E, typename F, typename H>
+template<typename T>
 bool PropsHandle<V, E, F, H>::AddVProp(std::string name, T data)
 {
 	typedef MeshLib::CBaseMesh<V, E, F, H>	Mesh;
 	typedef MeshLib::MeshVertexIterator<V, E, F, H>	Iterator;
+
+	typedef CInterface<myVertex, CEdge, CFace, myHalfedge> Interface;
+	typedef CIteratorsI<Interface> Iterators;
+	typedef Interface::MeshType CMesh;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(vnames.begin(), vnames.end(), name);
@@ -223,6 +228,7 @@ bool PropsHandle<V, E, F, H>::AddVProp(std::string name, T data)
 		V * pelement = *iter;
 		pelement->props().Add<T>(name, data);
 	}
+
 	return true;
 }
 
