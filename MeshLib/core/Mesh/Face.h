@@ -19,6 +19,7 @@ namespace MeshLib{
 /*!
 	\brief FaceType base class of all kinds of face classes
 */
+
 class CFace
 {
 public:
@@ -54,10 +55,6 @@ public:
 		read face traits from the string.
 	*/
 	void                  _from_string() {};
-	/*!
-	Properties
-	*/
-	Props & props() { return m_props; };
 protected:
 	/*!
 		id of the current face
@@ -71,10 +68,6 @@ protected:
 		String of the current face.
 	*/
     std::string        m_string;
-	/*!
-	Properties
-	*/
-	Props			  m_props;
 };
 
 
