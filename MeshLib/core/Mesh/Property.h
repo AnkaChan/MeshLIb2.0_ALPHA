@@ -7,589 +7,599 @@
 #include <list>
 #include <algorithm>
 
+#include <MeshLib/core/Mesh/Vertex.h>
+#include <MeshLib/core/Mesh/Edge.h>
+#include <MeshLib/core/Mesh/Face.h>
+#include <MeshLib/core/Mesh/HalfEdge.h>
+#include <MeshLib/core/Mesh/BaseMesh.h>
 #include <MeshLib/core/Mesh/Interface.h>
-//using namespace MeshLib;
-
-class Prop
+namespace MeshLib
 {
-public:
-	virtual ~Prop() {};
-};
-
-template<typename DataType>
-class Property : public Prop
-{
-public:
-	virtual ~Property() {};
-
-	Property(DataType d) { data = d; };
-	DataType GetValue() { return data; };
-	void WriteValue(DataType d) { data = d; };
-private:
-	DataType data;
-};
-
-class Props
-{
-public:
-	~Props()
+	class Prop
 	{
-		std::map<std::string, Prop*>::iterator iter;
-		for (iter = props.begin(); iter != props.end(); ++iter)
-			delete (*iter).second;
-		props.clear();
+	public:
+		virtual ~Prop() {};
 	};
 
 	template<typename DataType>
-	DataType Get(std::string name)
+	class Property : public Prop
 	{
-		Property<DataType>* p = (Property<DataType>*)props[name];
-		return p->GetValue();
+	public:
+		virtual ~Property() {};
+
+		Property(DataType d) { data = d; };
+		DataType GetValue() { return data; };
+		void WriteValue(DataType d) { data = d; };
+	private:
+		DataType data;
 	};
 
-	template<typename DataType>
-	void Write(std::string name, DataType data)
+	class Props
 	{
-		Property<DataType>* p = (Property<DataType>*)props[name];
-		p->WriteValue(data);
+	public:
+		~Props()
+		{
+			std::map<std::string, Prop*>::iterator iter;
+			for (iter = props.begin(); iter != props.end(); ++iter)
+				delete (*iter).second;
+			props.clear();
+		};
+
+		template<typename DataType>
+		DataType Get(std::string name)
+		{
+			Property<DataType>* p = (Property<DataType>*)props[name];
+			return p->GetValue();
+		};
+
+		template<typename DataType>
+		void Write(std::string name, DataType data)
+		{
+			Property<DataType>* p = (Property<DataType>*)props[name];
+			p->WriteValue(data);
+		}
+
+		template<typename DataType>
+		void Add(std::string name, DataType data)
+		{
+			props[name] = new Property<DataType>(data);
+		};
+
+		template<typename DataType>
+		void Delete(std::string name)
+		{
+			Property<DataType>* p = (Property<DataType>*)props[name];
+			delete p;
+			props.erase(name);
+		}
+
+		bool Find(std::string name)
+		{
+			std::map<std::string, Prop*>::iterator iter;
+			iter = props.find(name);
+			if (iter == props.end())
+				return false;
+			else
+				return true;
+		}
+
+	private:
+		std::map<std::string, Prop*> props;
+	};
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	class PropsHandle
+	{
+		typedef MeshLib::CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>	Mesh;
+
+	public:
+		PropsHandle(Mesh * pm) { pmesh = pm; };
+
+		//add property
+		template<typename DataType>
+		bool AddVProp(std::string name, DataType data);
+
+		template<typename DataType>
+		bool AddEProp(std::string name, DataType data);
+
+		template<typename DataType>
+		bool AddFProp(std::string name, DataType data);
+
+		template<typename DataType>
+		bool AddHProp(std::string name, DataType data);
+
+		//delete property
+		template<typename DataType>
+		bool DeleteVProp(std::string name);
+
+		template<typename DataType>
+		bool DeleteEProp(std::string name);
+
+		template<typename DataType>
+		bool DeleteFProp(std::string name);
+
+		template<typename DataType>
+		bool DeleteHProp(std::string name);
+
+		//find property
+		bool FindVProp(std::string name);
+
+		bool FindEProp(std::string name);
+
+		bool FindFProp(std::string name);
+
+		bool FindHProp(std::string name);
+
+		//Local Property
+		//add local prop
+		template<typename DataType>
+		bool AddLocProp(VertexType * pv, std::string name, DataType data);
+
+		template<typename DataType>
+		bool AddLocProp(EdgeType * pe, std::string name, DataType data);
+
+		template<typename DataType>
+		bool AddLocProp(FaceType * pf, std::string name, DataType data);
+
+		template<typename DataType>
+		bool AddLocProp(HalfEdgeType * ph, std::string name, DataType data);
+
+		//delete local prop
+		template<typename DataType>
+		void DeleteVLocProp(std::string name);
+
+		template<typename DataType>
+		void DeleteELocProp(std::string name);
+
+		template<typename DataType>
+		void DeleteFLocProp(std::string name);
+
+		template<typename DataType>
+		void DeleteHLocProp(std::string name);
+
+		std::list<std::pair<VertexType *, std::string>> & vlocpro() { return m_vlocp; };
+
+		std::list<std::pair<VertexType *, std::string>> & elocpro() { return m_elocp; };
+
+		std::list<std::pair<VertexType *, std::string>> & flocpro() { return m_flocp; };
+
+		std::list<std::pair<VertexType *, std::string>> & hlocpro() { return m_hlocp; };
+
+	private:
+		Mesh * pmesh;
+		std::list<std::string> m_vnames;
+		std::list<std::string> m_enames;
+		std::list<std::string> m_fnames;
+		std::list<std::string> m_hnames;
+		//for local property
+		std::list<std::pair<VertexType *, std::string>>		m_vlocp;
+		std::list<std::pair<EdgeType *, std::string>>		m_elocp;
+		std::list<std::pair<FaceType *, std::string>>		m_flocp;
+		std::list<std::pair<HalfEdgeType *, std::string>>	m_hlocp;
+	};
+
+	// vertex with properties
+	class CPVertex : public CVertex, public Props
+	{
+	public:
+		Props & props() { return m_props; };
+	private:
+		Props m_props;
+	};
+
+	// edge with properties
+	class CPEdge : public CEdge, public Props
+	{
+	public:
+		Props & props() { return m_props; };
+	private:
+		Props m_props;
+	};
+
+	// face with properties
+	class CPFace : public CFace, public Props
+	{
+	public:
+		Props & props() { return m_props; };
+	private:
+		Props m_props;
+	};
+
+	// halfedge with properties
+	class CPHalfEdge : public CHalfEdge, public Props
+	{
+	public:
+		Props & props() { return m_props; };
+	private:
+		Props m_props;
+	};
+
+	// mesh with property handle
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	class CPBaseMesh : public CBaseMesh, public Props
+	{
+	public:
+		Props & props() { return m_props; };
+	private:
+		Props m_props;
+	};
+
+	//add property
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddVProp(std::string name, DataType data)
+	{
+		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
+		typedef CIteratorsI<Interface> Iterators;
+
+		std::list<std::string>::iterator niter;
+		niter = std::find(m_vnames.begin(), m_vnames.end(), name);
+		if (niter != m_vnames.end())
+			return false;
+		else
+			m_vnames.push_back(name);
+
+		Iterators::MVIterator viter(pmesh);
+		for (VertexType * pv : viter)
+		{
+			pv->props().Add<DataType>(name, data);
+		}
+
+		return true;
 	}
 
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	template<typename DataType>
-	void Add(std::string name, DataType data)
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddEProp(std::string name, DataType data)
 	{
-		props[name] = new Property<DataType>(data);
-	};
+		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
+		typedef CIteratorsI<Interface> Iterators;
 
-	template<typename DataType>
-	void Delete(std::string name)
-	{
-		Property<DataType>* p = (Property<DataType>*)props[name];
-		delete p;
-		props.erase(name);
+		std::list<std::string>::iterator niter;
+		niter = std::find(m_enames.begin(), m_enames.end(), name);
+		if (niter != m_enames.end())
+			return false;
+		else
+			m_enames.push_back(name);
+
+		Iterators::MEIterator eiter(pmesh);
+		for (EdgeType * pe : eiter)
+		{
+			pe->props().Add<DataType>(name, data);
+		}
+		return true;
 	}
 
-	bool Find(std::string name)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddFProp(std::string name, DataType data)
 	{
-		std::map<std::string, Prop*>::iterator iter;
-		iter = props.find(name);
-		if (iter == props.end())
+		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
+		typedef CIteratorsI<Interface> Iterators;
+
+		std::list<std::string>::iterator niter;
+		niter = std::find(m_fnames.begin(), m_fnames.end(), name);
+		if (niter != m_fnames.end())
+			return false;
+		else
+			m_fnames.push_back(name);
+		Iterators::MFIterator fiter(pmesh);
+		for (FaceType * pf : fiter)
+		{
+			pf->props().Add<DataType>(name, data);
+		}
+		return true;
+	}
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddHProp(std::string name, DataType data)
+	{
+		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
+		typedef CIteratorsI<Interface> Iterators;
+
+		std::list<std::string>::iterator niter;
+		niter = std::find(m_hnames.begin(), m_hnames.end(), name);
+		if (niter != m_hnames.end())
+			return false;
+		else
+			m_hnames.push_back(name);
+
+		Iterators::MFIterator fiter(pmesh);
+		for (FaceType * pf : fiter)
+		{
+			HalfEdgeType * ph = pmesh->faceHalfedge(pf);
+			do
+			{
+				ph->props().Add<DataType>(name, data);
+				ph = pmesh->halfedgeNext(ph);
+			} while (ph != pf->halfedge());
+		}
+		return true;
+	}
+
+	//delete property
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteVProp(std::string name)
+	{
+		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
+		typedef CIteratorsI<Interface> Iterators;
+
+		std::list<std::string>::iterator niter;
+		niter = std::find(m_vnames.begin(), m_vnames.end(), name);
+		if (niter == m_vnames.end())
+			return false;
+		else
+			m_vnames.erase(niter);
+		Iterators::MVIterator viter(pmesh);
+		for (VertexType * pv : viter)
+		{
+			pv->props().Delete<DataType>(name);
+		}
+		return true;
+	}
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteEProp(std::string name)
+	{
+		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
+		typedef CIteratorsI<Interface> Iterators;
+
+		std::list<std::string>::iterator niter;
+		niter = std::find(m_enames.begin(), m_enames.end(), name);
+		if (niter == m_enames.end())
+			return false;
+		else
+			m_enames.erase(niter);
+		Iterators::MEIterator eiter(pmesh);
+		for (EdgeType * pe : eiter)
+		{
+			pe->props().Delete<DataType>(name);
+		}
+		return true;
+	}
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteFProp(std::string name)
+	{
+		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
+		typedef CIteratorsI<Interface> Iterators;
+
+		std::list<std::string>::iterator niter;
+		niter = std::find(m_fnames.begin(), m_fnames.end(), name);
+		if (niter == m_fnames.end())
+			return false;
+		else
+			m_fnames.erase(niter);
+		Iterators::MFIterator fiter(pmesh);
+		for (FaceType * pf : fiter)
+		{
+			pf->props().Delete<DataType>(name);
+		}
+		return true;
+	}
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteHProp(std::string name)
+	{
+		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
+		typedef CIteratorsI<Interface> Iterators;
+
+		std::list<std::string>::iterator niter;
+		niter = std::find(m_hnames.begin(), m_hnames.end(), name);
+		if (niter == m_hnames.end())
+			return false;
+		else
+			m_hnames.erase(niter);
+
+		Iterators::MFIterator fiter(pmesh);
+		for (FaceType * pf : fiter)
+		{
+			HalfEdgeType * ph = pmesh->faceHalfedge(pf);
+			do
+			{
+				ph->props().Delete<DataType>(name);
+				ph = pmesh->halfedgeNext(ph);
+			} while (ph != pf->halfedge());
+		}
+		return true;
+	}
+
+	//find property
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::FindVProp(std::string name)
+	{
+		std::list<std::string>::iterator iter;
+		iter = std::find(m_vnames.begin(), m_vnames.end(), name);
+		if (iter == m_vnames.end())
 			return false;
 		else
 			return true;
 	}
 
-private:
-	std::map<std::string, Prop*> props;
-};
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::FindEProp(std::string name)
+	{
+		std::list<std::string>::iterator iter;
+		iter = std::find(m_enames.begin(), m_enames.end(), name);
+		if (iter == m_enames.end())
+			return false;
+		else
+			return true;
+	}
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-class PropsHandle
-{
-	typedef MeshLib::CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>	Mesh;
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::FindFProp(std::string name)
+	{
+		std::list<std::string>::iterator iter;
+		iter = std::find(m_fnames.begin(), m_fnames.end(), name);
+		if (iter == m_fnames.end())
+			return false;
+		else
+			return true;
+	}
 
-public:
-	PropsHandle(Mesh * pm) { pmesh = pm; };
-	//friend element
-	friend class VLPIterator;
-	//add property
-	template<typename DataType>
-	bool AddVProp(std::string name, DataType data);
-
-	template<typename DataType>
-	bool AddEProp(std::string name, DataType data);
-
-	template<typename DataType>
-	bool AddFProp(std::string name, DataType data);
-
-	template<typename DataType>
-	bool AddHProp(std::string name, DataType data);
-
-	//delete property
-	template<typename DataType>
-	bool DeleteVProp(std::string name);
-
-	template<typename DataType>
-	bool DeleteEProp(std::string name);
-
-	template<typename DataType>
-	bool DeleteFProp(std::string name);
-
-	template<typename DataType>
-	bool DeleteHProp(std::string name);
-
-	//find property
-	bool FindVProp(std::string name);
-	
-	bool FindEProp(std::string name);
-	
-	bool FindFProp(std::string name);
-
-	bool FindHProp(std::string name);
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::FindHProp(std::string name)
+	{
+		std::list<std::string>::iterator iter;
+		iter = std::find(m_hnames.begin(), m_hnames.end(), name);
+		if (iter == m_hnames.end())
+			return false;
+		else
+			return true;
+	}
 
 	//Local Property
-	//add local prop
+
+	//Add local property
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	template<typename DataType>
-	bool AddLocProp(VertexType * pv, std::string name, DataType data);
-
-	template<typename DataType>
-	bool AddLocProp(EdgeType * pe, std::string name, DataType data);
-
-	template<typename DataType>
-	bool AddLocProp(FaceType * pf, std::string name, DataType data);
-
-	template<typename DataType>
-	bool AddLocProp(HalfEdgeType * ph, std::string name, DataType data);
-	
-	//delete local prop
-	template<typename DataType>
-	void DeleteVLocProp(std::string name);
-	
-	template<typename DataType>
-	void DeleteELocProp(std::string name);
-
-	template<typename DataType>
-	void DeleteFLocProp(std::string name);
-
-	template<typename DataType>
-	void DeleteHLocProp(std::string name);
-
-	std::list<std::pair<VertexType *, std::string>> & vlocpro() { return m_vlocp; };
-
-	std::list<std::pair<VertexType *, std::string>> & elocpro() { return m_elocp; };
-
-	std::list<std::pair<VertexType *, std::string>> & flocpro() { return m_flocp; };
-
-	std::list<std::pair<VertexType *, std::string>> & hlocpro() { return m_hlocp; };
-
-private:
-	Mesh * pmesh;
-	std::list<std::string> m_vnames;
-	std::list<std::string> m_enames;
-	std::list<std::string> m_fnames;
-	std::list<std::string> m_hnames;
-	//for local property
-	std::list<std::pair<VertexType *, std::string>>		m_vlocp;
-	std::list<std::pair<EdgeType *, std::string>>		m_elocp;
-	std::list<std::pair<FaceType *, std::string>>		m_flocp;
-	std::list<std::pair<HalfEdgeType *, std::string>>	m_hlocp;
-};
-
-/*
-template<typename V, typename E, typename F, typename H>
-class VLPIterator 
-{
-	typedef PropsHandle<V, E, F, H>	PH;
-	typedef std::pair<V*, std::string> VSPair;
-	typedef std::list<VSPair> VSPList;
-public:
-
-	VLPIterator(PH & ppropsh, std::string name0)
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddLocProp(VertexType * pv, std::string name, DataType data)
 	{
-		m_tlist = ppropsh.m_vlocp;
-		m_name = name0;
-		for (auto piter = m_tlist.begin(); ; ++piter)
-		{
-			if (piter == m_tlist.end())
-			{
-				m_iter = m_tlist.end();
-			}
-			VSPair vs_temp = *piter;
-			if (vs_temp.second == m_name)
-			{
-				m_iter = piter;
-				break;
-			}
-		}
-	}
-	VSPair value() { reutrn *m_iter; };
-	VSPair operator*() { return value(); };
+		if (pv->props().Find(name))
+			return false;
+		if (std::find(m_vnames.begin(), m_vnames.end(), name) == m_vnames.end())
+			m_vnames.push_back(name);
 
-	void operator++() {};
-	void operator++(int) {};
-
-private:
-	VSPList &	m_tlist;
-	VSPList::Iterator m_iter;
-	VSPair		m_tspair;
-	std::string	m_name;
-};
-*/
-
-//add property
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddVProp(std::string name, DataType data)
-{
-	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
-
-	std::list<std::string>::iterator niter;
-	niter = std::find(m_vnames.begin(), m_vnames.end(), name);
-	if (niter != m_vnames.end())
-		return false;
-	else
-		m_vnames.push_back(name);
-
-	Iterators::MVIterator viter(pmesh);
-	for (VertexType * pv : viter)
-	{
+		std::pair<VertexType *, std::string> vnpair{ pv, name };
+		m_vlocp.push_back(vnpair);
 		pv->props().Add<DataType>(name, data);
+		return true;
 	}
 
-	return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddEProp(std::string name, DataType data)
-{
-	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
-
-	std::list<std::string>::iterator niter;
-	niter = std::find(m_enames.begin(), m_enames.end(), name);
-	if (niter != m_enames.end())
-		return false;
-	else
-		m_enames.push_back(name);
-
-	Iterators::MEIterator eiter(pmesh);
-	for (EdgeType * pe : eiter)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddLocProp(EdgeType * pe, std::string name, DataType data)
 	{
+		if (pe->props().Find(name))
+			return false;
+		if (std::find(m_enames.begin(), m_enames.end(), name) == m_enames.end())
+			m_enames.push_back(name);
+
+		std::pair<EdgeType *, std::string> enpair{ pe, name };
+		m_elocp.push_back(enpair);
 		pe->props().Add<DataType>(name, data);
+		return true;
 	}
-	return true;
-}
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddFProp(std::string name, DataType data)
-{
-	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
-
-	std::list<std::string>::iterator niter;
-	niter = std::find(m_fnames.begin(), m_fnames.end(), name);
-	if (niter != m_fnames.end())
-		return false;
-	else
-		m_fnames.push_back(name);
-	Iterators::MFIterator fiter(pmesh);
-	for (FaceType * pf : fiter)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddLocProp(FaceType * pf, std::string name, DataType data)
 	{
+		if (pf->props().Find(name))
+			return false;
+		if (std::find(m_fnames.begin(), m_fnames.end(), name) == m_fnames.end())
+			m_fnames.push_back(name);
+
+		std::pair<FaceType *, std::string> fnpair{ pf, name };
+		m_flocp.push_back(fnpair);
 		pf->props().Add<DataType>(name, data);
-	}
-	return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddHProp(std::string name, DataType data)
-{
-	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
-
-	std::list<std::string>::iterator niter;
-	niter = std::find(m_hnames.begin(), m_hnames.end(), name);
-	if (niter != m_hnames.end())
-		return false;
-	else
-		m_hnames.push_back(name);
-
-	Iterators::MFIterator fiter(pmesh);
-	for (FaceType * pf : fiter)
-	{
-		HalfEdgeType * ph = pmesh->faceHalfedge(pf);
-		do 
-		{
-			ph->props().Add<DataType>(name, data);
-			ph = pmesh->halfedgeNext(ph);
-		} while (ph != pf->halfedge());
-	}
-	return true;
-}
-
-//delete property
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteVProp(std::string name)
-{
-	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
-
-	std::list<std::string>::iterator niter;
-	niter = std::find(m_vnames.begin(), m_vnames.end(), name);
-	if (niter == m_vnames.end())
-		return false;
-	else
-		m_vnames.erase(niter);
-	Iterators::MVIterator viter(pmesh);
-	for (VertexType * pv : viter)
-	{
-		pv->props().Delete<DataType>(name);
-	}
-	return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteEProp(std::string name)
-{
-	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
-
-	std::list<std::string>::iterator niter;
-	niter = std::find(m_enames.begin(), m_enames.end(), name);
-	if (niter == m_enames.end())
-		return false;
-	else
-		m_enames.erase(niter);
-	Iterators::MEIterator eiter(pmesh);
-	for(EdgeType * pe : eiter)
-	{
-		pe->props().Delete<DataType>(name);
-	}
-	return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteFProp(std::string name)
-{
-	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
-
-	std::list<std::string>::iterator niter;
-	niter = std::find(m_fnames.begin(), m_fnames.end(), name);
-	if (niter == m_fnames.end())
-		return false;
-	else
-		m_fnames.erase(niter);
-	Iterators::MFIterator fiter(pmesh);
-	for(FaceType * pf : fiter)
-	{
-		pf->props().Delete<DataType>(name);
-	}
-	return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteHProp(std::string name)
-{
-	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
-
-	std::list<std::string>::iterator niter;
-	niter = std::find(m_hnames.begin(), m_hnames.end(), name);
-	if (niter == m_hnames.end())
-		return false;
-	else
-		m_hnames.erase(niter);
-
-	Iterators::MFIterator fiter(pmesh);
-	for (FaceType * pf : fiter)
-	{
-		HalfEdgeType * ph = pmesh->faceHalfedge(pf);
-		do
-		{
-			ph->props().Delete<DataType>(name);
-			ph = pmesh->halfedgeNext(ph);
-		} while (ph != pf->halfedge());
-	}
-	return true;
-}
-
-//find property
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::FindVProp(std::string name)
-{
-	std::list<std::string>::iterator iter;
-	iter = std::find(m_vnames.begin(), m_vnames.end(), name);
-	if (iter == m_vnames.end())
-		return false;
-	else
 		return true;
-}
+	}
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::FindEProp(std::string name)
-{
-	std::list<std::string>::iterator iter;
-	iter = std::find(m_enames.begin(), m_enames.end(), name);
-	if (iter == m_enames.end())
-		return false;
-	else
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddLocProp(HalfEdgeType * ph, std::string name, DataType data)
+	{
+		if (ph->props().Find(name))
+			return false;
+		if (std::find(m_hnames.begin(), m_hnames.end(), name) == m_hnames.end())
+			m_hnames.push_back(name);
+
+		std::pair<HalfEdgeType *, std::string> hnpair{ ph, name };
+		m_hlocp.push_back(hnpair);
+		ph->props().Add<DataType>(name, data);
 		return true;
-}
+	}
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::FindFProp(std::string name)
-{
-	std::list<std::string>::iterator iter;
-	iter = std::find(m_fnames.begin(), m_fnames.end(), name);
-	if (iter == m_fnames.end())
-		return false;
-	else
-		return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::FindHProp(std::string name)
-{
-	std::list<std::string>::iterator iter;
-	iter = std::find(m_hnames.begin(), m_hnames.end(), name);
-	if (iter == m_hnames.end())
-		return false;
-	else
-		return true;
-}
-
-//Local Property
-
-//Add local property
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddLocProp(VertexType * pv, std::string name, DataType data)
-{
-	if (pv->props().Find(name))
-		return false;
-	if (std::find(m_vnames.begin(), m_vnames.end(), name) == m_vnames.end())
-		m_vnames.push_back(name);
-
-	std::pair<VertexType *, std::string> vnpair{ pv, name };
-	m_vlocp.push_back(vnpair);
-	pv->props().Add<DataType>(name, data);
-	return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddLocProp(EdgeType * pe, std::string name, DataType data)
-{
-	if (pe->props().Find(name))
-		return false;
-	if (std::find(m_enames.begin(), m_enames.end(), name) == m_enames.end())
-		m_enames.push_back(name);
-
-	std::pair<EdgeType *, std::string> enpair{ pe, name };
-	m_elocp.push_back(enpair);
-	pe->props().Add<DataType>(name, data);
-	return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddLocProp(FaceType * pf, std::string name, DataType data)
-{
-	if (pf->props().Find(name))
-		return false;
-	if (std::find(m_fnames.begin(), m_fnames.end(), name) == m_fnames.end())
-		m_fnames.push_back(name);
-
-	std::pair<FaceType *, std::string> fnpair{ pf, name };
-	m_flocp.push_back(fnpair);
-	pf->props().Add<DataType>(name, data);
-	return true;
-}
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddLocProp(HalfEdgeType * ph, std::string name, DataType data)
-{
-	if (ph->props().Find(name))
-		return false;
-	if (std::find(m_hnames.begin(), m_hnames.end(), name) == m_hnames.end())
-		m_hnames.push_back(name);
-
-	std::pair<HalfEdgeType *, std::string> hnpair{ ph, name };
-	m_hlocp.push_back(hnpair);
-	ph->props().Add<DataType>(name, data);
-	return true;
-}
-
-//Delete Local Property
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-void PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteVLocProp(std::string name)
-{
-	std::list<std::pair<VertexType *, std::string>>::iterator vniter;
-	for ( vniter = m_vlocp.begin(); vniter != m_vlocp.end();)
+	//Delete Local Property
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	void PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteVLocProp(std::string name)
 	{
-		std::pair<VertexType *, std::string> vnpair = *vniter;
-		if (vnpair.second == name)
+		std::list<std::pair<VertexType *, std::string>>::iterator vniter;
+		for (vniter = m_vlocp.begin(); vniter != m_vlocp.end();)
 		{
-			VertexType * pv = vnpair.first;
-			pv->props().Delete<DataType>(name);
-			vniter = m_vlocp.erase(vniter);
-		}
-		else
-		{
-			vniter++;
+			std::pair<VertexType *, std::string> vnpair = *vniter;
+			if (vnpair.second == name)
+			{
+				VertexType * pv = vnpair.first;
+				pv->props().Delete<DataType>(name);
+				vniter = m_vlocp.erase(vniter);
+			}
+			else
+			{
+				vniter++;
+			}
 		}
 	}
-}
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-void PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteELocProp(std::string name)
-{
-	std::list<std::pair<EdgeType *, std::string>>::iterator eniter;
-	for (eniter = m_elocp.begin(); eniter != m_elocp.end();)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	void PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteELocProp(std::string name)
 	{
-		std::pair<EdgeType *, std::string> enpair = *eniter;
-		if (enpair.second == name)
+		std::list<std::pair<EdgeType *, std::string>>::iterator eniter;
+		for (eniter = m_elocp.begin(); eniter != m_elocp.end();)
 		{
-			EdgeType * pe = enpair.first;
-			pe->props().Delete<DataType>(name);
-			eniter = m_elocp.erase(eniter);
-		}
-		else
-		{
-			eniter++;
+			std::pair<EdgeType *, std::string> enpair = *eniter;
+			if (enpair.second == name)
+			{
+				EdgeType * pe = enpair.first;
+				pe->props().Delete<DataType>(name);
+				eniter = m_elocp.erase(eniter);
+			}
+			else
+			{
+				eniter++;
+			}
 		}
 	}
-}
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-void PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteFLocProp(std::string name)
-{
-	std::list<std::pair<FaceType *, std::string>>::iterator fniter;
-	for (fniter = m_flocp.begin(); fniter != m_flocp.end();)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	void PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteFLocProp(std::string name)
 	{
-		std::pair<FaceType *, std::string> fnpair = *fniter;
-		if (fnpair.second == name)
+		std::list<std::pair<FaceType *, std::string>>::iterator fniter;
+		for (fniter = m_flocp.begin(); fniter != m_flocp.end();)
 		{
-			FaceType * pf = fnpair.first;
-			pf->props().Delete<DataType>(name);
-			fniter = m_flocp.erase(fniter);
-		}
-		else
-		{
-			fniter++;
+			std::pair<FaceType *, std::string> fnpair = *fniter;
+			if (fnpair.second == name)
+			{
+				FaceType * pf = fnpair.first;
+				pf->props().Delete<DataType>(name);
+				fniter = m_flocp.erase(fniter);
+			}
+			else
+			{
+				fniter++;
+			}
 		}
 	}
-}
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-template<typename DataType>
-void PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteHLocProp(std::string name)
-{
-	std::list<std::pair<HalfEdgeType *, std::string>>::iterator hniter;
-	for (hniter = m_hlocp.begin(); hniter != m_hlocp.end();)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	template<typename DataType>
+	void PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteHLocProp(std::string name)
 	{
-		std::pair<HalfEdgeType *, std::string> hnpair = *hniter;
-		if (hnpair.second == name)
+		std::list<std::pair<HalfEdgeType *, std::string>>::iterator hniter;
+		for (hniter = m_hlocp.begin(); hniter != m_hlocp.end();)
 		{
-			HalfEdgeType * ph = hnpair.first;
-			ph->props().Delete<DataType>(name);
-			hniter = m_hlocp.erase(hniter);
-		}
-		else
-		{
-			hniter++;
+			std::pair<HalfEdgeType *, std::string> hnpair = *hniter;
+			if (hnpair.second == name)
+			{
+				HalfEdgeType * ph = hnpair.first;
+				ph->props().Delete<DataType>(name);
+				hniter = m_hlocp.erase(hniter);
+			}
+			else
+			{
+				hniter++;
+			}
 		}
 	}
-}
 
+}
