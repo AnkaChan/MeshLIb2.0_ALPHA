@@ -7,7 +7,7 @@
 #include <MeshLib/core/Mesh/Edge.h>
 #include <MeshLib/core/Mesh/Face.h>
 #include <MeshLib/core/Mesh/iterators_new.h>
-#include <MeshLib/core/Mesh/Property.h>
+
 
 using namespace MeshLib;
 class myVertex : public CVertex {
@@ -24,7 +24,6 @@ int main() {
 	typedef CInterface<myVertex, CEdge, CFace, myHalfedge> Interface;
 	typedef CIteratorsI<Interface> Iterators;
 	typedef Interface::MeshType CMesh;
-	typedef PropsHandle<myVertex, CEdge, CFace, myHalfedge> PropsH;
 
 	std::vector<int> v(10);
 	for (int& i : v) {
