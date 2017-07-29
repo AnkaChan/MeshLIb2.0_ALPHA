@@ -169,26 +169,26 @@ namespace MeshLib {
 			VCcwEIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostClwOutHalfEdge(pV)) {};
 
 			VCcwEIterator& operator++() {
-				if (isboundary(_pV)) {
-					if (_pHE == vertexMostCcwInHalfEdge(_pV)){
+				if (isBoundary(_pV)) {
+					if (_pHE == vertexMostCcwOutHalfEdge(_pV)){
 						_pHE = (HEPtr)_pHE->he_prev();
 						reachBoundary = true;
 					}
 					else if (reachBoundary) {
 						_pHE = NULL;
 					} else{
-						_pHE = vertexNextCcwInHalfEdge(_pHE);
+						_pHE = vertexNextCcwOutHalfEdge(_pHE);
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostCcwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? _pHE = NULL : vertexNextCcwOutHalfEdge(_pHE);
 				}
 				return *this;
 			};
 			VCcwEIterator  operator++(int) {
 				VCcwEIterator tmp(pV, pHE);
 				if (isboundary(_pV)) {
-					if (_pHE == vertexMostCcwInHalfEdge(_pHE)) {
+					if (_pHE == vertexMostCcwInHalfEdge(_pV)) {
 						_pHE = (HEPtr)_pHE->he_prev();
 						reachBoundary = true;
 					}
@@ -200,7 +200,7 @@ namespace MeshLib {
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostCcwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostCcwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				}
 				return tmp;
 			};
@@ -223,10 +223,10 @@ namespace MeshLib {
 	
 		class VClwEIterator : public std::iterator<std::forward_iterator_tag, EPtr> {
 		public:
-			VClwEIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostCcwOutHalfEdge(pV)) {};
+			VClwEIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostCcwInHalfEdge(pV)) {};
 
 			VClwEIterator& operator++() {
-				if (isboundary(_pV)) {
+				if (isBoundary(_pV)) {
 					if (_pHE == vertexMostClwInHalfEdge(_pV)) {
 						_pHE = (HEPtr)_pHE->he_next();
 						reachBoundary = true;
@@ -328,13 +328,13 @@ namespace MeshLib {
 			bool operator==(const VVIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VVIterator& otherIter) { return _iter != otherIter._iter; }
 			VPtr operator*() { 
-				if (_pLastV != NULL)
+				if (_pLastV == NULL)
 					return (VPtr)(*_iter)->target();
 				else
 					return _pLastV;
 			}
 			VPtr value() {
-				if (_pLastV != NULL)
+				if (_pLastV == NULL)
 					return (VPtr)(*_iter)->target();
 				else
 					return _pLastV;
@@ -356,8 +356,8 @@ namespace MeshLib {
 			VCcwVIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostClwOutHalfEdge(pV)) {};
 
 			VCcwVIterator& operator++() {
-				if (isboundary(_pV)) {
-					if (_pHE == vertexMostCcwInHalfEdge(_pHE)) {
+				if (isBoundary(_pV)) {
+					if (_pHE == vertexMostCcwOutHalfEdge(_pV)) {
 						_pHE = (HEPtr)_pHE->he_prev();
 						reachBoundary = true;
 					}
@@ -365,18 +365,18 @@ namespace MeshLib {
 						_pHE = NULL;
 					}
 					else {
-						_pHE = vertexNextCcwInHalfEdge(_pHE);
+						_pHE = vertexNextCcwOutHalfEdge(_pHE);
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostCcwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? _pHE = NULL : vertexNextCcwOutHalfEdge(_pHE);
 				}
 				return *this;
 			};
 			VCcwVIterator  operator++(int) {
 				VCcwVIterator tmp(pV, pHE);
 				if (isboundary(_pV)) {
-					if (_pHE == vertexMostCcwInHalfEdge(_pHE)) {
+					if (_pHE == vertexMostCcwInHalfEdge(_pV)) {
 						_pHE = (HEPtr)_pHE->he_prev();
 						reachBoundary = true;
 					}
@@ -388,19 +388,19 @@ namespace MeshLib {
 					}
 				}
 				else {
-					_pHE = _pHE == vertexMostCcwInHalfEdge(_pHE) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
+					_pHE = _pHE == vertexMostCcwInHalfEdge(_pV) ? _pHE = NULL : vertexNextClwInHalfEdge(_pHE);
 				}
 				return tmp;
 			};
 			bool operator==(const VCcwVIterator& otherIter) { return _pHE == otherIter._pHE; }
 			bool operator!=(const VCcwVIterator& otherIter) { return _pHE != otherIter._pHE; }
-			EPtr operator*() { 
+			VPtr operator*() { 
 				if (reachBoundary)
 					return halfedgeSource(_pHE);
 				else
 					return halfedgeTarget(_pHE);
 			}
-			EPtr value() {
+			VPtr value() {
 				if (reachBoundary)
 					return halfedgeSource(_pHE);
 				else
@@ -420,10 +420,10 @@ namespace MeshLib {
 
 		class VClwVIterator : public std::iterator<std::forward_iterator_tag, VPtr> {
 		public:
-			VClwVIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostCcwOutHalfEdge(pV)) {};
+			VClwVIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostCcwInHalfEdge(pV)) {};
 
 			VClwVIterator& operator++() {
-				if (isboundary(_pV)) {
+				if (isBoundary(_pV)) {
 					if (_pHE == vertexMostClwInHalfEdge(_pV)) {
 						_pHE = (HEPtr)_pHE->he_next();
 						reachBoundary = true;
@@ -491,24 +491,73 @@ namespace MeshLib {
 		public:
 			VEIterator(VPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
 
-			VEIterator& operator++() { ++_iter; return *this; };
-			VEIterator  operator++(int) { VEIterator tmp(_pV, _Iter); ++_iter; return tmp; };
+			VEIterator& operator++() {
+				if (isBoundary(_pV)) {
+					if (_pLastE != NULL) {
+						++_iter;
+						_pLastE = NULL;
+					}
+					else {
+						CHalfEdge * pLastHE = (*_iter)->he_prev();;
+						if (pLastHE->he_sym() != NULL)
+							++_iter;
+						else {
+							_pLastE = halfedgeEdge((HEPtr)pLastHE);
+						}
+					}
+				}
+				else {
+					++_iter;
+				}
+
+				return *this;
+			};
+			VEIterator  operator++(int) {
+				VEIterator tmp(_pV, _Iter); if (isBoundary(_pV)) {
+					if (_pLastE != NULL) {
+						++_iter;
+						_pLastE = NULL;
+					}
+					else {
+						CHalfEdge * pLastHE = (*_iter)->he_prev();;
+						if (pLastHE->he_sym() != NULL)
+							++_iter;
+						else {
+							_pLastE = halfedgeEdge((HEPtr)pLastHE);
+						}
+					}
+				}
+				else {
+					++_iter;
+				}
+				return tmp;
+			};
 
 			bool operator==(const VEIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VEIterator& otherIter) { return _iter != otherIter._iter; }
 		
-			EPtr& operator*() { return halfedgeEdge(*_iter); }
-			EPtr& value() { return halfedgeEdge(*_iter); }
+			EPtr operator*() { 
+				if (_pLastE == NULL)
+					return  halfedgeEdge((HEPtr)*_iter);
+				else
+					return _pLastE;  
+			}
+			EPtr value() {
+				if (_pLastE == NULL)
+					return  halfedgeEdge((HEPtr)*_iter);
+				else
+					return _pLastE;
+			}
 
-			VOutHEIterator begin() { return VOutHEIterator(_pV); }
-			VOutHEIterator end() { return VOutHEIterator(_pV, _pV->arhe().end()); }
+			VEIterator begin() { return VEIterator(_pV); }
+			VEIterator end() { return VEIterator(_pV, _pV->arhe().end()); }
 
 			CHalfEdgePtrListIterator get() { return _iter; }
 		private:
 			VEIterator(VPtr pV, CHalfEdgePtrListIterator iter) : _pV(pV), _iter(iter) {};
 			CHalfEdgePtrListIterator _iter;
 			VPtr _pV;
-
+			EPtr _pLastE = NULL;
 		};
 
 		class VFIterator : public std::iterator<std::forward_iterator_tag, FPtr> {
@@ -520,8 +569,8 @@ namespace MeshLib {
 
 			bool operator==(const VFIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VFIterator& otherIter) { return _iter != otherIter._iter; }
-			FPtr& operator*() { return (FPtr)*_iter->face(); }
-			FPtr& value() { return (FPtr)*_iter->face(); }
+			FPtr operator*() { return (FPtr)*_iter->face(); }
+			FPtr value() { return (FPtr)*_iter->face(); }
 
 			VFIterator begin() { return VFIterator(_pV);  }
 			VFIterator end() { return VFIterator(_pV, _pV->arhe().end()); }
@@ -548,8 +597,8 @@ namespace MeshLib {
 
 			bool operator==(const FHIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const FHIterator& otherIter) { return _iter != otherIter._iter; }
-			HEPtr& operator*() { return _iter; }
-			HEPtr& value() { return _iter; }
+			HEPtr operator*() { return _iter; }
+			HEPtr value() { return _iter; }
 
 			FHIterator begin() { return FHIterator(_pF); }
 			FHIterator end() { return FHIterator(_pF, NULL); }
@@ -578,8 +627,8 @@ namespace MeshLib {
 
 			bool operator==(const FEIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const FEIterator& otherIter) { return _iter != otherIter._iter; }
-			HEPtr& operator*() { return (EPtr)_iter->edge(); }
-			HEPtr& value() { return (EPtr)_iter->edge(); }
+			HEPtr operator*() { return (EPtr)_iter->edge(); }
+			HEPtr value() { return (EPtr)_iter->edge(); }
 
 			FEIterator begin() { return FEIterator(_pF); }
 			FEIterator end() { return FEIterator(_pF, NULL); }
@@ -607,8 +656,8 @@ namespace MeshLib {
 
 			bool operator==(const FVItertor& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const FVItertor& otherIter) { return _iter != otherIter._iter; }
-			VPtr& operator*() { return (VPtr)_iter->vertex(); }
-			VPtr& value() { return (VPtr)_iter->vertex(); }
+			VPtr operator*() { return (VPtr)_iter->vertex(); }
+			VPtr value() { return (VPtr)_iter->vertex(); }
 
 			FVItertor begin() { return FVItertor(_pF); }
 			FVItertor end() { return FVItertor(_pF, NULL); }

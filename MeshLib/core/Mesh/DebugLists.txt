@@ -7,3 +7,8 @@ MVIterator
 VOutHEIterator
 VCcwHEIterator
 VClwInHEIterator 
+
+VEIterator
+VCcwEIterator
+VClwEIterator
+

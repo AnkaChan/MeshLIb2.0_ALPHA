@@ -17,10 +17,16 @@ class myHalfedge : public CHalfEdge {
 public:
 	int num = 10;
 };
+class myEdge : public CEdge {
+	int num = 222;
+};
+class myFace : public CFace {
+	double i = 1223.2312;
+};
 using std::cout;
 using std::endl;
 int main() {
-	typedef CInterface<myVertex, CEdge, CFace, myHalfedge> Interface;
+	typedef CInterface<myVertex, myEdge, myFace, myHalfedge> Interface;
 	typedef CIteratorsI<Interface> Iterators;
 	typedef Interface::MeshType CMesh;
 
@@ -56,19 +62,54 @@ int main() {
 		else
 			cout << "Vertex in interior." << endl;
 
-		Iterators::VVIterator vvIter(pV);
+		/*
+		* Testing edge iterators.
+		*/
+		Iterators::VEIterator veIter(pV);
 		cout << "Iterating vertices using halfedge list:" << endl;
 		cout << "The number of halfedges: " << pV->arhe().size() << endl;;
-		for (auto pNeiV : vvIter) {
-			cout << "Neighbor Vertex id: " << Interface::vertexId(pV) << " Position: " << pV->point() << endl;
+		for (auto pNeiE : veIter) {
+			cout << "Neighbor edge length: " << Interface::edgeLength(pNeiE);
+			cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
 		}
 
 		cout << "-----------------------------" << endl;
 		cout << "Iterating vertices using halfedge conection(CCW):" << endl;
-		Iterators::VCcwVIterator vccwvIter(pV);
-		for (auto pNeiV : vvIter){
-			cout << "Neighbor Vertex id: " << Interface::vertexId(pV) << " Position: " << pV->point() << endl;
+		Iterators::VCcwEIterator vccweIter(pV);
+		for (auto pNeiE : vccweIter) {
+			cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
 		}
+
+		cout << "-----------------------------" << endl;
+		cout << "Iterating vertices using halfedge conection(CLW):" << endl;
+		Iterators::VClwEIterator vclweIter(pV);
+		for (auto pNeiE : vclweIter) {
+			cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
+		}
+
+		///*
+		//* Testing Vertex iterators.
+		//*/
+		//Iterators::VVIterator vvIter(pV);
+		//cout << "Iterating vertices using halfedge list:" << endl;
+		//cout << "The number of halfedges: " << pV->arhe().size() << endl;;
+		//for (auto pNeiV : vvIter) {
+		//	cout << "Neighbor Vertex id: " << Interface::vertexId(pNeiV) << " Position: " << pNeiV->point() << endl;
+		//}
+
+		//cout << "-----------------------------" << endl;
+		//cout << "Iterating vertices using halfedge conection(CCW):" << endl;
+		//Iterators::VCcwVIterator vccwvIter(pV);
+		//for (auto pNeiV : vccwvIter){
+		//	cout << "Neighbor Vertex id: " << Interface::vertexId(pNeiV) << " Position: " << pNeiV->point() << endl;
+		//}
+
+		//cout << "-----------------------------" << endl;
+		//cout << "Iterating vertices using halfedge conection(CLW):" << endl;
+		//Iterators::VClwVIterator vclwvIter(pV);
+		//for (auto pNeiV : vclwvIter) {
+		//	cout << "Neighbor Vertex id: " << Interface::vertexId(pNeiV) << " Position: " << pNeiV->point() << endl;
+		//}
 		
 		//Iterators::VOutHEIterator voutheIter(pV);
 		//for (auto pHE : voutheIter) {
