@@ -3,7 +3,7 @@
 #include <GL\glut.h>
 #include <GL\freeglut_ext.h>
 #include <MeshLib\core\Mesh\MesCoreHeader.h>
-
+#define MAX(a,b) ((a)>(b) ? (a) : (b))
 namespace MeshLib {
 	namespace GLViewer{
 		/* window width and height */
@@ -75,7 +75,49 @@ namespace MeshLib {
 
 			glLineWidth(1.0);
 		}
+		void draw_mesh()
+		{
+			glBegin(GL_TRIANGLES);
+			for (CMyMeshGL::MeshFaceIterator fiter(&mesh); !fiter.end(); ++fiter)
+			{
+				CMyFaceGL * pf = *fiter;
+				for (CMyMeshGL::FaceVertexIterator fviter(pf); !fviter.end(); ++fviter)
+				{
+					CMyVertexGL * v = *fviter;
+					CPoint pt = v->point();
+					CPoint n;
+					switch (shadeFlag)
+					{
+					case 0:
+						n = pf->normal();
+						break;
+					case 1:
+						n = v->normal();
+						break;
+					}
+					glNormal3d(n[0], n[1], n[2]);
+					if (mesh.hasMappedCentric()) {
+						CPoint2 para = pf->getCenterParameter();
+						glColor3f(para[0], para[1], 0.0);
+						//glColor3f(para[0], 0, 0.0);
+						//glColor3f(0, para[1], 0.0);
+					}
+					else if (pf->foliating) {
+						glColor3f(0.0, 1.0, 1.0);
+					}
+					else if (pf->hasDeleted()) {
+						glColor3f(0.5, 0.5, 0.5);
+					}
+					else
+					{
+						glColor3f(1.0, 1.0, 1.0);
+					}
 
+					glVertex3d(pt[0], pt[1], pt[2]);
+				}
+			}
+			glEnd();
+		}
 		/*! display call back function
 		*/
 		void display()
@@ -90,6 +132,7 @@ namespace MeshLib {
 			setupObject();
 
 			draw_axis();
+			draw_mesh();
 
 			glPopMatrix();
 			glutSwapBuffers();
@@ -151,10 +194,8 @@ namespace MeshLib {
 			case '?':
 				help();
 				break;
-			case 27:
-				exit(0);
+			default:
 				break;
-
 			}
 			glutPostRedisplay();
 		}
@@ -248,6 +289,10 @@ namespace MeshLib {
 		void init_openGL()
 		{
 			/* glut stuff */
+			int argcG = 1;
+			char* s = "none";
+			char** argvG = &s; 
+
 			glutInit(&argcG, argvG);                /* Initialize GLUT */
 			glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 			glutInitWindowSize(800, 600);
@@ -260,12 +305,73 @@ namespace MeshLib {
 			glutMouseFunc(mouseClick);
 			glutMotionFunc(mouseMove);
 			glutKeyboardFunc(keyBoard);
-			glutSpecialFunc(specailKey);
 
 			setupGLstate();
 			glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 			glutMainLoop();                       /* Start GLUT event-processing loop */
 		}
-
 	}
+	class CSimpleMeshViewer {
+	public:
+		typedef CIterators<GLViewer::IFGL::MeshPtr> IT;
+		CSimpleMeshViewer(GLViewer::IFGL::MeshPtr pM, bool toComputeN = true, bool toNormalize = true) : m_pM(pM){
+			GLViewer::pMesh = pM;
+			if (toComputeN)
+				computeNormal();
+		}
+		void computeNormal();
+		void normalizeMesh();
+		void show();
+	private:
+
+		GLViewer::IFGL::MeshPtr m_pM;
+	};
+	void CSimpleMeshViewer::computeNormal() {
+		for (auto pV : IT::MVIterator(m_pM))
+		{
+			CPoint n(0, 0, 0); 
+			for (auto pF : IT::VFIterator(pV))
+			{
+				CPoint p[3];
+				CHalfEdge * he = pF->halfedge();
+				for (int k = 0; k < 3; k++)
+				{
+					p[k] = he->target()->point();
+					he = he->he_next();
+				}
+				CPoint fn = (p[1] - p[0]) ^ (p[2] - p[0]);
+				pF->normal = fn / fn.norm();
+				n += fn;
+			}
+			n = n / n.norm();
+			pV->normal = n;
+		}
+	}
+
+	void CSimpleMeshViewer::normalizeMesh()
+	{
+		CPoint center(0, 0, 0);
+		CPoint min(0, 0, 0);
+		CPoint max(0, 0, 0);
+		for (auto pV : IT::MVIterator(m_pM)) {
+			CPoint v = pV->point();
+			center += v;
+			for (int i = 0; i < 3; ++i) {
+				min[i] = v[i] < min[i] ? v[i] : min[i];
+				max[i] = v[i] > max[i] ? v[i] : max[i];
+			}
+		}
+		center = center / m_pM->vertices().size();
+		CPoint scale = max - min;
+		double l = MAX(scale[0], MAX(scale[1], scale[2]));
+		for (auto pV : IT::MVIterator(m_pM)) {
+			pV->point() = (pV->point() - center) / l;
+		}
+	}
+
+	void CSimpleMeshViewer::show()
+	{
+		GLViewer::init_openGL();
+	}
+
 }
