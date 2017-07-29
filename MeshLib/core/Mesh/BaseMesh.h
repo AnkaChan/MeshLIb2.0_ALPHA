@@ -207,13 +207,11 @@ public:
 	void        deleteFace( FacePtr  f );
 	/*! label boundary vertices, edges, faces */
 	void	    labelBoundary(void);
+
 	/*! whether the vertex is with texture coordinates */
 	bool        m_with_texture;
 	/*! whether the mesh is with normal */
-	bool        m_with_normal;
-	  
-	
-
+	bool        m_with_normal;  
  public:
 	 /*!
 	  *   the input traits of the mesh, there are 64 bits in total
