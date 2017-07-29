@@ -109,7 +109,6 @@ namespace MeshLib {
 		class VCcwFIterator : public std::iterator<std::forward_iterator_tag, FPtr> {
 		public:
 			VCcwFIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostClwOutHalfEdge(pV)) {};
-			VCcwFIterator(const VPtr& pV, const HEPtr& pHE) : _pV(pV), _pHE(pHE) {};
 
 			VCcwFIterator& operator++() {
 				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
@@ -127,10 +126,11 @@ namespace MeshLib {
 			FPtr value() { return halfedgeFace(_pHE); }
 
 			VCcwFIterator begin() { return VCcwFIterator(_pV); }
-			VCcwFIterator end() { return  v(_pV, NULL); }//why null???may be a he ?
+			VCcwFIterator end() { return  VCcwFIterator(_pV, NULL); }//why null???may be a he ?
 
 			HEPtr get() { return _pHE; }
 		private:
+			VCcwFIterator(const VPtr& pV, const HEPtr& pHE) : _pV(pV), _pHE(pHE) {};
 			VPtr _pV;
 			HEPtr _pHE;
 		};
