@@ -5,5 +5,6 @@
 #include <MeshLib/core/Mesh/HalfEdge.h>
 #include <MeshLib/core/Mesh/Edge.h>
 #include <MeshLib/core/Mesh/Face.h>
+#include <MeshLib/core/Mesh/Types.h>
 #include <MeshLib/core/Mesh/iterators.h>
 #include <MeshLib/core/Mesh/Property.h>
