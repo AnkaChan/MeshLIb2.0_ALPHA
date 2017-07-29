@@ -192,7 +192,14 @@ namespace MeshLib
 		\param id the index of the halfedge, either 0 or 1
 		\return the halfedge[i] attaching to edge e.
 		*/
+		static HEPtr edgeHalfedge(EPtr	e, int	id);
 
+		//edge->halfedge
+		/*!
+		The halfedge attaching to an edge.
+		\param e the input edge.
+		\return the halfedge attaching to edge e.
+		*/
 		static HEPtr edgeHalfedge(EPtr  e);
 
 		//face->halfedge
@@ -565,6 +572,19 @@ namespace MeshLib
 		{
 			return (FaceType*)e->halfedge()->sym()->face();
 		}
+	}
+
+	//edge->halfedge
+	/*!
+	The halfedge attaching to an edge.
+	\param e the input edge.
+	\param id the index of the halfedge, either 0 or 1
+	\return the halfedge[i] attaching to edge e.
+	*/
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
+	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::edgeHalfedge(EPtr e, int id)
+	{
+		return (HalfEdgeType*)(id == 0 ? e->halfedge() : e->halfedge()->he_sym());
 	}
 
 	//access he->f
