@@ -15,7 +15,6 @@
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
 #include "HalfEdge.h"
-#include "Property.h"
 
 namespace MeshLib{
 
@@ -23,7 +22,6 @@ namespace MeshLib{
   /*!
   \brief CVertex class, which is the base class of all kinds of vertex classes
   */
-
   class CVertex
   {
   public:
@@ -84,10 +82,6 @@ namespace MeshLib{
 	/*!	Adjacent edges, temporarily used for loading the mesh
 	 */
 	std::list<CHalfEdge*> & arhe() { return m_arhe; };
-
-	/*! Properties
-	*/
-	Props & props() { return m_props; };
   protected:
 
     /*! Vertex ID. 
@@ -115,9 +109,6 @@ namespace MeshLib{
 	/*! List of adjacent edges, such that current vertex is the end vertex of the edge with smaller id
 	 */
 	std::list<CHalfEdge*> m_arhe;
-
-	/*! Properties */
-	Props			m_props;
   }; //class CVertex
 
 
