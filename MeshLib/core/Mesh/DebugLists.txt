@@ -4,6 +4,23 @@ The following class has pasted the debuging:
 
 MEIterator
 MVIterator
+MFIterator
 VOutHEIterator
 VCcwHEIterator
 VClwInHEIterator 
+
+VVIterator
+VCcwVIterator
+VClwVIterator
+VEIterator
+VCcwEIterator
+VClwEIterator
+
+VFIterator
+FVIterator
+FHEIterator
+FEIterator
+
+VCcwFIterator
+VClwFIterator
+
