@@ -34,7 +34,7 @@ int main() {
 	Iterators::MEIterator meIter(&mesh);
 	//cout << "Iterating Edges." << endl;
 	//for (auto pE : meIter) {
-	//	Interface::VertexPtr pV1, pV2;
+	//	Interface::VPtr pV1, pV2;
 	//	pV1 = Interface::edgeVertex1(pE);
 	//	pV2 = Interface::edgeVertex2(pE);
 
@@ -73,25 +73,25 @@ int main() {
 		//Iterators::VOutHEIterator voutheIter(pV);
 		//for (auto pHE : voutheIter) {
 		//	cout << "The halfedge: " << pHE << endl;
-		//	Interface::VertexPtr pTargetV = Interface::halfedgeTarget(pHE);
+		//	Interface::VPtr pTargetV = Interface::halfedgeTarget(pHE);
 		//	cout << "Target vertex id: " << Interface::vertexId(pTargetV) << endl;
 		//}
 		//cout << "-----------------------------" << endl;
 		//cout << "Iterating halfedges using halfedge conection(CCW):" << endl;
 		//Iterators::VCcwOutHEIterator vccwheiter(pV);
-		//for (Interface::HalfEdgePtr pHE : vccwheiter) {
+		//for (Interface::HEPtr pHE : vccwheiter) {
 		//	std::cout << "The halfedge: " << pHE << std::endl;
-		//	Interface::VertexPtr pTargetV = Interface::halfedgeTarget(pHE);
-		//	Interface::VertexPtr pSourceV = Interface::halfedgeSource(pHE);
+		//	Interface::VPtr pTargetV = Interface::halfedgeTarget(pHE);
+		//	Interface::VPtr pSourceV = Interface::halfedgeSource(pHE);
 		//	cout << "Target vertex id: " << Interface::vertexId(pTargetV) << " Source vertex id: " << Interface::vertexId(pSourceV) << endl;
 		//}
 		//cout << "-----------------------------" << endl;
 		//cout << "Iterating halfedges using halfedge conection(CCW):" << endl;
 		//Iterators::VClwInHEIterator vclwheiter(pV);
-		//for (Interface::HalfEdgePtr pHE : vclwheiter) {
+		//for (Interface::HEPtr pHE : vclwheiter) {
 		//	std::cout << "The halfedge: " << pHE << std::endl;
-		//	Interface::VertexPtr pTargetV = Interface::halfedgeTarget(pHE);
-		//	Interface::VertexPtr pSourceV = Interface::halfedgeSource(pHE);
+		//	Interface::VPtr pTargetV = Interface::halfedgeTarget(pHE);
+		//	Interface::VPtr pSourceV = Interface::halfedgeSource(pHE);
 		//	cout << "Target vertex id: " << Interface::vertexId(pTargetV) << " Source vertex id: " << Interface::vertexId(pSourceV) << endl;
 		//}
 		
@@ -101,9 +101,9 @@ int main() {
 
 	getchar();
 
-	Interface::VertexPtr pV = mesh.idVertex(10);
+	Interface::VPtr pV = mesh.idVertex(10);
 	Iterators::VCcwOutHEIterator vheiter(pV);
-	for (Interface::HalfEdgePtr pHE : vheiter) {
+	for (Interface::HEPtr pHE : vheiter) {
 		std::cout << "This is the halfedge pointer:" << (int)pHE << std::endl;
 	}
 	  
@@ -111,7 +111,7 @@ int main() {
 	auto zeros = std::find_if(v.begin(), v.end(), find_zero);
 
 	/*Iterators::VCcwOutHEIterator vccwheiter(pV);
-	for (Interface::HalfEdgePtr pHE : vccwheiter) {
+	for (Interface::HEPtr pHE : vccwheiter) {
 		std::cout << "This is the halfedge pointer:" << (int)pHE << std::endl;
 	}*/
 	getchar();
