@@ -15,83 +15,72 @@
 #include <math.h>
 #include <string>
 #include "HalfEdge.h"
-namespace MeshLib{
+namespace MeshLib {
 
-//class CHalfEdge;
-//class CVertex;
-
-/*!
-\brief CEdge class, which is the base class of all kinds of edge classes
-*/
-class CEdge
-{
-public:
-	/*!
-		CEdge constructor, set both halfedge pointers to be NULL.
-	*/
-	CEdge() { m_halfedge = NULL; };
-	/*!
-		CEdge destructor.
-	*/
-	~CEdge(){};
-	/*!
-		Edge ID
-	 */
-	int & id() { return m_id; };
+	//class CHalfEdge;
+	//class CVertex;
 
 	/*!
-		The halfedge attached to the current edge
-		
+	\brief CEdge class, which is the base class of all kinds of edge classes
 	*/
-	CHalfEdge * & halfedge() { return m_halfedge; };
-	/*!	
-		whether the edge is on the boundary.
-	*/
-	bool		  boundary() { return (m_halfedge->he_sym() == NULL);};
-	/*!
-		The dual halfedge to the input halfedge
-		\param he halfedge attached to the current edge
-		\return the other halfedge attached to the current edge
-	*/
-	CHalfEdge * & other(CHalfEdge*  ph) { return ph->he_sym(); };
-    /*!
-		The string of the current edge.
-	*/
-	std::string & string() { return m_string; };
-	/*!
-		Read the traits from the string.
-	*/
-	void _from_string() {};
-	/*!
-		Save the traits to the string.
-	*/
-	void _to_string() {};
-	/*! 
-		Properties 
-	*/
-	Props & props() { return m_props; };
-protected:
-	/*!
-		Pointers to the halfedge attached to the current edge
-	*/
-	CHalfEdge      * m_halfedge;
-	/*!
-		The string associated to the current edge.
-	*/
-	//bool			 m_isboubdary;
-    std::string      m_string;
-	/*!
-		Edge ID
-	 */
-	int				 m_id;
-	/*! 
-		Properties 
-	*/
-	Props			  m_props;
-};
+	class CEdge
+	{
+	public:
+		/*!
+			CEdge constructor, set both halfedge pointers to be NULL.
+		*/
+		CEdge() { m_halfedge = NULL; };
+		/*!
+			CEdge destructor.
+		*/
+		~CEdge() {};
+		/*!
+			Edge ID
+		 */
+		int & id() { return m_id; };
 
+		/*!
+			The halfedge attached to the current edge
 
-
+		*/
+		CHalfEdge * & halfedge() { return m_halfedge; };
+		/*!
+			whether the edge is on the boundary.
+		*/
+		bool		  boundary() { return (m_halfedge->he_sym() == NULL); };
+		/*!
+			The dual halfedge to the input halfedge
+			\param he halfedge attached to the current edge
+			\return the other halfedge attached to the current edge
+		*/
+		CHalfEdge * & other(CHalfEdge*  ph) { return ph->he_sym(); };
+		/*!
+			The string of the current edge.
+		*/
+		std::string & string() { return m_string; };
+		/*!
+			Read the traits from the string.
+		*/
+		void _from_string() {};
+		/*!
+			Save the traits to the string.
+		*/
+		void _to_string() {};
+	protected:
+		/*!
+			Pointers to the halfedge attached to the current edge
+		*/
+		CHalfEdge      * m_halfedge;
+		/*!
+			The string associated to the current edge.
+		*/
+		//bool			 m_isboubdary;
+		std::string      m_string;
+		/*!
+			Edge ID
+		 */
+		int				 m_id;
+	};
 }//name space MeshLib
 
 #endif //_MESHLIB_EDGE_H_ defined
