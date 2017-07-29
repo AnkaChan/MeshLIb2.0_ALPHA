@@ -79,7 +79,7 @@ private:
 	std::map<std::string, Prop*> props;
 };
 
-template<typename V, typename E, typename F, typename H>
+template<typename VTYPE, typename E, typename F, typename H>
 class PropsHandle
 {
 	typedef MeshLib::CBaseMesh<V, E, F, H>	Mesh;
@@ -163,6 +163,7 @@ private:
 	std::list<std::pair<H *, std::string>> hlocp;
 };
 
+/*
 template<typename V, typename E, typename F, typename H>
 class VLPIterator 
 {
@@ -201,6 +202,7 @@ private:
 	VSPair		m_tspair;
 	std::string	m_name;
 };
+*/
 
 //add property
 template<typename V, typename E, typename F, typename H>
