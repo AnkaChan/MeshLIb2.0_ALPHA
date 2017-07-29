@@ -6,7 +6,7 @@
 #include <MeshLib/core/Mesh/HalfEdge.h>
 #include <MeshLib/core/Mesh/Edge.h>
 #include <MeshLib/core/Mesh/Face.h>
-#include <MeshLib/core/Mesh/iterators_new.h>
+#include <MeshLib/core/Mesh/iterators2.h>
 
 using namespace MeshLib;
 class myVertex : public CVertex {
@@ -35,6 +35,12 @@ int main() {
 		i = 0;
 	}
 
+	CPoint v1(1,2,3);
+	CPoint v2(1, 2, 3);
+	CPoint v3(4, 5, 6);
+	//v1 = v2 + v3;
+	Eigen::Vector3f a(1, 2, 3), b(2, 3, 4), c(4, 5, 6);
+	a = b + c;
 	CMesh mesh;
 	mesh.read_m("D:/Data/Mesh/outputs/face125.m");
 	Iterators::MEIterator meIter(&mesh);

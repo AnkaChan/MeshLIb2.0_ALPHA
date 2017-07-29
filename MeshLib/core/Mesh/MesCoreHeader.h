@@ -7,4 +7,3 @@
 #include <MeshLib/core/Mesh/Face.h>
 #include <MeshLib/core/Mesh/Types.h>
 #include <MeshLib/core/Mesh/iterators.h>
-#include <MeshLib/core/Mesh/Property.h>
