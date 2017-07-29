@@ -9,7 +9,7 @@
 
 namespace MeshLib {
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	struct CIterators : private CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>{
+	struct CIteratorCore : private CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> {
 	public:
 		typedef std::list<CHalfEdge*> CHalfEdgePtrList;
 		typedef std::list<CHalfEdge*>::iterator CHalfEdgePtrListIterator;
@@ -27,16 +27,16 @@ namespace MeshLib {
 			HEPtr operator*() { return (HEPtr)(*_iter); }
 			HEPtr value() { return (HEPtr)(*_iter); }
 
-			VOutHEIterator begin() { return VOutHEIterator(_pV);  }
+			VOutHEIterator begin() { return VOutHEIterator(_pV); }
 			VOutHEIterator end() { return VOutHEIterator(_pV, _pV->arhe().end()); }
 
 			CHalfEdgePtrListIterator get() { return _iter; }
-		private:      
+		private:
 			CHalfEdgePtrListIterator _iter;
 			VPtr _pV;
 		};
 
-		/* 
+		/*
 		* Iterator to access the out halfedge of a vertex in counter-clockwise direction.
 		* Avalible only in manifold surface.
 		* It is faster than the VoutHEIterator, so try to use this in manifold case.
@@ -47,16 +47,16 @@ namespace MeshLib {
 			VCcwOutHEIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostClwOutHalfEdge(pV)) {};
 			VCcwOutHEIterator(const VPtr& pV, const HEPtr& pHE) : _pV(pV), _pHE(pHE) {};
 
-			VCcwOutHEIterator& operator++() { 
+			VCcwOutHEIterator& operator++() {
 				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
-				return *this; 
+				return *this;
 			};
-			VCcwOutHEIterator  operator++(int) { 
-				VCcwOutHEIterator tmp(_pV, _Iter); 
+			VCcwOutHEIterator  operator++(int) {
+				VCcwOutHEIterator tmp(_pV, _Iter);
 				_pHE = _pHE == vertexMostCcwOutHalfEdge(_pV) ? NULL : vertexNextCcwOutHalfEdge(_pHE);
-				return tmp; 
+				return tmp;
 			};
-			 
+
 			bool operator==(const VCcwOutHEIterator& otherIter) { return _pHE == otherIter._pHE; }
 			bool operator!=(const VCcwOutHEIterator& otherIter) { return _pHE != otherIter._pHE; }
 			HEPtr operator*() { return _pHE; }
@@ -71,7 +71,7 @@ namespace MeshLib {
 			HEPtr _pHE;
 		};
 
-		/* 
+		/*
 		* Iterator to access the out halfedge of a vertex in clockwise direction.
 		* Avalible only in manifold surface.
 		* It is faster than the VoutHEIterator, so try to use this in manifold case.
@@ -170,13 +170,14 @@ namespace MeshLib {
 
 			VCcwEIterator& operator++() {
 				if (isBoundary(_pV)) {
-					if (_pHE == vertexMostCcwOutHalfEdge(_pV)){
+					if (_pHE == vertexMostCcwOutHalfEdge(_pV)) {
 						_pHE = (HEPtr)_pHE->he_prev();
 						reachBoundary = true;
 					}
 					else if (reachBoundary) {
 						_pHE = NULL;
-					} else{
+					}
+					else {
 						_pHE = vertexNextCcwOutHalfEdge(_pHE);
 					}
 				}
@@ -220,7 +221,7 @@ namespace MeshLib {
 			HEPtr _pHE;
 			bool reachBoundary = false;
 		};
-	
+
 		class VClwEIterator : public std::iterator<std::forward_iterator_tag, EPtr> {
 		public:
 			VClwEIterator(const VPtr& pV) : _pV(pV), _pHE(vertexMostCcwInHalfEdge(pV)) {};
@@ -278,12 +279,12 @@ namespace MeshLib {
 			HEPtr _pHE;
 			bool reachBoundary = false;
 		};
-		
+
 		class VVIterator : public std::iterator<std::forward_iterator_tag, VPtr> {
 		public:
 			VVIterator(VPtr pV) : _pV(pV), _iter(pV->arhe().begin()) {};
 
-			VVIterator& operator++() { 
+			VVIterator& operator++() {
 				if (isBoundary(_pV)) {
 					if (_pLastV != NULL) {
 						++_iter;
@@ -302,9 +303,9 @@ namespace MeshLib {
 					++_iter;
 				}
 
-				return *this; 
+				return *this;
 			};
-			VVIterator  operator++(int) { 
+			VVIterator  operator++(int) {
 				VVIterator tmp(_pV, _Iter); if (isBoundary(_pV)) {
 					if (_pLastV != NULL) {
 						++_iter;
@@ -322,12 +323,12 @@ namespace MeshLib {
 				else {
 					++_iter;
 				}
-				return tmp; 
+				return tmp;
 			};
 
 			bool operator==(const VVIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VVIterator& otherIter) { return _iter != otherIter._iter; }
-			VPtr operator*() { 
+			VPtr operator*() {
 				if (_pLastV == NULL)
 					return (VPtr)(*_iter)->target();
 				else
@@ -394,7 +395,7 @@ namespace MeshLib {
 			};
 			bool operator==(const VCcwVIterator& otherIter) { return _pHE == otherIter._pHE; }
 			bool operator!=(const VCcwVIterator& otherIter) { return _pHE != otherIter._pHE; }
-			VPtr operator*() { 
+			VPtr operator*() {
 				if (reachBoundary)
 					return halfedgeSource(_pHE);
 				else
@@ -404,7 +405,7 @@ namespace MeshLib {
 				if (reachBoundary)
 					return halfedgeSource(_pHE);
 				else
-					return halfedgeTarget(_pHE); 
+					return halfedgeTarget(_pHE);
 			}
 
 			VCcwVIterator begin() { return VCcwVIterator(_pV); }
@@ -462,17 +463,17 @@ namespace MeshLib {
 
 			bool operator==(const VClwVIterator& otherIter) { return _pHE == otherIter._pHE; }
 			bool operator!=(const VClwVIterator& otherIter) { return _pHE != otherIter._pHE; }
-			VPtr operator*() { 
+			VPtr operator*() {
 				if (reachBoundary)
 					return halfedgeTarget(_pHE);
 				else
 					return halfedgeSource(_pHE);
 			}
-			VPtr value() { 
+			VPtr value() {
 				if (reachBoundary)
 					return halfedgeTarget(_pHE);
 				else
-					return halfedgeSource(_pHE); 
+					return halfedgeSource(_pHE);
 			}
 
 			VClwVIterator begin() { return VClwVIterator(_pV); }
@@ -535,12 +536,12 @@ namespace MeshLib {
 
 			bool operator==(const VEIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VEIterator& otherIter) { return _iter != otherIter._iter; }
-		
-			EPtr operator*() { 
+
+			EPtr operator*() {
 				if (_pLastE == NULL)
 					return  halfedgeEdge((HEPtr)*_iter);
 				else
-					return _pLastE;  
+					return _pLastE;
 			}
 			EPtr value() {
 				if (_pLastE == NULL)
@@ -569,10 +570,10 @@ namespace MeshLib {
 
 			bool operator==(const VFIterator& otherIter) { return _iter == otherIter._iter; }
 			bool operator!=(const VFIterator& otherIter) { return _iter != otherIter._iter; }
-			FPtr operator*() { return (FPtr)*_iter->face(); }
-			FPtr value() { return (FPtr)*_iter->face(); }
+			FPtr operator*() { return (FPtr)(*_iter)->face(); }
+			FPtr value() { return (FPtr)(*_iter)->face(); }
 
-			VFIterator begin() { return VFIterator(_pV);  }
+			VFIterator begin() { return VFIterator(_pV); }
 			VFIterator end() { return VFIterator(_pV, _pV->arhe().end()); }
 
 			CHalfEdgePtrListIterator get() { return _iter; }
@@ -583,90 +584,88 @@ namespace MeshLib {
 		};
 
 		// bad orgnized
-		class FHIterator : public std::iterator<std::forward_iterator_tag, HEPtr> {// here inherited?
+		class FHEIterator : public std::iterator<std::forward_iterator_tag, HEPtr> {// here inherited?
 		public:
-			FHIterator(FPtr pF) : _pF(pF), _iter((HEPtr)pF->halfedge()) {};//here type cast
+			FHEIterator(FPtr pF) : _pF(pF), _pHE((HEPtr)pF->halfedge()) {};//here type cast
 
-			FHIterator& operator++() 
+			FHEIterator& operator++()
 			{
-				_iter= (HEPtr)_iter->he_next();
-				if (_iter == (HEPtr)_pF->halfedge()) _iter = NULL;
+				_pHE = (HEPtr)_pHE->he_next();
+				if (_pHE == (HEPtr)_pF->halfedge()) _pHE = NULL;
 				return *this;
 			};
-			FHIterator  operator++(int) { FHIterator tmp(_pF, _Iter); ++_iter; return tmp; };
+			FHEIterator  operator++(int) { FHEIterator tmp(_pF, _pHE); ++_pHE; return tmp; };
 
-			bool operator==(const FHIterator& otherIter) { return _iter == otherIter._iter; }
-			bool operator!=(const FHIterator& otherIter) { return _iter != otherIter._iter; }
-			HEPtr operator*() { return _iter; }
-			HEPtr value() { return _iter; }
+			bool operator==(const FHEIterator& otherIter) { return _pHE == otherIter._pHE; }
+			bool operator!=(const FHEIterator& otherIter) { return _pHE != otherIter._pHE; }
+			HEPtr operator*() { return _pHE; }
+			HEPtr value() { return _pHE; }
 
-			FHIterator begin() { return FHIterator(_pF); }
-			FHIterator end() { return FHIterator(_pF, NULL); }
-			//FHIterator end() { return FHIterator(_pF, (HEPtr)pF->halfedge()->he_prev())); }
+			FHEIterator begin() { return FHEIterator(_pF); }
+			FHEIterator end() { return FHEIterator(_pF, NULL); }
+			//FHEIterator end() { return FHIterator(_pF, (HEPtr)pF->halfedge()->he_prev())); }
 
-			CHalfEdgePtrListIterator get() { return _iter; }
+			CHalfEdgePtrListIterator get() { return _pHE; }
 		private:
-			FHIterator(FPtr pF, HEPtr iter) : _pF(pF), _iter(iter) {};
-			HEPtr _iter;
+			FHEIterator(FPtr pF, HEPtr iter) : _pF(pF), _pHE(iter) {};
+			HEPtr _pHE;
 			FPtr _pF;
 		};
 
 		//class FEIterator
 		class FEIterator : public std::iterator<std::forward_iterator_tag, EPtr> {
 		public:
-			FEIterator(FPtr pF) : _pF(pF), _iter((HEPtr)pF->halfedge()) {};
-			FEIterator(FPtr pF, HEPtr iter) : _pF(pF), _iter(iter) {};
+			FEIterator(FPtr pF) : _pF(pF), _pHE((HEPtr)pF->halfedge()) {};
+			FEIterator(FPtr pF, HEPtr iter) : _pF(pF), _pHE(iter) {};
 
 			FEIterator& operator++()
 			{
-				_iter = (HEPtr)_iter->he_next();
-				if (_iter == (HEPtr)_pF->halfedge()) _iter = NULL;
+				_pHE = (HEPtr)_pHE->he_next();
+				if (_pHE == (HEPtr)_pF->halfedge()) _pHE = NULL;
 				return *this;
 			};
-			FEIterator  operator++(int) { FEIterator tmp(_pF, _Iter); ++_iter; return tmp; };
+			FEIterator  operator++(int) { FEIterator tmp(_pF, _pHE); ++_pHE; return tmp; };
 
-			bool operator==(const FEIterator& otherIter) { return _iter == otherIter._iter; }
-			bool operator!=(const FEIterator& otherIter) { return _iter != otherIter._iter; }
-			HEPtr operator*() { return (EPtr)_iter->edge(); }
-			HEPtr value() { return (EPtr)_iter->edge(); }
+			bool operator==(const FEIterator& otherIter) { return _pHE == otherIter._pHE; }
+			bool operator!=(const FEIterator& otherIter) { return _pHE != otherIter._pHE; }
+			EPtr operator*() { return (EPtr)_pHE->edge(); }
+			EPtr value() { return (EPtr)_pHE->edge(); }
 
 			FEIterator begin() { return FEIterator(_pF); }
 			FEIterator end() { return FEIterator(_pF, NULL); }
 			//FEIterator end() { return FEIterator(_pF, (HEPtr)pF->halfedge()->he_prev()); }
 
-			CHalfEdgePtrListIterator get() { return _iter; }
+			CHalfEdgePtrListIterator get() { return _pHE; }
 		private:
-			HEPtr _iter;
-			EPtr _pF;
+			HEPtr _pHE;
+			FPtr _pF;
 		};
 
 		//class FVItertor
-		class FVItertor : public std::iterator<std::forward_iterator_tag, VPtr> {
+		class FVIterator : public std::iterator<std::forward_iterator_tag, VPtr> {
 		public:
-			FVItertor(FPtr pF) : _pF(pF), _iter((HEPtr)pF->halfedge()) {};
-			FVItertor(FPtr pF, HEPtr iter) : _pF(pF), _iter(iter) {};
+			FVIterator(const FPtr& pF) : _pF(pF), _pHE(faceHalfedge(pF)) {};
 
-			FVItertor& operator++()
+			FVIterator& operator++()
 			{
-				_iter = (HEPtr)_iter->he_next();
-				if (_iter == (HEPtr)_pF->halfedge()) _iter = NULL;
+				_pHE = (HEPtr)_pHE->he_next();
+				if (_pHE == (HEPtr)_pF->halfedge()) _pHE = NULL;
 				return *this;
 			};
-			FVItertor  operator++(int) { FVItertor tmp(_pF, _Iter); ++_iter; return tmp; };
+			FVIterator  operator++(int) { FVIterator tmp(_pF, _pHE); ++_pHE; return tmp; };
 
-			bool operator==(const FVItertor& otherIter) { return _iter == otherIter._iter; }
-			bool operator!=(const FVItertor& otherIter) { return _iter != otherIter._iter; }
-			VPtr operator*() { return (VPtr)_iter->vertex(); }
-			VPtr value() { return (VPtr)_iter->vertex(); }
+			bool operator==(const FVIterator& otherIter) { return _pHE == otherIter._pHE; }
+			bool operator!=(const FVIterator& otherIter) { return _pHE != otherIter._pHE; }
+			VPtr operator*() { return (VPtr)_pHE->vertex(); }
+			VPtr value() { return (VPtr)_pHE->vertex(); }
 
-			FVItertor begin() { return FVItertor(_pF); }
-			FVItertor end() { return FVItertor(_pF, NULL); }
-			//FVItertor end() { return FVItertor(_pF, (HEPtr)pF->halfedge()->he_prev()); }
-
-			CHalfEdgePtrListIterator get() { return _iter; }
+			FVIterator begin() { return FVIterator(_pF); }
+			FVIterator end() { return FVIterator(_pF, NULL); }
+			HEPtr get() { return _pHE; }
 		private:
-			HEPtr _iter;
-			EPtr _pF;
+			FVIterator(const FPtr& pF, const HEPtr& iter) : _pF(pF), _pHE(iter) {};
+			HEPtr _pHE;
+			FPtr _pF;
 		};
 
 
@@ -742,6 +741,6 @@ namespace MeshLib {
 	};
 
 	template<typename Interface>
-	struct CIteratorsI : public CIterators<typename Interface::VType, typename Interface::EType, typename Interface::FType, typename Interface::HEType>
+	struct CIterators : public CIteratorCore<typename Interface::VType, typename Interface::EType, typename Interface::FType, typename Interface::HEType>
 	{};
 }

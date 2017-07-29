@@ -27,7 +27,7 @@ using std::cout;
 using std::endl;
 int main() {
 	typedef CInterface<myVertex, myEdge, myFace, myHalfedge> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 	typedef Interface::MeshType CMesh;
 
 	std::vector<int> v(10);
@@ -63,29 +63,63 @@ int main() {
 			cout << "Vertex in interior." << endl;
 
 		/*
-		* Testing edge iterators.
+		* Testing Vertex Face iterators.
 		*/
-		Iterators::VEIterator veIter(pV);
-		cout << "Iterating vertices using halfedge list:" << endl;
-		cout << "The number of halfedges: " << pV->arhe().size() << endl;;
-		for (auto pNeiE : veIter) {
-			cout << "Neighbor edge length: " << Interface::edgeLength(pNeiE);
-			cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
-		}
+		
+		//Iterators::
+		///*
+		//* Testing Face iterators.
+		//*/
+		//Iterators::VFIterator vfIter(pV);
+		//cout << "Iterating Faces using halfedge list:" << endl;
+		//cout << "The number of halfedges: " << pV->arhe().size() << endl;;
+		//for (auto pNeiF : vfIter) {
+		//	cout << "Neighbor face ID: " << Interface::faceId(pNeiF) << "\n";
+		//	cout << "It's vertices:";
+		//	Iterators::FVIterator fvIter(pNeiF);
+		//	for (auto pNeiV : fvIter) {
+		//		cout << Interface::vertexId(pNeiV) <<  " ";
+		//	}
+		//	cout << "\nIt's edges:";
+		//	Iterators::FEIterator feIter(pNeiF);
+		//	for (auto pNeiE : feIter) {
+		//		cout << pNeiE << " ";
+		//	}
+		//	cout << "\nIt's halfedges:";
+		//	Iterators::FHEIterator fheIter(pNeiF);
+		//	for (auto pNeiE : fheIter) {
+		//		cout << pNeiE << " ";
+		//	}
+		//	cout << "\n---------------------------\n";
+		//}
+		//cout << "\n-----------------------------------------------------------\n" << endl;
 
-		cout << "-----------------------------" << endl;
-		cout << "Iterating vertices using halfedge conection(CCW):" << endl;
-		Iterators::VCcwEIterator vccweIter(pV);
-		for (auto pNeiE : vccweIter) {
-			cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
-		}
+		///*
+		//* Testing edge iterators.
+		//*/
+		//Iterators::VEIterator veIter(pV);
+		//cout << "Iterating vertices using halfedge list:" << endl;
+		//cout << "The number of halfedges: " << pV->arhe().size() << endl;;
+		//for (auto pNeiE : veIter) {
+		//	cout << "Neighbor edge length: " << Interface::edgeLength(pNeiE);
+		//	cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
+		//}
 
-		cout << "-----------------------------" << endl;
-		cout << "Iterating vertices using halfedge conection(CLW):" << endl;
-		Iterators::VClwEIterator vclweIter(pV);
-		for (auto pNeiE : vclweIter) {
-			cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
-		}
+		//cout << "-----------------------------" << endl;
+		//cout << "Iterating vertices using halfedge conection(CCW):" << endl;
+		//Iterators::VCcwEIterator vccweIter(pV);
+		//for (auto pNeiE : vccweIter) {
+		//	cout << "Neighbor edge length: " << Interface::edgeLength(pNeiE);
+		//	cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
+		//}
+
+		//cout << "-----------------------------" << endl;
+		//cout << "Iterating vertices using halfedge conection(CLW):" << endl;
+		//Iterators::VClwEIterator vclweIter(pV);
+		//for (auto pNeiE : vclweIter) {
+		//	cout << "Neighbor edge length: " << Interface::edgeLength(pNeiE);
+		//	cout << " Edge's vertices id: " << Interface::vertexId(Interface::edgeVertex1(pNeiE)) << " , " << Interface::vertexId(Interface::edgeVertex2(pNeiE)) << endl;
+		//}
 
 		///*
 		//* Testing Vertex iterators.
@@ -110,7 +144,7 @@ int main() {
 		//for (auto pNeiV : vclwvIter) {
 		//	cout << "Neighbor Vertex id: " << Interface::vertexId(pNeiV) << " Position: " << pNeiV->point() << endl;
 		//}
-		
+
 		//Iterators::VOutHEIterator voutheIter(pV);
 		//for (auto pHE : voutheIter) {
 		//	cout << "The halfedge: " << pHE << endl;
@@ -135,25 +169,7 @@ int main() {
 		//	Interface::VPtr pSourceV = Interface::halfedgeSource(pHE);
 		//	cout << "Target vertex id: " << Interface::vertexId(pTargetV) << " Source vertex id: " << Interface::vertexId(pSourceV) << endl;
 		//}
-		
 		getchar();
 
 	}
-
-	getchar();
-
-	Interface::VPtr pV = mesh.idVertex(10);
-	Iterators::VCcwOutHEIterator vheiter(pV);
-	for (Interface::HEPtr pHE : vheiter) {
-		std::cout << "This is the halfedge pointer:" << (int)pHE << std::endl;
-	}
-	  
-	auto find_zero = [] (const int& a) {return a == 0; };
-	auto zeros = std::find_if(v.begin(), v.end(), find_zero);
-
-	/*Iterators::VCcwOutHEIterator vccwheiter(pV);
-	for (Interface::HEPtr pHE : vccwheiter) {
-		std::cout << "This is the halfedge pointer:" << (int)pHE << std::endl;
-	}*/
-	getchar();
 }

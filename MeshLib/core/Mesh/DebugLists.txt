@@ -8,7 +8,15 @@ VOutHEIterator
 VCcwHEIterator
 VClwInHEIterator 
 
+VVIterator
+VCcwVIterator
+VClwVIterator
 VEIterator
 VCcwEIterator
 VClwEIterator
+
+VFIterator
+FVIterator
+FHEIterator
+FEIterator
 
