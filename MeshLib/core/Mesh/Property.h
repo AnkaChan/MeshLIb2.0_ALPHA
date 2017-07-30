@@ -268,7 +268,7 @@ namespace MeshLib
 			return false;
 		else
 			m_fnames.push_back(name);
-		Iterators::MFIterator fiter(pmesh);
+
 		for (FaceType * pf : pmesh->faces())
 		{
 			pf->props().Add<DataType>(name, data);
@@ -294,7 +294,7 @@ namespace MeshLib
 			{
 				ph->props().Add<DataType>(name, data);
 				ph = pmesh->halfedgeNext(ph);
-			} while (ph != pemsh->faceHalfedge(pf));
+			} while (ph != pmesh->faceHalfedge(pf));
 		}
 		return true;
 	}

@@ -8,20 +8,36 @@
 #include <MeshLib/core/Mesh/Face.h>
 #include <MeshLib/core/Mesh/iterators_new.h>
 
+#include <MeshLib/core/Mesh/Property.h>
+
 using namespace MeshLib;
 class myVertex : public CVertex {
 public:
 	int num = 0;
+	Props & props() { return m_props; };
+private:
+	Props m_props;
 };
 class myHalfedge : public CHalfEdge {
 public:
 	int num = 10;
+	Props & props() { return m_props; };
+private:
+	Props m_props;
 };
 class myEdge : public CEdge {
+public:
 	int num = 222;
+	Props & props() { return m_props; };
+private:
+	Props m_props;
 };
 class myFace : public CFace {
+public:
 	double i = 1223.2312;
+	Props & props() { return m_props; };
+private:
+	Props m_props;
 };
 using std::cout;
 using std::endl;
@@ -29,6 +45,7 @@ int main() {
 	typedef CInterface<myVertex, myEdge, myFace, myHalfedge> Interface;
 	typedef CIterators<Interface> Iterators;
 	typedef Interface::MeshType CMesh;
+	typedef PropsHandle<myVertex, myEdge, myFace, myHalfedge> PropsH;
 
 	std::vector<int> v(10);
 	for (int& i : v) {
