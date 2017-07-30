@@ -26,6 +26,7 @@
 #include "../Geometry/Point2.h"
 #include "../Parser/StrUtil.h"
 #include "Interface.h"
+#include "Property.h"
 
 namespace MeshLib{
 /*!
@@ -52,6 +53,7 @@ public:
 	typedef HalfEdgeType * HalfEdgePtr;
 	typedef EdgeType     * EdgePtr;
 	typedef FaceType     * FacePtr;
+	typedef PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType> * PHandlePtr;
 
 	//constructor and destructor
 	/*!
@@ -144,6 +146,9 @@ public:
 	List of the vertices of the mesh.
 	*/
 	std::list<VertexPtr> & vertices()	{ return m_verts; };
+
+	/*property handle*/
+	PHandlePtr		& prophandle() { return m_phandle; };
 /*
 	bool with_uv() { return m_with_texture; };
 	bool with_normal() { return m_with_normal; };
@@ -155,16 +160,17 @@ protected:
   /*! list of vertices */
   std::list<VertexPtr>                        m_verts;
   /*! list of faces */
-  std::list<FacePtr>							m_faces;
+  std::list<FacePtr>						m_faces;
+
+  /*! property handle*/
+  PHandlePtr								m_phandle;
 
   //maps
 
   /*! map between vetex and its id*/
   std::map<int, VertexPtr>                    m_map_vert;
   /*! map between face and its id*/
-  std::map<int, FacePtr>						m_map_face;
-
-
+  std::map<int, FacePtr>						m_map_face;  
 public:
 	/*! Create a vertex 
 	\param id Vertex id
@@ -207,13 +213,11 @@ public:
 	void        deleteFace( FacePtr  f );
 	/*! label boundary vertices, edges, faces */
 	void	    labelBoundary(void);
+
 	/*! whether the vertex is with texture coordinates */
 	bool        m_with_texture;
 	/*! whether the mesh is with normal */
-	bool        m_with_normal;
-	  
-	
-
+	bool        m_with_normal;  
  public:
 	 /*!
 	  *   the input traits of the mesh, there are 64 bits in total

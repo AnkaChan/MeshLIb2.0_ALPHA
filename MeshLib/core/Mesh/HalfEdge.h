@@ -13,6 +13,7 @@
 #include <math.h>
 #include <string>
 //#include "Edge.h"
+#include "Property.h"
 
 namespace MeshLib{
 
@@ -72,7 +73,8 @@ public:
 	void _to_string()   {};
 	/*! Read traits from string. */
 	void _from_string() {};
-
+	/*! Properties */
+	Props & props() { return m_props; };
 protected:
 	/*! Edge, current halfedge attached to. */
 	CEdge       *     m_edge;
@@ -88,6 +90,8 @@ protected:
 	CHalfEdge	*     m_sym;
 	/*! The string of the current halfedge. */
 	std::string       m_string;
+	/*! Properties */
+	Props			  m_props;
 };
 
 inline CHalfEdge * CHalfEdge::ccw_rotate_about_target()

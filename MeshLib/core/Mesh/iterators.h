@@ -16,6 +16,7 @@
 #include "Interface.h"
 #include "HalfEdge.h"
 #include "BaseMesh.h"
+#include "Iterators2.h"
 
 namespace MeshLib{
 
@@ -27,75 +28,6 @@ template<typename VertexType, typename EdgeType, typename FaceType, typename Hal
 class VertexOutHalfedgeIterator
 {
 public:
-
-	/*!
-	VertexOutHalfedgeIteartor constructor
-	\param pMesh pointer to the current mesh
-	\param v     pointer to the current vertex
-	*/
-	VertexOutHalfedgeIterator( CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType> *  pMesh, VertexType *  v )
-	{ m_pMesh = pMesh; m_vertex = v; m_halfedge = m_pMesh->vertexMostClwOutHalfEdge(v); };
-
-	/*!
-	VertexOutHalfedgeIterator destructor
-	*/
-	~VertexOutHalfedgeIterator(){};
-	/*!
-	prefix ++ operator, goes to the next ccw vertex out halfedge
-	*/
-	void operator++() //prefix
-	{assert( m_halfedge != NULL ); 
-	 if( m_halfedge == m_pMesh->vertexMostCcwOutHalfEdge(m_vertex) ) 
-		 m_halfedge = NULL;
-	 else
-	 	 m_halfedge = m_pMesh->vertexNextCcwOutHalfEdge(m_halfedge); };
-
-	/*!
-		postfix ++ operator, goes to the next ccw vertex out halfedge
-	*/
-	void operator++(int) //postfix
-	{assert( m_halfedge != NULL ); 
-	 if( m_halfedge == m_pMesh->vertexMostCcwOutHalfEdge(m_vertex) ) 
-		 m_halfedge = NULL;
-	 else
-	 	 m_halfedge = m_pMesh->vertexNextCcwOutHalfEdge(m_halfedge); };
-
-	/*!
-		The current halfedge the iterator pointing to.
-	*/
-
-	 HalfEdgeType * value() { return m_halfedge; };
-	 /*!
-		whether all the out halfedges have been visited.
-	 */
-	 bool end(){ return m_halfedge == NULL; };
-	/*!
-		The current halfedge the iterator pointing to.
-	*/
-	 HalfEdgeType * operator*() { return value(); };
-
-private:
-	/*!	
-		Current mesh.
-	*/
-	CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> *        m_pMesh;
-	/*!
-		Current vertex.
-	*/
-	VertexType *      m_vertex;
-	/*!
-		Current halfedge.
-	*/
-	HalfEdgeType * m_halfedge;
-};
-
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-class VOutHEIterator
-{
-public:
-	VOutHEIterator(VertexType * V) {};
-};
-
 //v->in halfedge
 /*!
 	\brief VertexInHalfedgeIterator, transverse all the incoming halfedges of a vertex ccwly.
