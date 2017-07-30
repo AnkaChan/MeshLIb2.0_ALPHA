@@ -4,16 +4,16 @@
 #include "../Mesh/Edge.h"
 #include "../Mesh/Face.h"
 namespace MeshLib {
-	struct _colorRGBA {
+	struct _colorRGB {
 		union
 		{
 			struct
 			{
-				unsigned char  r;
-				unsigned char  g;
-				unsigned char  b;
+				float  r;
+				float  g;
+				float  b;
 			};
-			unsigned char color[3] = {0, 0, 0};
+			float color[3] = {0, 0, 0};
 		};
 	};
 
@@ -27,8 +27,8 @@ namespace MeshLib {
 		double u = 0.0, v = 0.0;
 	};
 
-	class CVertexVisual : public CVertex, public _colorRGBA, public _normal {};
-	class CEdgeVisual : public CEdge, public _colorRGBA, public _normal {};
-	class CFaceVisual : public CFace, public _colorRGBA, public _normal {};
+	class CVertexVisual : public CVertex, public _colorRGB, public _normal {};
+	class CEdgeVisual : public CEdge, public _colorRGB, public _normal {};
+	class CFaceVisual : public CFace, public _colorRGB, public _normal {};
 
 }

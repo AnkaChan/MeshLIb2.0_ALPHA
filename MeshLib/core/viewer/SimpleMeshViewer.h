@@ -5,29 +5,40 @@
 #include <MeshLib\core\Mesh\MesCoreHeader.h>
 #define MAX(a,b) ((a)>(b) ? (a) : (b))
 namespace MeshLib {
+	struct GLSetting
+	{
+		enum ColorMode { none, defaultColor, user_defined };
+		ColorMode faceColorMode = defaultColor;
+		ColorMode vertexColorMode = none;
+		ColorMode edgeColorMode = none;
+		double vertexSize = 4.0;
+		double edgeSize = 2.0;
+	};
+
 	namespace GLViewer{
 		/* window width and height */
 		int win_width, win_height;
 		int gButton;
 		int startx, starty;
-		int shadeFlag = 0;
+		enum ShadeFlag { _vertex, _face };
+		ShadeFlag shadeFlag = _face;
+		GLfloat  faceDefaultColor[3] = { 0.7, 0.7, 0.8 };
+		GLfloat  edgeDefaultColor[3] = { 0.5, 0.5, 0.1 };
+		GLfloat  vertexDefaultColor[3] = { 0.8, 0.0, 0.0 };
+		struct GLSetting m_glSetting;
 
 		/* rotation quaternion and translation vector for the object */
 		CQrot       ObjRot(0, 0, 1, 0);
 		CPoint      ObjTrans(0, 0, 0);
 		typedef CInterface<CVertexVisual, CEdgeVisual, CFaceVisual, CHalfEdge> IFGL;
+		typedef CIterators<IFGL> ITGL;
 		IFGL::MeshPtr pMesh;
 
 		/* arcball object */
 		CArcball arcball;
-		struct GLSetting
-		{
-
-		} m_glsetting;
 
 		/*! setup the object, transform from the world to the object coordinate system */
-		void setupObject(void)
-		{
+		void setupObject(void){
 			double rot[16];
 
 			glTranslated(ObjTrans[0], ObjTrans[1], ObjTrans[2]);
@@ -42,15 +53,13 @@ namespace MeshLib {
 		}
 
 		/*! setup light */
-		void setupLight()
-		{
+		void setupLight(){
 			GLfloat lightOnePosition[4] = { 0, 0, 1, 0 };
 			glLightfv(GL_LIGHT1, GL_POSITION, lightOnePosition);
 		}
 
 		/*! draw axis */
-		void draw_axis()
-		{
+		void draw_axis(){
 			glLineWidth(2.0);
 			//x axis
 			glColor3f(1.0, 0.0, 0.0);	//red
@@ -75,53 +84,84 @@ namespace MeshLib {
 
 			glLineWidth(1.0);
 		}
-		void draw_mesh()
-		{
+		void draw_faces(){
 			glBegin(GL_TRIANGLES);
-			for (CMyMeshGL::MeshFaceIterator fiter(&mesh); !fiter.end(); ++fiter)
-			{
-				CMyFaceGL * pf = *fiter;
-				for (CMyMeshGL::FaceVertexIterator fviter(pf); !fviter.end(); ++fviter)
-				{
-					CMyVertexGL * v = *fviter;
-					CPoint pt = v->point();
+			for (auto pF : ITGL::MFIterator(pMesh) ){
+				for (auto pV : ITGL::FVIterator(pF)){
+					CPoint pt = pV->point();
 					CPoint n;
 					switch (shadeFlag)
 					{
-					case 0:
-						n = pf->normal();
+					case _face:
+						n = pF->normal;
 						break;
-					case 1:
-						n = v->normal();
+					case _vertex:
+						n = pV->normal;
 						break;
 					}
 					glNormal3d(n[0], n[1], n[2]);
-					if (mesh.hasMappedCentric()) {
-						CPoint2 para = pf->getCenterParameter();
-						glColor3f(para[0], para[1], 0.0);
-						//glColor3f(para[0], 0, 0.0);
-						//glColor3f(0, para[1], 0.0);
-					}
-					else if (pf->foliating) {
-						glColor3f(0.0, 1.0, 1.0);
-					}
-					else if (pf->hasDeleted()) {
-						glColor3f(0.5, 0.5, 0.5);
-					}
-					else
+					switch (m_glSetting.faceColorMode)
 					{
-						glColor3f(1.0, 1.0, 1.0);
-					}
-
+					case GLSetting::ColorMode::defaultColor:
+						glColor3fv(faceDefaultColor);
+						break;
+					case GLSetting::ColorMode::user_defined:
+						glColor3f(pF->color[0], pF->color[1], pF->color[2]);
+						break;
+					default:
+						break;
+					} 
 					glVertex3d(pt[0], pt[1], pt[2]);
 				}
 			}
 			glEnd();
 		}
+
+		void draw_edges(){
+			for (auto pE : ITGL::MEIterator(pMesh)) {
+				glLineWidth(m_glSetting.edgeSize);
+				glBegin(GL_LINES);
+				switch (m_glSetting.edgeColorMode){
+				case GLSetting::ColorMode::defaultColor:
+					glColor3fv(edgeDefaultColor);
+					break;
+				case GLSetting::ColorMode::user_defined:
+					glColor3f(pE->color[0], pE->color[1], pE->color[2]);
+					break;
+				default:
+					break;
+				}
+				CPoint v1 = IFGL::edgeVertex1(pE)->point();
+				CPoint v2 = IFGL::edgeVertex2(pE)->point();
+				glVertex3f(v1[0], v1[1], v1[2]); 
+				glVertex3f(v2[0], v2[1], v2[2]);
+				glEnd();
+			}
+		}
+
+		void draw_vertices() {
+			for (auto pV : ITGL::MVIterator(pMesh)) {
+				glPointSize(m_glSetting.vertexSize);
+				glBegin(GL_POINTS);
+				switch (m_glSetting.vertexColorMode) {
+				case GLSetting::ColorMode::defaultColor:
+					glColor3fv(vertexDefaultColor);
+					break;
+				case GLSetting::ColorMode::user_defined:
+					glColor3f(pV->color[0], pV->color[1], pV->color[2]);
+					break;
+				default:
+					break;
+				}
+				glVertex3f(pV->point()[0], pV->point()[1], pV->point()[2]);
+			}
+			glEnd();
+		}
+
+
 		/*! display call back function
 		*/
-		void display()
-		{
+		void display(){
 			/* clear frame buffer */
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			setupLight();
@@ -132,15 +172,19 @@ namespace MeshLib {
 			setupObject();
 
 			draw_axis();
-			draw_mesh();
+			if (m_glSetting.faceColorMode != GLSetting::none)
+				draw_faces();						  
+			if (m_glSetting.edgeColorMode != GLSetting::none)
+				draw_edges();
+			if (m_glSetting.vertexColorMode != GLSetting::none)
+				draw_vertices();
 
 			glPopMatrix();
 			glutSwapBuffers();
 		}
 
 		/*! Called when a "resize" event is received by the window. */
-		void reshape(int w, int h)
-		{
+		void reshape(int w, int h){
 			float ar;
 			//std::cout << "w:" << w << "\th:" << h << std::endl;
 			win_width = w;
@@ -180,12 +224,12 @@ namespace MeshLib {
 			case 'f':
 				//Flat Shading
 				glPolygonMode(GL_FRONT, GL_FILL);
-				shadeFlag = 0;
+				shadeFlag = _face;
 				break;
 			case 's':
 				//Smooth Shading
 				glPolygonMode(GL_FRONT, GL_FILL);
-				shadeFlag = 1;
+				shadeFlag = _vertex;
 				break;
 			case 'w':
 				//Wireframe mode
@@ -322,6 +366,7 @@ namespace MeshLib {
 		void computeNormal();
 		void normalizeMesh();
 		void show();
+		GLSetting& setting() { return GLViewer::m_glSetting; };
 	private:
 
 		GLViewer::IFGL::MeshPtr m_pM;

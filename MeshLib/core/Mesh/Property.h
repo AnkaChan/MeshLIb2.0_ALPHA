@@ -221,7 +221,7 @@ template<typename DataType>
 bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddVProp(std::string name, DataType data)
 {
 	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(m_vnames.begin(), m_vnames.end(), name);
@@ -244,7 +244,7 @@ template<typename DataType>
 bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddEProp(std::string name, DataType data)
 {
 	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(m_enames.begin(), m_enames.end(), name);
@@ -266,7 +266,7 @@ template<typename DataType>
 bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddFProp(std::string name, DataType data)
 {
 	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(m_fnames.begin(), m_fnames.end(), name);
@@ -287,7 +287,7 @@ template<typename DataType>
 bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddHProp(std::string name, DataType data)
 {
 	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(m_hnames.begin(), m_hnames.end(), name);
@@ -315,7 +315,7 @@ template<typename DataType>
 bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteVProp(std::string name)
 {
 	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(m_vnames.begin(), m_vnames.end(), name);
@@ -336,7 +336,7 @@ template<typename DataType>
 bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteEProp(std::string name)
 {
 	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(m_enames.begin(), m_enames.end(), name);
@@ -357,7 +357,7 @@ template<typename DataType>
 bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteFProp(std::string name)
 {
 	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(m_fnames.begin(), m_fnames.end(), name);
@@ -378,7 +378,7 @@ template<typename DataType>
 bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteHProp(std::string name)
 {
 	typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-	typedef CIteratorsI<Interface> Iterators;
+	typedef CIterators<Interface> Iterators;
 
 	std::list<std::string>::iterator niter;
 	niter = std::find(m_hnames.begin(), m_hnames.end(), name);

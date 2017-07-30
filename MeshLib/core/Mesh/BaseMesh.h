@@ -26,7 +26,6 @@
 #include "../Geometry/Point2.h"
 #include "../Parser/StrUtil.h"
 #include "Interface.h"
-#include "Property.h"
 
 namespace MeshLib{
 /*!
@@ -53,7 +52,6 @@ public:
 	typedef HalfEdgeType * HalfEdgePtr;
 	typedef EdgeType     * EdgePtr;
 	typedef FaceType     * FacePtr;
-	typedef PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType> * PHandlePtr;
 
 	//constructor and destructor
 	/*!
@@ -147,8 +145,6 @@ public:
 	*/
 	std::list<VertexPtr> & vertices()	{ return m_verts; };
 
-	/*property handle*/
-	PHandlePtr		& prophandle() { return m_phandle; };
 /*
 	bool with_uv() { return m_with_texture; };
 	bool with_normal() { return m_with_normal; };
@@ -162,8 +158,6 @@ protected:
   /*! list of faces */
   std::list<FacePtr>						m_faces;
 
-  /*! property handle*/
-  PHandlePtr								m_phandle;
 
   //maps
 
