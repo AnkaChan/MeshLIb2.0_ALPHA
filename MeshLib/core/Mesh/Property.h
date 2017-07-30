@@ -7,12 +7,6 @@
 #include <list>
 #include <algorithm>
 
-#include <MeshLib/core/Mesh/Vertex.h>
-#include <MeshLib/core/Mesh/Edge.h>
-#include <MeshLib/core/Mesh/Face.h>
-#include <MeshLib/core/Mesh/HalfEdge.h>
-#include <MeshLib/core/Mesh/BaseMesh.h>
-#include <MeshLib/core/Mesh/Interface.h>
 namespace MeshLib
 {
 	class Prop
@@ -178,6 +172,7 @@ namespace MeshLib
 		std::list<std::pair<HalfEdgeType *, std::string>>	m_hlocp;
 	};
 
+	/*
 	// vertex with properties
 	class CPVertex : public CVertex, public Props
 	{
@@ -223,15 +218,13 @@ namespace MeshLib
 	private:
 		Props m_props;
 	};
+	*/
 
 	//add property
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	template<typename DataType>
 	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddVProp(std::string name, DataType data)
 	{
-		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-		typedef CIteratorsI<Interface> Iterators;
-
 		std::list<std::string>::iterator niter;
 		niter = std::find(m_vnames.begin(), m_vnames.end(), name);
 		if (niter != m_vnames.end())
@@ -239,8 +232,7 @@ namespace MeshLib
 		else
 			m_vnames.push_back(name);
 
-		Iterators::MVIterator viter(pmesh);
-		for (VertexType * pv : viter)
+		for (VertexType * pv : pmesh->vertices())
 		{
 			pv->props().Add<DataType>(name, data);
 		}
@@ -252,9 +244,6 @@ namespace MeshLib
 	template<typename DataType>
 	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddEProp(std::string name, DataType data)
 	{
-		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-		typedef CIteratorsI<Interface> Iterators;
-
 		std::list<std::string>::iterator niter;
 		niter = std::find(m_enames.begin(), m_enames.end(), name);
 		if (niter != m_enames.end())
@@ -262,8 +251,7 @@ namespace MeshLib
 		else
 			m_enames.push_back(name);
 
-		Iterators::MEIterator eiter(pmesh);
-		for (EdgeType * pe : eiter)
+		for (EdgeType * pe : pmesh->edges())
 		{
 			pe->props().Add<DataType>(name, data);
 		}
@@ -274,9 +262,6 @@ namespace MeshLib
 	template<typename DataType>
 	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddFProp(std::string name, DataType data)
 	{
-		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-		typedef CIteratorsI<Interface> Iterators;
-
 		std::list<std::string>::iterator niter;
 		niter = std::find(m_fnames.begin(), m_fnames.end(), name);
 		if (niter != m_fnames.end())
@@ -284,7 +269,7 @@ namespace MeshLib
 		else
 			m_fnames.push_back(name);
 		Iterators::MFIterator fiter(pmesh);
-		for (FaceType * pf : fiter)
+		for (FaceType * pf : pmesh->faces())
 		{
 			pf->props().Add<DataType>(name, data);
 		}
@@ -295,9 +280,6 @@ namespace MeshLib
 	template<typename DataType>
 	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::AddHProp(std::string name, DataType data)
 	{
-		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-		typedef CIteratorsI<Interface> Iterators;
-
 		std::list<std::string>::iterator niter;
 		niter = std::find(m_hnames.begin(), m_hnames.end(), name);
 		if (niter != m_hnames.end())
@@ -305,15 +287,14 @@ namespace MeshLib
 		else
 			m_hnames.push_back(name);
 
-		Iterators::MFIterator fiter(pmesh);
-		for (FaceType * pf : fiter)
+		for (FaceType * pf : pmesh->faces())
 		{
 			HalfEdgeType * ph = pmesh->faceHalfedge(pf);
 			do
 			{
 				ph->props().Add<DataType>(name, data);
 				ph = pmesh->halfedgeNext(ph);
-			} while (ph != pf->halfedge());
+			} while (ph != pemsh->faceHalfedge(pf));
 		}
 		return true;
 	}
@@ -323,17 +304,14 @@ namespace MeshLib
 	template<typename DataType>
 	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteVProp(std::string name)
 	{
-		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-		typedef CIteratorsI<Interface> Iterators;
-
 		std::list<std::string>::iterator niter;
 		niter = std::find(m_vnames.begin(), m_vnames.end(), name);
 		if (niter == m_vnames.end())
 			return false;
 		else
 			m_vnames.erase(niter);
-		Iterators::MVIterator viter(pmesh);
-		for (VertexType * pv : viter)
+
+		for (VertexType * pv : pmesh->vertices())
 		{
 			pv->props().Delete<DataType>(name);
 		}
@@ -344,17 +322,14 @@ namespace MeshLib
 	template<typename DataType>
 	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteEProp(std::string name)
 	{
-		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-		typedef CIteratorsI<Interface> Iterators;
-
 		std::list<std::string>::iterator niter;
 		niter = std::find(m_enames.begin(), m_enames.end(), name);
 		if (niter == m_enames.end())
 			return false;
 		else
 			m_enames.erase(niter);
-		Iterators::MEIterator eiter(pmesh);
-		for (EdgeType * pe : eiter)
+
+		for (EdgeType * pe : pmesh->edges())
 		{
 			pe->props().Delete<DataType>(name);
 		}
@@ -365,17 +340,13 @@ namespace MeshLib
 	template<typename DataType>
 	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteFProp(std::string name)
 	{
-		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-		typedef CIteratorsI<Interface> Iterators;
-
 		std::list<std::string>::iterator niter;
 		niter = std::find(m_fnames.begin(), m_fnames.end(), name);
 		if (niter == m_fnames.end())
 			return false;
 		else
 			m_fnames.erase(niter);
-		Iterators::MFIterator fiter(pmesh);
-		for (FaceType * pf : fiter)
+		for (FaceType * pf : pmesh->faces())
 		{
 			pf->props().Delete<DataType>(name);
 		}
@@ -386,9 +357,6 @@ namespace MeshLib
 	template<typename DataType>
 	bool PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType>::DeleteHProp(std::string name)
 	{
-		typedef CInterface<VertexType, EdgeType, FaceType, HalfEdgeType> Interface;
-		typedef CIteratorsI<Interface> Iterators;
-
 		std::list<std::string>::iterator niter;
 		niter = std::find(m_hnames.begin(), m_hnames.end(), name);
 		if (niter == m_hnames.end())
@@ -396,15 +364,14 @@ namespace MeshLib
 		else
 			m_hnames.erase(niter);
 
-		Iterators::MFIterator fiter(pmesh);
-		for (FaceType * pf : fiter)
+		for (FaceType * pf : pmesh->faces())
 		{
 			HalfEdgeType * ph = pmesh->faceHalfedge(pf);
 			do
 			{
 				ph->props().Delete<DataType>(name);
 				ph = pmesh->halfedgeNext(ph);
-			} while (ph != pf->halfedge());
+			} while (ph != pmesh->faceHalfedge(pf));
 		}
 		return true;
 	}

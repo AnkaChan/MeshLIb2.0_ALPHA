@@ -53,7 +53,6 @@ namespace MeshLib {
 		typedef HalfEdgeType * HalfEdgePtr;
 		typedef EdgeType     * EdgePtr;
 		typedef FaceType     * FacePtr;
-		typedef PropsHandle<VertexType, EdgeType, FaceType, HalfEdgeType> * PHandlePtr;
 
 		//constructor and destructor
 		/*!

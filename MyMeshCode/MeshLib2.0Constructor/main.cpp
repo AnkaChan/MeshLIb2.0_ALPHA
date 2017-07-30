@@ -6,10 +6,7 @@
 #include <MeshLib/core/Mesh/HalfEdge.h>
 #include <MeshLib/core/Mesh/Edge.h>
 #include <MeshLib/core/Mesh/Face.h>
-
 #include <MeshLib/core/Mesh/iterators_new.h>
-
-
 
 using namespace MeshLib;
 class myVertex : public CVertex {

@@ -72,8 +72,7 @@ namespace MeshLib {
 		void _to_string() {};
 		/*! Read traits from string. */
 		void _from_string() {};
-		/*! Properties */
-		Props & props() { return m_props; };
+
 	protected:
 		/*! Edge, current halfedge attached to. */
 		CEdge       *     m_edge;
