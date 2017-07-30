@@ -172,54 +172,6 @@ namespace MeshLib
 		std::list<std::pair<HalfEdgeType *, std::string>>	m_hlocp;
 	};
 
-	/*
-	// vertex with properties
-	class CPVertex : public CVertex, public Props
-	{
-	public:
-		Props & props() { return m_props; };
-	private:
-		Props m_props;
-	};
-
-	// edge with properties
-	class CPEdge : public CEdge, public Props
-	{
-	public:
-		Props & props() { return m_props; };
-	private:
-		Props m_props;
-	};
-
-	// face with properties
-	class CPFace : public CFace, public Props
-	{
-	public:
-		Props & props() { return m_props; };
-	private:
-		Props m_props;
-	};
-
-	// halfedge with properties
-	class CPHalfEdge : public CHalfEdge, public Props
-	{
-	public:
-		Props & props() { return m_props; };
-	private:
-		Props m_props;
-	};
-
-	// mesh with property handle
-	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	class CPBaseMesh : public CBaseMesh, public Props
-	{
-	public:
-		Props & props() { return m_props; };
-	private:
-		Props m_props;
-	};
-	*/
-
 	//add property
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	template<typename DataType>
