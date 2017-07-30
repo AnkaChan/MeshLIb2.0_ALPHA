@@ -49,7 +49,7 @@ using std::cout;
 using std::endl;
 
 int main() {
-	typedef CInterface<CVertex, CEdge, CFace, CHalfEdge> Interface;
+	typedef CInterface<CVertexVisual, CEdgeVisual, CFaceVisual, CHalfEdge> Interface;
 	typedef CIterators<Interface> Iterators;
 	typedef Interface::MeshType CMesh;
 
@@ -58,7 +58,7 @@ int main() {
 
 	CMesh mesh;
 	mesh.read_m("D:/Code/Data/Mesh/outputs/face125.m");
-	/*for (auto pF : Iterators::MFIterator(&mesh)) {
+	for (auto pF : Iterators::MFIterator(&mesh)) {
 		pF->r = 1.0;
 		pF->g = 1.0;
 		pF->b = 0.0;
@@ -75,11 +75,11 @@ int main() {
 			pE->b = 1.0;
 
 		}
-	}*/
+	}
 	CSimpleMeshViewer simpleViewer(&mesh);
 	simpleViewer.show();
 	//simpleViewer.setting().edgeSize = 20.0;
-	simpleViewer.setting().faceColorMode = GLSetting::defaultColor;
+	simpleViewer.setting().faceColorMode = GLSetting::userDefined;
 	simpleViewer.setting().vertexColorMode = GLSetting::defaultColor;
 	simpleViewer.setting().vertexSize = 15.0;
 	simpleViewer.setUserKeyFunc(myKeyFunc);

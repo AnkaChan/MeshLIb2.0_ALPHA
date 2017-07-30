@@ -54,10 +54,12 @@ public:
 		read face traits from the string.
 	*/
 	void                  _from_string() {};
+
 	/*!
-	Properties
+	Face normals
 	*/
-	Props & props() { return m_props; };
+	CPoint & normal() { return m_normal; };
+
 protected:
 	/*!
 		id of the current face
@@ -74,7 +76,7 @@ protected:
 	/*!
 	Properties
 	*/
-	Props			  m_props;
+	CPoint             m_normal;
 };
 
 

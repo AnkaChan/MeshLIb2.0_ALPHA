@@ -1,20 +1,58 @@
 #pragma once
+/*!
+*      \file SimpleMeshViewer.h
+*      \Class of a simple mesh Viewer
+*	   \author Anka
+*      \date 30/07/2017
+*
+*/
 #include "Arcball.h"
 #include <GL\glut.h>
 #include <GL\freeglut_ext.h>
 #include <MeshLib\core\Mesh\MesCoreHeader.h>
 #define MAX(a,b) ((a)>(b) ? (a) : (b))
+
+/*
+* CSimpleMeshViewer is designed to visualize mesh in a much easier way.
+* It is simple to use, just need a pointer to your mesh, which is derived from MeshLib::CBaseMesh.
+* To use the based visualization function, any mesh pointer will do.
+*
+* Howerver, if you want to use some higher level function, like changing the color or size of some element,
+* the template parameters of MeshLib::CBaseMesh must be child class of:
+* CVertexVisual, CEdgeVisual, CFaceViusal, CHalfEdge
+* give classes of CVertex, CEdge and CFace will cause error.
+* Thank you!
+*/
+
 namespace MeshLib {
+
+	/*
+	* The struct containing the configuration of the viewer.
+	*/
 	struct GLSetting
 	{
+		//enum type to store coloring mode of geometric elements.
+		//none        : means do not draw this element
+		//defaultColor: means use default color to draw this element.
+		//userDefined : means to user defined color, to use this, the coressponding geometric element's class must 
+		//              be child class of CVertexVisual, CFaceVisual or CEdgeVisual
 		enum ColorMode { none, defaultColor, userDefined };
+		//Face's coloring mode
 		ColorMode faceColorMode = defaultColor;
+		//vertex's coloring mode
 		ColorMode vertexColorMode = none;
+		//edge's coloring mode
 		ColorMode edgeColorMode = none;
+		//size of veretex
 		double vertexSize = 4.0;
+		//size of edge
 		double edgeSize = 2.0;
 	};
 
+	/*
+	* The openGL functions. 
+	* Those are C style codes. It is okay not to read them
+	*/
 	namespace GLViewer{
 		/* window width and height */
 		int win_width, win_height;
@@ -26,6 +64,10 @@ namespace MeshLib {
 		GLfloat  edgeDefaultColor[3] = { 0.5, 0.5, 0.1 };
 		GLfloat  vertexDefaultColor[3] = { 0.8, 0.0, 0.0 };
 		struct GLSetting m_glSetting;
+
+		//This is the function pointer to the user defined key responding function.
+		//It will be called after a key was pressed.
+		//It can be changed by user, by calling CSampleMeshViewer::setUserKeyFunc
 		void (*custom_user_key_func)(unsigned char key);
 
 		/* rotation quaternion and translation vector for the object */
@@ -33,6 +75,7 @@ namespace MeshLib {
 		CPoint      ObjTrans(0, 0, 0);
 		typedef CInterface<CVertexVisual, CEdgeVisual, CFaceVisual, CHalfEdge> IFGL;
 		typedef CIterators<IFGL> ITGL;
+		//This is a global variant, stores the pointer to mesh to be visualized.
 		IFGL::MeshPtr pMesh;
 
 		/* arcball object */
@@ -359,11 +402,24 @@ namespace MeshLib {
 			glutMainLoop();                       /* Start GLUT event-processing loop */
 		}
 	}
+
+	/*
+	* The main class of our viwer.
+	* It manages the data used in GLViwer. User can use this class to communicate with OpenGL.
+	* Easy to use, any mesh can be visualized.
+	*/
+
 	class CSimpleMeshViewer {
 	public:
 		typedef CInterface<CVertexVisual, CEdgeVisual, CFaceVisual, CHalfEdge> IF;
 		typedef CIterators<IF> IT;
-		CSimpleMeshViewer(void * pM, bool toComputeN = true, bool toNormalize = true) : m_pM((GLViewer::IFGL::MeshPtr)pM){
+		/*
+		* Construct function, can take one to three paremeters, two with default parementer.
+		* \param pM           : pointer to your mesh, it can be pointer to any mesh .
+		* \param toComputeN   : whether to compute normal for vertices and faces again
+		* \param toNormalizer : wether to normalize your mesh
+		*/
+		CSimpleMeshViewer(void * pM, bool toComputeN = true, bool toNormalize = false) : m_pM((GLViewer::IFGL::MeshPtr)pM){
 			GLViewer::pMesh = (GLViewer::IFGL::MeshPtr)pM;
 			if (toComputeN)
 				computeNormal();
@@ -373,6 +429,10 @@ namespace MeshLib {
 		}
 		void computeNormal();
 		void normalizeMesh();
+		/*
+		* you can set your key responding function own here.
+		* 
+		*/
 		void setUserKeyFunc(void (*newUserFunc)(unsigned char key));
 		void show();
 		GLSetting& setting() { return GLViewer::m_glSetting; };

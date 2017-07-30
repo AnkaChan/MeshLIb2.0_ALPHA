@@ -31,6 +31,6 @@ namespace MeshLib {
 
 	class CVertexVisual : public CVertex, public _colorRGB {};
 	class CEdgeVisual : public CEdge, public _colorRGB {};
-	class CFaceVisual : public CFace, public _colorRGB, public _normal {};
+	class CFaceVisual : public CFace, public _colorRGB {};
 
 }
