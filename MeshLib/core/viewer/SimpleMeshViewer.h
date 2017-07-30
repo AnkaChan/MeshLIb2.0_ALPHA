@@ -7,7 +7,7 @@
 namespace MeshLib {
 	struct GLSetting
 	{
-		enum ColorMode { none, defaultColor, user_defined };
+		enum ColorMode { none, defaultColor, userDefined };
 		ColorMode faceColorMode = defaultColor;
 		ColorMode vertexColorMode = none;
 		ColorMode edgeColorMode = none;
@@ -26,6 +26,7 @@ namespace MeshLib {
 		GLfloat  edgeDefaultColor[3] = { 0.5, 0.5, 0.1 };
 		GLfloat  vertexDefaultColor[3] = { 0.8, 0.0, 0.0 };
 		struct GLSetting m_glSetting;
+		void (*custom_user_key_func)(unsigned char key);
 
 		/* rotation quaternion and translation vector for the object */
 		CQrot       ObjRot(0, 0, 1, 0);
@@ -93,10 +94,10 @@ namespace MeshLib {
 					switch (shadeFlag)
 					{
 					case _face:
-						n = pF->normal;
+						n = pF->normal();
 						break;
 					case _vertex:
-						n = pV->normal;
+						n = pV->normal();
 						break;
 					}
 					glNormal3d(n[0], n[1], n[2]);
@@ -105,7 +106,7 @@ namespace MeshLib {
 					case GLSetting::ColorMode::defaultColor:
 						glColor3fv(faceDefaultColor);
 						break;
-					case GLSetting::ColorMode::user_defined:
+					case GLSetting::ColorMode::userDefined:
 						glColor3f(pF->color[0], pF->color[1], pF->color[2]);
 						break;
 					default:
@@ -125,7 +126,7 @@ namespace MeshLib {
 				case GLSetting::ColorMode::defaultColor:
 					glColor3fv(edgeDefaultColor);
 					break;
-				case GLSetting::ColorMode::user_defined:
+				case GLSetting::ColorMode::userDefined:
 					glColor3f(pE->color[0], pE->color[1], pE->color[2]);
 					break;
 				default:
@@ -147,7 +148,7 @@ namespace MeshLib {
 				case GLSetting::ColorMode::defaultColor:
 					glColor3fv(vertexDefaultColor);
 					break;
-				case GLSetting::ColorMode::user_defined:
+				case GLSetting::ColorMode::userDefined:
 					glColor3f(pV->color[0], pV->color[1], pV->color[2]);
 					break;
 				default:
@@ -215,7 +216,9 @@ namespace MeshLib {
 			printf("?  -  Help Information\n");
 			printf("esc - quit\n");
 		}
-
+		void default_user_key_func(unsigned char key) {
+			return;
+		}
 		/*! Keyboard call back function */
 		void keyBoard(unsigned char key, int x, int y)
 		{
@@ -239,6 +242,7 @@ namespace MeshLib {
 				help();
 				break;
 			default:
+				custom_user_key_func(key);
 				break;
 			}
 			glutPostRedisplay();
@@ -357,14 +361,19 @@ namespace MeshLib {
 	}
 	class CSimpleMeshViewer {
 	public:
-		typedef CIterators<GLViewer::IFGL::MeshPtr> IT;
-		CSimpleMeshViewer(GLViewer::IFGL::MeshPtr pM, bool toComputeN = true, bool toNormalize = true) : m_pM(pM){
-			GLViewer::pMesh = pM;
+		typedef CInterface<CVertexVisual, CEdgeVisual, CFaceVisual, CHalfEdge> IF;
+		typedef CIterators<IF> IT;
+		CSimpleMeshViewer(void * pM, bool toComputeN = true, bool toNormalize = true) : m_pM((GLViewer::IFGL::MeshPtr)pM){
+			GLViewer::pMesh = (GLViewer::IFGL::MeshPtr)pM;
 			if (toComputeN)
 				computeNormal();
+			GLViewer::custom_user_key_func = GLViewer::default_user_key_func;
+			if (toNormalize)
+				normalizeMesh();
 		}
 		void computeNormal();
 		void normalizeMesh();
+		void setUserKeyFunc(void (*newUserFunc)(unsigned char key));
 		void show();
 		GLSetting& setting() { return GLViewer::m_glSetting; };
 	private:
@@ -385,11 +394,11 @@ namespace MeshLib {
 					he = he->he_next();
 				}
 				CPoint fn = (p[1] - p[0]) ^ (p[2] - p[0]);
-				pF->normal = fn / fn.norm();
+				pF->normal() = fn / fn.norm();
 				n += fn;
 			}
 			n = n / n.norm();
-			pV->normal = n;
+			pV->normal() = n;
 		}
 	}
 
@@ -412,6 +421,11 @@ namespace MeshLib {
 		for (auto pV : IT::MVIterator(m_pM)) {
 			pV->point() = (pV->point() - center) / l;
 		}
+	}
+
+	void CSimpleMeshViewer::setUserKeyFunc(void (*newUserFunc)(unsigned char key)) 
+	{
+		GLViewer::custom_user_key_func = newUserFunc;
 	}
 
 	void CSimpleMeshViewer::show()

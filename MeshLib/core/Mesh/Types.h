@@ -19,16 +19,18 @@ namespace MeshLib {
 
 	struct _normal
 	{
-		_normal() : normal(0.0, 0.0, 0.0) {};
-		CPoint normal;
+		_normal() : m_normal(0.0, 0.0, 0.0) {};
+		CPoint& normal() { return m_normal; };
+	private:
+		CPoint m_normal;
 	};
 
 	struct uv {
 		double u = 0.0, v = 0.0;
 	};
 
-	class CVertexVisual : public CVertex, public _colorRGB, public _normal {};
-	class CEdgeVisual : public CEdge, public _colorRGB, public _normal {};
+	class CVertexVisual : public CVertex, public _colorRGB {};
+	class CEdgeVisual : public CEdge, public _colorRGB {};
 	class CFaceVisual : public CFace, public _colorRGB, public _normal {};
 
 }

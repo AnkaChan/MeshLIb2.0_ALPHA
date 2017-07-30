@@ -7,11 +7,32 @@
 #include <MeshLib/core/Mesh/Edge.h>
 #include <MeshLib/core/Mesh/Face.h>
 #include <MeshLib/core/Mesh/iterators2.h>
+#include <MeshLib/core/Mesh/Types.h>
+#include <MeshLib/core/viewer/SimpleMeshViewer.h>
 
 using namespace MeshLib;
-class myVertex : public CVertex {
+void myKeyFunc(unsigned char key) {
+	static GLViewer::ITGL::MFIterator mfIter(GLViewer::pMesh);
+	GLViewer::IFGL::FPtr pF;
+	switch (key)
+	{
+	case 'n':
+		pF = *mfIter;
+		pF->r = 0.0;
+		pF->g = 0.0;
+		pF->b = 0.0;
+		++mfIter;
+		break;
+	default:
+		break;
+	}
+
+
+}
+class myVertex : public CVertexVisual {
 public:
 	int num = 0;
+	
 };
 class myHalfedge : public CHalfEdge {
 public:
@@ -20,19 +41,53 @@ public:
 class myEdge : public CEdge {
 	int num = 222;
 };
-class myFace : public CFace {
+class myFace : public CFaceVisual {
 	double i = 1223.2312;
+
 };
 using std::cout;
 using std::endl;
 
 int main() {
-	typedef CInterface<myVertex, myEdge, myFace, myHalfedge> Interface;
+	typedef CInterface<CVertexVisual, CEdgeVisual, CFaceVisual, CHalfEdge> Interface;
 	typedef CIterators<Interface> Iterators;
 	typedef Interface::MeshType CMesh;
 
+	myVertex mV;
+	mV.normal()[1] = 2;
+
 	CMesh mesh;
-	mesh.read_m("C:/Users/dell/Desktop/Data/genus2/genus2.m");
+	mesh.read_m("D:/Code/Data/Mesh/outputs/face125.m");
+	for (auto pF : Iterators::MFIterator(&mesh)) {
+		pF->r = 1.0;
+		pF->g = 1.0;
+		pF->b = 0.0;
+	}
+	for (auto pE : Iterators::MEIterator(&mesh)) {
+		if (Interface::edgeFace1(pE)->id() > 100) {
+			pE->r = 0.0;
+			pE->g = 0.0;
+			pE->b = 0.0;
+		}
+		else {
+			pE->r = 0.0;
+			pE->g = 0.0;
+			pE->b = 1.0;
+
+		}
+	}
+	CSimpleMeshViewer simpleViewer(&mesh);
+	simpleViewer.show();
+	//simpleViewer.setting().edgeSize = 20.0;
+	simpleViewer.setting().faceColorMode = GLSetting::userDefined;
+	simpleViewer.setting().vertexColorMode = GLSetting::defaultColor;
+	simpleViewer.setting().vertexSize = 15.0;
+	simpleViewer.setUserKeyFunc(myKeyFunc);
+	simpleViewer.show();
+	//GLViewer::IFGL::MeshPtr m_pmesh = GLViewer::pMesh;
+	//simpleViewer.setting().edgeSize = 20.0;
+	//simpleViewer.setting().edgeColorMode = GLSetting::defaultColor;
+	//simpleViewer.show();
 	//cout << "Iterating Edges." << endl;
 	//for (auto pE : meIter) {
 	//	Interface::VPtr pV1, pV2;
