@@ -20,6 +20,8 @@
 * CVertexVisual, CEdgeVisual, CFaceViusal, CHalfEdge
 * give classes of CVertex, CEdge and CFace will cause error.
 * Thank you!
+* Author: Anka
+* Data  : 30/07/2017
 */
 
 //Path to the input file. You may need to change this.
