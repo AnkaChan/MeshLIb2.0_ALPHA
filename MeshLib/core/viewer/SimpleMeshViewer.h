@@ -430,10 +430,16 @@ namespace MeshLib {
 		void computeNormal();
 		void normalizeMesh();
 		/*
-		* you can set your key responding function own here.
-		* 
+		* You can set your key responding function own here.
+		* \param newUserFunc: It is a pointer to a function, whose return type is void and its input parameter is 
+		*                     a unsigned char, which is the key captured by OpenGL. You can use this to do you own
+		*                     key reaction. Note that 's', 'h', 'f', '?' has already been occupied.
 		*/
 		void setUserKeyFunc(void (*newUserFunc)(unsigned char key));
+		/*
+		* Show mesh. This function will open a new window. After the window was closed, the function will return to 
+		* your code, where the show() function was called, without terminating whole function.
+		*/
 		void show();
 		GLSetting& setting() { return GLViewer::m_glSetting; };
 	private:
