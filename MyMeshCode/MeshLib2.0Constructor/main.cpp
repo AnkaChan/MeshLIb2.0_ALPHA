@@ -38,7 +38,7 @@ class myHalfedge : public CHalfEdge {
 public:
 	int num = 10;
 };
-class myEdge : public CEdge {
+class myEdge : public CEdgeVisual {
 	int num = 222;
 };
 class myFace : public CFaceVisual {
