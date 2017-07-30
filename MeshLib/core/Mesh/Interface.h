@@ -314,7 +314,7 @@ namespace MeshLib
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
 	inline bool CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::isBoundary(EPtr e)
 	{
-		return (e->halfedge()->sym() == NULL);
+		return (e->halfedge()->he_sym() == NULL);
 	}
 	/*! whether a halfedge is on the boundary
 	\param he the pointer to the halfedge

@@ -8,31 +8,86 @@
  
 #ifndef  _ITERATORS_H_
 #define  _ITERATORS_H_
-#include <iterator>
-#include <algorithm>
-#include <list>
-#include <vector>
 
-#include "Interface.h"
-#include "HalfEdge.h"
 #include "BaseMesh.h"
-#include "Iterators2.h"
 
 namespace MeshLib{
+
 
 //v->out halfedge
 /*!
 	\brief VertexOutHalfedgeIterator, transverse all the outgoing halfedges of a vertex ccwly.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class VertexOutHalfedgeIterator
 {
 public:
+	/*!
+	VertexOutHalfedgeIteartor constructor
+	\param pMesh pointer to the current mesh
+	\param v     pointer to the current vertex
+	*/
+	VertexOutHalfedgeIterator( CBaseMesh<CVertex, CEdge, CFace, CHalfEdge> *  pMesh, CVertex *  v )
+	{ m_pMesh = pMesh; m_vertex = v; m_halfedge = m_pMesh->vertexMostClwOutHalfEdge(v); };
+
+	/*!
+	VertexOutHalfedgeIterator destructor
+	*/
+	~VertexOutHalfedgeIterator(){};
+	/*!
+	prefix ++ operator, goes to the next ccw vertex out halfedge
+	*/
+	void operator++() //prefix
+	{assert( m_halfedge != NULL ); 
+	 if( m_halfedge == m_pMesh->vertexMostCcwOutHalfEdge(m_vertex) ) 
+		 m_halfedge = NULL;
+	 else
+	 	 m_halfedge = m_pMesh->vertexNextCcwOutHalfEdge(m_halfedge); };
+
+	/*!
+		postfix ++ operator, goes to the next ccw vertex out halfedge
+	*/
+	void operator++(int) //postfix
+	{assert( m_halfedge != NULL ); 
+	 if( m_halfedge == m_pMesh->vertexMostCcwOutHalfEdge(m_vertex) ) 
+		 m_halfedge = NULL;
+	 else
+	 	 m_halfedge = m_pMesh->vertexNextCcwOutHalfEdge(m_halfedge); };
+
+	/*!
+		The current halfedge the iterator pointing to.
+	*/
+
+	 CHalfEdge * value() { return m_halfedge; };
+	 /*!
+		whether all the out halfedges have been visited.
+	 */
+	 bool end(){ return m_halfedge == NULL; };
+	/*!
+		The current halfedge the iterator pointing to.
+	*/
+	 CHalfEdge * operator*() { return value(); };
+
+private:
+	/*!	
+		Current mesh.
+	*/
+	CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> *        m_pMesh;
+	/*!
+		Current vertex.
+	*/
+	CVertex *      m_vertex;
+	/*!
+		Current halfedge.
+	*/
+	CHalfEdge * m_halfedge;
+};
+
 //v->in halfedge
 /*!
 	\brief VertexInHalfedgeIterator, transverse all the incoming halfedges of a vertex ccwly.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class VertexInHalfedgeIterator
 {
 public:
@@ -41,7 +96,7 @@ public:
 	\param pMesh pointer to the current mesh
 	\param v     pointer to the current vertex
 	*/
-	VertexInHalfedgeIterator(CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType> *  pMesh, VertexType * v )
+	VertexInHalfedgeIterator(CBaseMesh<CVertex, CEdge, CFace, CHalfEdge> *  pMesh, CVertex * v )
 	{ m_pMesh = pMesh; m_vertex = v; m_halfedge = m_pMesh->vertexMostClwInHalfEdge(v); };
 	/*!
 	VertexInHalfedgeIterator destructor
@@ -75,7 +130,7 @@ public:
 		The current halfedge the iterator pointing to.
 	*/
 	
-	HalfEdgeType * value() { return m_halfedge; };
+	CHalfEdge * value() { return m_halfedge; };
 	/*!	
 		Indicate whether all the in halfedges of the vertex have been transversed.
 	*/
@@ -83,21 +138,21 @@ public:
 	 /*!
 		The current halfedge the iterator pointing to.
 	 */
-	 HalfEdgeType * operator*() { return value(); };
+	 CHalfEdge * operator*() { return value(); };
 
 private:
 	/*!
 		Current mesh.
 	*/
-	CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType> *        m_pMesh;
+	CBaseMesh<CVertex, CEdge, CFace, CHalfEdge> *        m_pMesh;
 	/*!
 		Current vertex.
 	*/
-	VertexType *      m_vertex;
+	CVertex *      m_vertex;
 	/*!
 		Current halfedge.
 	*/
-	HalfEdgeType * m_halfedge;
+	CHalfEdge * m_halfedge;
 };
 
 
@@ -106,7 +161,7 @@ private:
 /*!
 	\brief VertexVertexIterator, transverse all the neighboring vertices of a vertex ccwly.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class VertexVertexIterator
 {
 public:
@@ -114,10 +169,10 @@ public:
 		VertexVertexIterator constructor
 		\param v the current vertex
 	*/
-	VertexVertexIterator( VertexType *  v )
+	VertexVertexIterator( CVertex *  v )
 	{ 
 		m_vertex = v; 
-		m_halfedge = (HalfEdgeType*)m_vertex->most_clw_out_halfedge();
+		m_halfedge = (CHalfEdge*)m_vertex->most_clw_out_halfedge();
 	};
 
 	/*!
@@ -137,7 +192,7 @@ public:
 		{
 			if( m_halfedge != m_vertex->most_ccw_out_halfedge() )
 			{
-				m_halfedge = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+				m_halfedge = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 			}
 			else
 			{
@@ -148,17 +203,17 @@ public:
 
 		if( m_vertex->boundary() )
 		{
-			if( m_halfedge == (HalfEdgeType*)m_vertex->most_ccw_in_halfedge() )
+			if( m_halfedge == (CHalfEdge*)m_vertex->most_ccw_in_halfedge() )
 			{
 				m_halfedge = NULL;
 				return;
 			}
 
-			HalfEdgeType * he = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+			CHalfEdge * he = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 
 			if( he == NULL )
 			{
-				m_halfedge = (HalfEdgeType*)m_vertex->most_ccw_in_halfedge();
+				m_halfedge = (CHalfEdge*)m_vertex->most_ccw_in_halfedge();
 			}
 			else
 			{
@@ -179,9 +234,9 @@ public:
 		
 		if( !m_vertex->boundary() )
 		{
-			if( m_halfedge != (HalfEdgeType*)m_vertex->most_ccw_out_halfedge() )
+			if( m_halfedge != (CHalfEdge*)m_vertex->most_ccw_out_halfedge() )
 			{
-				m_halfedge = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+				m_halfedge = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 			}
 			else
 			{
@@ -192,17 +247,17 @@ public:
 
 		if( m_vertex->boundary() )
 		{
-			if( m_halfedge == (HalfEdgeType*)m_vertex->most_ccw_in_halfedge() )
+			if( m_halfedge == (CHalfEdge*)m_vertex->most_ccw_in_halfedge() )
 			{
 				m_halfedge = NULL;
 				return;
 			}
 
-			HalfEdgeType * he = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+			CHalfEdge * he = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 
 			if( he == NULL )
 			{
-				m_halfedge = (HalfEdgeType*)m_vertex->most_ccw_in_halfedge();
+				m_halfedge = (CHalfEdge*)m_vertex->most_ccw_in_halfedge();
 			}
 			else
 			{
@@ -217,21 +272,21 @@ public:
 		The neighboring vertex, pointed by the current iterator
 	*/
 
-	 VertexType * value() 
+	 CVertex * value() 
 	 { 
 		 if( !m_vertex->boundary() )
 		 {
-			 return (VertexType*)m_halfedge->target(); 
+			 return (CVertex*)m_halfedge->target(); 
 		 }
 
-		 if( m_halfedge != (HalfEdgeType*)m_vertex->most_ccw_in_halfedge() )
+		 if( m_halfedge != (CHalfEdge*)m_vertex->most_ccw_in_halfedge() )
 		 {
-			 return (VertexType*)m_halfedge->target();
+			 return (CVertex*)m_halfedge->target();
 		 }
 
-		 if( m_halfedge == (HalfEdgeType*)m_vertex->most_ccw_in_halfedge() )
+		 if( m_halfedge == (CHalfEdge*)m_vertex->most_ccw_in_halfedge() )
 		 {
-			 return (VertexType*)m_halfedge->source();
+			 return (CVertex*)m_halfedge->source();
 		 }
 		 return NULL;
 	 };
@@ -239,7 +294,7 @@ public:
 	/*!
 		The neighboring vertex, pointed by the current iterator
 	*/
-	 VertexType * operator*() { return value(); };
+	 CVertex * operator*() { return value(); };
 
 	/*!
 		Indicate whether all the neighboring vertices have been accessed.
@@ -249,17 +304,17 @@ public:
 	/*!
 		Reset the iterator.
 	*/
-	 void reset()	{ m_halfedge = (HalfEdgeType*)m_vertex->most_clw_out_halfedge(); };
+	 void reset()	{ m_halfedge = (CHalfEdge*)m_vertex->most_clw_out_halfedge(); };
 
 private:
 	/*!
 		Current vertex
 	*/
-	VertexType *   m_vertex;
+	CVertex *   m_vertex;
 	/*!	
 		Current halfedge.
 	*/
-	HalfEdgeType * m_halfedge;
+	CHalfEdge * m_halfedge;
 };
 
 
@@ -268,7 +323,7 @@ private:
 	\brief VertexEdgeIterator, transverse all the neighboring edges of a vertex ccwly.
 */
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class VertexEdgeIterator
 {
 public:
@@ -276,10 +331,10 @@ public:
 		VertexEdgeIterator constructor
 		\param v the current vertex
 	*/
-	VertexEdgeIterator( VertexType *  v )
+	VertexEdgeIterator( CVertex *  v )
 	{ 
 		m_vertex = v; 
-		m_halfedge = (HalfEdgeType*)m_vertex->most_clw_out_halfedge();
+		m_halfedge = (CHalfEdge*)m_vertex->most_clw_out_halfedge();
 	};
 
 	/*!
@@ -296,9 +351,9 @@ public:
 		
 		if( !m_vertex->boundary() )
 		{
-			if( m_halfedge != (HalfEdgeType*)m_vertex->most_ccw_out_halfedge() )
+			if( m_halfedge != (CHalfEdge*)m_vertex->most_ccw_out_halfedge() )
 			{
-				m_halfedge = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+				m_halfedge = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 			}
 			else
 			{
@@ -309,17 +364,17 @@ public:
 
 		if( m_vertex->boundary() )
 		{
-			if( m_halfedge == (HalfEdgeType*)m_vertex->most_ccw_in_halfedge() )
+			if( m_halfedge == (CHalfEdge*)m_vertex->most_ccw_in_halfedge() )
 			{
 				m_halfedge = NULL;
 				return;
 			}
 
-			HalfEdgeType * he = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+			CHalfEdge * he = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 
 			if( he == NULL )
 			{
-				m_halfedge = (HalfEdgeType*)m_vertex->most_ccw_in_halfedge();
+				m_halfedge = (CHalfEdge*)m_vertex->most_ccw_in_halfedge();
 			}
 			else
 			{
@@ -338,9 +393,9 @@ public:
 		
 		if( !m_vertex->boundary() )
 		{
-			if( m_halfedge != (HalfEdgeType*)m_vertex->most_ccw_out_halfedge() )
+			if( m_halfedge != (CHalfEdge*)m_vertex->most_ccw_out_halfedge() )
 			{
-				m_halfedge = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+				m_halfedge = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 			}
 			else
 			{
@@ -351,17 +406,17 @@ public:
 
 		if( m_vertex->boundary() )
 		{
-			if( m_halfedge == (HalfEdgeType*)m_vertex->most_ccw_in_halfedge() )
+			if( m_halfedge == (CHalfEdge*)m_vertex->most_ccw_in_halfedge() )
 			{
 				m_halfedge = NULL;
 				return;
 			}
 
-			HalfEdgeType * he = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+			CHalfEdge * he = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 
 			if( he == NULL )
 			{
-				m_halfedge = (HalfEdgeType*)m_vertex->most_ccw_in_halfedge();
+				m_halfedge = (CHalfEdge*)m_vertex->most_ccw_in_halfedge();
 			}
 			else
 			{
@@ -375,16 +430,16 @@ public:
 		The neighboring edge, pointed by the current iterator
 	*/
 
-	 EdgeType * value() 
+	 CEdge * value() 
 	 { 
 		 assert( m_halfedge != NULL );
-		 return (EdgeType*)m_halfedge->edge();
+		 return (CEdge*)m_halfedge->edge();
 	 };
 
 	/*!
 		The neighboring edge, pointed by the current iterator
 	*/
-	 EdgeType * operator*() { return value(); };
+	 CEdge * operator*() { return value(); };
 	/*!
 		Indicate whether all the neighboring edges have been accessed.
 	*/
@@ -392,15 +447,15 @@ public:
 	/*!
 		Reset the VerexEdgeIterator.
 	*/
-	 void reset()	{ m_halfedge = (HalfEdgeType*)m_vertex->most_clw_out_halfedge(); };
+	 void reset()	{ m_halfedge = (CHalfEdge*)m_vertex->most_clw_out_halfedge(); };
 
 private:
 	/*! current vertex 
 	*/
-	VertexType *   m_vertex;
+	CVertex *   m_vertex;
 	/*! current halfedge
 	*/
-	HalfEdgeType * m_halfedge;
+	CHalfEdge * m_halfedge;
 };
 
 
@@ -409,7 +464,7 @@ private:
 /*!
 	\brief VertexFaceIterator, transverse all the neighboring faces of a vertex ccwly.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class VertexFaceIterator
 {
 public:
@@ -417,10 +472,10 @@ public:
 		VertexFaceIterator constructor
 		\param v the current vertex
 	*/
-	VertexFaceIterator( VertexType * & v )
+	VertexFaceIterator( CVertex * & v )
 	{ 
 		m_vertex = v; 
-		m_halfedge = (HalfEdgeType*)m_vertex->most_clw_out_halfedge(); 
+		m_halfedge = (CHalfEdge*)m_vertex->most_clw_out_halfedge(); 
 	};
 	/*!
 		VertexFaceIterator destructor
@@ -433,12 +488,12 @@ public:
 	{
 		assert( m_halfedge != NULL );  
 
-		if( m_halfedge == (HalfEdgeType*)m_vertex->most_ccw_out_halfedge() ) 
+		if( m_halfedge == (CHalfEdge*)m_vertex->most_ccw_out_halfedge() ) 
 		{
 			m_halfedge = NULL;
 			return;
 		}
-		m_halfedge = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+		m_halfedge = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 	};
 	/*!
 		VertexFaceIterator prefix operator ++, goes to the next neighboring face CCWly
@@ -448,21 +503,21 @@ public:
 	{
 		assert( m_halfedge != NULL );  
 
-		if( m_halfedge == (HalfEdgeType*)m_vertex->most_ccw_out_halfedge() ) 
+		if( m_halfedge == (CHalfEdge*)m_vertex->most_ccw_out_halfedge() ) 
 		{
 			m_halfedge = NULL;
 			return;
 		}
-		m_halfedge = (HalfEdgeType*)m_halfedge->ccw_rotate_about_source();
+		m_halfedge = (CHalfEdge*)m_halfedge->ccw_rotate_about_source();
 	};
 	/*!
 		The neighboring face, pointed by the current iterator
 	*/
-	FaceType * value() { return (FaceType*) m_halfedge->face(); };
+	CFace * value() { return (CFace*) m_halfedge->face(); };
 	/*!
 		The neighboring face, pointed by the current iterator
 	*/
-	 FaceType * operator*() { return value(); };
+	 CFace * operator*() { return value(); };
 	/*!
 		Indicate whether all the neighboring faces have been accessed.
 	*/
@@ -470,17 +525,17 @@ public:
 	 /*!
 	 Reset the VertexFaceIterator
 	 */
-	 void reset()	{ m_halfedge = (HalfEdgeType*)m_vertex->most_clw_out_halfedge(); };
+	 void reset()	{ m_halfedge = (CHalfEdge*)m_vertex->most_clw_out_halfedge(); };
 
 private:
 	/*!
 	current vertex
 	*/
-	VertexType *   m_vertex;
+	CVertex *   m_vertex;
 	/*!
 	current halfedge
 	*/
-	HalfEdgeType * m_halfedge;
+	CHalfEdge * m_halfedge;
 };
 
 // f -> halfedge
@@ -488,7 +543,7 @@ private:
 	\brief FaceHalfedgeIterator, transverse all the halfedges of a face CCWly.
 */
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class FaceHalfedgeIterator
 {
 public:
@@ -496,10 +551,10 @@ public:
 		FaceHalfedgeIterator constructor
 		\param f the current face
 	*/
-	FaceHalfedgeIterator( FaceType * f )
+	FaceHalfedgeIterator( CFace * f )
 	{ 
 		m_face = f; 
-		m_halfedge = (HalfEdgeType*)f->halfedge(); 
+		m_halfedge = (CHalfEdge*)f->halfedge(); 
 	};
 	/*!
 		FaceHalfedgeIterator destructor
@@ -511,7 +566,7 @@ public:
 	void operator++() //prefix
 	{
 		assert( m_halfedge != NULL );
-		m_halfedge = (HalfEdgeType*)m_halfedge->he_next();
+		m_halfedge = (CHalfEdge*)m_halfedge->he_next();
 
 		if( m_halfedge == m_face->halfedge() )
 		{
@@ -526,7 +581,7 @@ public:
 	void operator++(int) //postfix
 	{
 		assert( m_halfedge != NULL );
-		m_halfedge = (HalfEdgeType*)m_halfedge->he_next();
+		m_halfedge = (CHalfEdge*)m_halfedge->he_next();
 
 		if( m_halfedge == m_face->halfedge() )
 		{
@@ -538,11 +593,11 @@ public:
 	/*!
 		The halfedge, pointed by the current iterator
 	*/
-	HalfEdgeType * value() { return m_halfedge; };
+	CHalfEdge * value() { return m_halfedge; };
 	/*!
 		The halfedge, pointed by the current iterator
 	*/
-	HalfEdgeType * operator*() { return value(); };
+	CHalfEdge * operator*() { return value(); };
 
 	/*!
 		Indicate whether all the halfedges have been accessed.
@@ -553,11 +608,11 @@ private:
 	/*!
 		current face
 	*/
-	FaceType *        m_face;
+	CFace *        m_face;
 	/*!
 		current halfedge
 	*/
-	HalfEdgeType * m_halfedge;
+	CHalfEdge * m_halfedge;
 };
 
 
@@ -565,7 +620,7 @@ private:
 /*!
 	\brief FaceEdgeIterator, transverse all the edges of a face CCWly.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class FaceEdgeIterator
 {
 public:
@@ -573,10 +628,10 @@ public:
 		FaceEdgeIterator constructor
 		\param f the current face
 	*/	
-	FaceEdgeIterator( FaceType * f )
+	FaceEdgeIterator( CFace * f )
 	{ 
 		m_face = f; 
-		m_halfedge = (HalfEdgeType*)f->halfedge(); 
+		m_halfedge = (CHalfEdge*)f->halfedge(); 
 	};
 
 	/*!
@@ -589,9 +644,9 @@ public:
 	void operator++()	//prefix
 	{
 		assert( m_halfedge != NULL );
-		m_halfedge = (HalfEdgeType*)m_halfedge->he_next();
+		m_halfedge = (CHalfEdge*)m_halfedge->he_next();
 
-		if( m_halfedge == (HalfEdgeType*)m_face->halfedge() )
+		if( m_halfedge == (CHalfEdge*)m_face->halfedge() )
 		{
 			 m_halfedge = NULL;
 			return;
@@ -604,7 +659,7 @@ public:
 	void operator++(int)	//postfix
 	{
 		assert( m_halfedge != NULL );
-		m_halfedge = (HalfEdgeType*)m_halfedge->he_next();
+		m_halfedge = (CHalfEdge*)m_halfedge->he_next();
 
 		if( m_halfedge == m_face->halfedge() )
 		{
@@ -615,11 +670,11 @@ public:
 	/*!
 		The edge, pointed by the current iterator
 	*/
-	EdgeType * value() { return (EdgeType*) m_halfedge->edge(); };
+	CEdge * value() { return (CEdge*) m_halfedge->edge(); };
 	/*!
 		The edge, pointed by the current iterator
 	*/
-	EdgeType * operator*() { return value(); };
+	CEdge * operator*() { return value(); };
 	/*!
 		Indicate whether all the edges have been transversed.
 	*/
@@ -627,9 +682,9 @@ public:
 
 private:
 	/*! Current face. */
-	FaceType  *       m_face;
+	CFace  *       m_face;
 	/*! Current halfedge. */
-	HalfEdgeType * m_halfedge;
+	CHalfEdge * m_halfedge;
 };
 
 
@@ -637,7 +692,7 @@ private:
 /*!
 	\brief FaceVertexIterator, transverse all the vertices of a face CCWly.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class FaceVertexIterator
 {
 public:
@@ -645,10 +700,10 @@ public:
 		FaceVertexIterator constructor
 		\param f the current face
 	*/
-	FaceVertexIterator( FaceType * f )
+	FaceVertexIterator( CFace * f )
 	{ 
 		m_face = f; 
-		m_halfedge = (HalfEdgeType*)f->halfedge(); 
+		m_halfedge = (CHalfEdge*)f->halfedge(); 
 	};
 	/*!
 		FaceVertexIterator destructor
@@ -661,9 +716,9 @@ public:
 	void operator++() //prefix
 	{
 		assert( m_halfedge != NULL );
-		m_halfedge = (HalfEdgeType*)m_halfedge->he_next();
+		m_halfedge = (CHalfEdge*)m_halfedge->he_next();
 
-		if( m_halfedge == (HalfEdgeType*)m_face->halfedge() )
+		if( m_halfedge == (CHalfEdge*)m_face->halfedge() )
 		{
 			 m_halfedge = NULL;
 			return;
@@ -676,9 +731,9 @@ public:
 	void operator++(int) //postfix
 	{
 		assert( m_halfedge != NULL );
-		m_halfedge = (HalfEdgeType*)m_halfedge->he_next();
+		m_halfedge = (CHalfEdge*)m_halfedge->he_next();
 
-		if( m_halfedge == (HalfEdgeType*)m_face->halfedge() )
+		if( m_halfedge == (CHalfEdge*)m_face->halfedge() )
 		{
 			 m_halfedge = NULL;
 			return;
@@ -687,11 +742,11 @@ public:
 	/*!
 		The vertex, pointed by the current iterator
 	*/
-	VertexType * value() { return (VertexType*) m_halfedge->target(); };
+	CVertex * value() { return (CVertex*) m_halfedge->target(); };
 	/*!
 		The vertex, pointed by the current iterator
 	*/
-	VertexType * operator*() { return value(); };
+	CVertex * operator*() { return value(); };
 	/*!
 		Indicate whether all the vertices have been accessed.
 	*/
@@ -700,10 +755,10 @@ public:
 private:
 	/*!	Current face.
 	*/
-	FaceType         * m_face;
+	CFace         * m_face;
 	/*!	Current halfedge.
 	*/
-	HalfEdgeType * m_halfedge;
+	CHalfEdge * m_halfedge;
 };
 
 
@@ -712,7 +767,7 @@ private:
 	\brief MeshVertexIterator, transverse all the vertices in the mesh.
 */
 
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class MeshVertexIterator
 {
 public:
@@ -720,7 +775,7 @@ public:
 	MeshVertexIterator constructor, 
 	\param pMesh the current mesh
 	*/
-	MeshVertexIterator( CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * pMesh )
+	MeshVertexIterator( CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * pMesh )
 	{
 		m_pMesh = pMesh;
 		m_iter = m_pMesh->vertices().begin();
@@ -728,12 +783,12 @@ public:
 	/*!
 	The vertex, pointed by the current iterator
 	*/
-	VertexType * value() { return *m_iter; };
+	CVertex * value() { return *m_iter; };
 	/*!
 	The vertex, pointed by the current iterator
 	*/
 		
-	VertexType * operator*(){ return value(); };
+	CVertex * operator*(){ return value(); };
 	/*!
 		MeshVertexIterator prefix operator ++, goes to the next vertex 
 	*/	
@@ -751,18 +806,18 @@ private:
 	/*!
 		Current mesh.
 	*/
-	CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * m_pMesh;
+	CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * m_pMesh;
 	/*! 
 	Current vertex list iterator.
 	*/
-	typename std::list<VertexType*>::iterator m_iter;
+	typename std::list<CVertex*>::iterator m_iter;
 };
 
 // mesh->f
 /*!
 	\brief MeshFaceIterator, transverse all the faces in the mesh.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class MeshFaceIterator
 {
 public:
@@ -770,7 +825,7 @@ public:
 	MeshFaceIterator constructor, 
 	\param pMesh the current mesh
 	*/
-	MeshFaceIterator( CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * pMesh )
+	MeshFaceIterator( CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * pMesh )
 	{
       m_pMesh = pMesh;
       m_iter = pMesh->faces().begin();
@@ -778,11 +833,11 @@ public:
 	/*!
 	The face, pointed by the current iterator
 	*/
-	FaceType * value() { return *m_iter; };
+	CFace * value() { return *m_iter; };
 	/*!
 	The face, pointed by the current iterator
 	*/
-	FaceType * operator*(){ return value(); };
+	CFace * operator*(){ return value(); };
 
 	/*!
 		MeshFaceIterator prefix operator ++, goes to the next vertex 
@@ -800,17 +855,17 @@ public:
 private:
 	/*! Current mesh.
 	*/
-	CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * m_pMesh;
+	CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * m_pMesh;
 	/*! Current face list iterator.
 	*/
-	typename std::list<FaceType*>::iterator  m_iter;
+	typename std::list<CFace*>::iterator  m_iter;
 };
 
 //Mesh->e
 /*!
 	\brief MeshEdgeIterator, transverse all the edges in the mesh.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class MeshEdgeIterator
 {
 public:
@@ -818,7 +873,7 @@ public:
 	MeshEdgeIterator constructor, 
 	\param pMesh the current mesh
 	*/	
-	MeshEdgeIterator( CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * pMesh )
+	MeshEdgeIterator( CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * pMesh )
 	{
 		m_pMesh = pMesh;
 		m_iter = m_pMesh->edges().begin();
@@ -826,11 +881,11 @@ public:
 	/*!
 	The edge, pointed by the current iterator
 	*/	
-	EdgeType * value() { return *m_iter; };
+	CEdge * value() { return *m_iter; };
 	/*!
 	The edge, pointed by the current iterator
 	*/	
-	EdgeType * operator*(){ return value(); };
+	CEdge * operator*(){ return value(); };
 	/*!
 		MeshEdgeIterator prefix operator ++, goes to the next edge
 	*/	
@@ -849,18 +904,18 @@ private:
 	/*!
 	current mesh
 	*/
-	CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * m_pMesh;
+	CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * m_pMesh;
 	/*!
 	current edge list iterator
 	*/
-	typename std::list<EdgeType*>::iterator m_iter;
+	typename std::list<CEdge*>::iterator m_iter;
 };
 
 // Mesh->he
 /*!
 	\brief MeshHalfEdgeIterator, transverse all the halfedges in the mesh.
 */
-template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+template<typename CVertex, typename CEdge, typename CFace, typename CHalfEdge>
 class MeshHalfEdgeIterator
 {
 public:
@@ -868,7 +923,7 @@ public:
 	MeshHalfedgeIterator constructor, 
 	\param pMesh the current mesh
 	*/
-	MeshHalfEdgeIterator( CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> * pMesh )
+	MeshHalfEdgeIterator( CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> * pMesh )
 	{
      m_pMesh = pMesh;
      m_iter = m_pMesh->edges().begin();
@@ -877,11 +932,11 @@ public:
 	/*!
 	The halfedge, pointed by the current iterator
 	*/	
-	HalfEdgeType * value() { EdgeType * e = *m_iter; return (HalfEdgeType*)e->halfedge(m_id); };
+	CHalfEdge * value() { CEdge * e = *m_iter; return (CHalfEdge*)e->halfedge(m_id); };
 	/*!
 	The halfedge, pointed by the current iterator
 	*/	
-	HalfEdgeType * operator*(){ return value(); };
+	CHalfEdge * operator*(){ return value(); };
 	/*!
 		MeshVertexIterator prefix operator ++, goes to the next halfedge 
 	*/
@@ -893,7 +948,7 @@ public:
 		{
 		case 1:
 			{
-				EdgeType * e = *m_iter;
+				CEdge * e = *m_iter;
 				if( e->halfedge(m_id) == NULL )
 				{
 					m_id = 0;
@@ -918,7 +973,7 @@ public:
 		{
 		case 1:
 			{
-				EdgeType * e = *m_iter;
+				CEdge * e = *m_iter;
 				if( e->halfedge(m_id) == NULL )
 				{
 					m_id = 0;
@@ -942,15 +997,15 @@ private:
 	/*!
 		Current halfedge
 	*/
-	HalfEdgeType * m_he;
+	CHalfEdge * m_he;
 	/*!
 		Current mesh
 	*/
-	CBaseMesh<VertexType,EdgeType,FaceType,HalfEdgeType> *	 m_pMesh;
+	CBaseMesh<CVertex,CEdge,CFace,CHalfEdge> *	 m_pMesh;
 	/*!
 		Current edge list iterator
 	*/
-	typename std::list<EdgeType*>::iterator m_iter;
+	typename std::list<CEdge*>::iterator m_iter;
 	int  m_id;
 };
 
