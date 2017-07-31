@@ -9,7 +9,8 @@
 #include "Arcball.h"
 #include <GL\glut.h>
 #include <GL\freeglut_ext.h>
-#include <MeshLib\core\Mesh\MesCoreHeader.h>
+#include <MeshLib/core/Mesh/MesCoreHeader.h>
+#include <MeshLib/core/bmp/RgbImage.h>
 #define MAX(a,b) ((a)>(b) ? (a) : (b))
 
 /*
@@ -47,13 +48,15 @@ namespace MeshLib {
 		double vertexSize = 4.0;
 		//size of edge
 		double edgeSize = 2.0;
+		//whether to show uv using texture map. Requiring giving texture file first.
+		bool showUV = false;
 	};
 
 	/*
-	* The openGL functions. 
+	* The openGL functions.
 	* Those are C style codes. It is okay not to read them
 	*/
-	namespace GLViewer{
+	namespace GLViewer {
 		/* window width and height */
 		int win_width, win_height;
 		int gButton;
@@ -68,7 +71,8 @@ namespace MeshLib {
 		//This is the function pointer to the user defined key responding function.
 		//It will be called after a key was pressed.
 		//It can be changed by user, by calling CSampleMeshViewer::setUserKeyFunc
-		void (*custom_user_key_func)(unsigned char key);
+		void(*custom_user_key_func)(unsigned char key);
+		void(*custom_idle_func)(void);
 
 		/* rotation quaternion and translation vector for the object */
 		CQrot       ObjRot(0, 0, 1, 0);
@@ -77,12 +81,15 @@ namespace MeshLib {
 		typedef CIterators<IFGL> ITGL;
 		//This is a global variant, stores the pointer to mesh to be visualized.
 		IFGL::MeshPtr pMesh;
-
+		/* texture id and image */
+		int textureFlag = 2;
+		GLuint texName;
+		RgbImage image;
 		/* arcball object */
 		CArcball arcball;
 
 		/*! setup the object, transform from the world to the object coordinate system */
-		void setupObject(void){
+		void setupObject(void) {
 			double rot[16];
 
 			glTranslated(ObjTrans[0], ObjTrans[1], ObjTrans[2]);
@@ -97,13 +104,13 @@ namespace MeshLib {
 		}
 
 		/*! setup light */
-		void setupLight(){
+		void setupLight() {
 			GLfloat lightOnePosition[4] = { 0, 0, 1, 0 };
 			glLightfv(GL_LIGHT1, GL_POSITION, lightOnePosition);
 		}
 
 		/*! draw axis */
-		void draw_axis(){
+		void draw_axis() {
 			glLineWidth(2.0);
 			//x axis
 			glColor3f(1.0, 0.0, 0.0);	//red
@@ -128,10 +135,10 @@ namespace MeshLib {
 
 			glLineWidth(1.0);
 		}
-		void draw_faces(){
+		void draw_faces() {
 			glBegin(GL_TRIANGLES);
-			for (auto pF : ITGL::MFIterator(pMesh) ){
-				for (auto pV : ITGL::FVIterator(pF)){
+			for (auto pF : ITGL::MFIterator(pMesh)) {
+				for (auto pV : ITGL::FVIterator(pF)) {
 					CPoint pt = pV->point();
 					CPoint n;
 					switch (shadeFlag)
@@ -154,18 +161,20 @@ namespace MeshLib {
 						break;
 					default:
 						break;
-					} 
+					}
+					if (m_glSetting.showUV) 
+						glTexCoord2d(pV->uv()[0], pV->uv()[1]);
 					glVertex3d(pt[0], pt[1], pt[2]);
 				}
 			}
 			glEnd();
 		}
 
-		void draw_edges(){
+		void draw_edges() {
 			for (auto pE : ITGL::MEIterator(pMesh)) {
 				glLineWidth(m_glSetting.edgeSize);
 				glBegin(GL_LINES);
-				switch (m_glSetting.edgeColorMode){
+				switch (m_glSetting.edgeColorMode) {
 				case GLSetting::ColorMode::defaultColor:
 					glColor3fv(edgeDefaultColor);
 					break;
@@ -177,7 +186,7 @@ namespace MeshLib {
 				}
 				CPoint v1 = IFGL::edgeVertex1(pE)->point();
 				CPoint v2 = IFGL::edgeVertex2(pE)->point();
-				glVertex3f(v1[0], v1[1], v1[2]); 
+				glVertex3f(v1[0], v1[1], v1[2]);
 				glVertex3f(v2[0], v2[1], v2[2]);
 				glEnd();
 			}
@@ -205,7 +214,7 @@ namespace MeshLib {
 
 		/*! display call back function
 		*/
-		void display(){
+		void display() {
 			/* clear frame buffer */
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			setupLight();
@@ -217,7 +226,7 @@ namespace MeshLib {
 
 			draw_axis();
 			if (m_glSetting.faceColorMode != GLSetting::none)
-				draw_faces();						  
+				draw_faces();
 			if (m_glSetting.edgeColorMode != GLSetting::none)
 				draw_edges();
 			if (m_glSetting.vertexColorMode != GLSetting::none)
@@ -228,7 +237,7 @@ namespace MeshLib {
 		}
 
 		/*! Called when a "resize" event is received by the window. */
-		void reshape(int w, int h){
+		void reshape(int w, int h) {
 			float ar;
 			//std::cout << "w:" << w << "\th:" << h << std::endl;
 			win_width = w;
@@ -284,6 +293,23 @@ namespace MeshLib {
 			case '?':
 				help();
 				break;
+			case 't':
+				textureFlag = (textureFlag + 1) % 3;
+				switch (textureFlag)
+				{
+				case 0:
+					glDisable(GL_TEXTURE_2D);
+					break;
+				case 1:
+					glEnable(GL_TEXTURE_2D);
+					glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+					break;
+				case 2:
+					glEnable(GL_TEXTURE_2D);
+					glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+					break;
+				}
+				break;
 			default:
 				custom_user_key_func(key);
 				break;
@@ -296,7 +322,7 @@ namespace MeshLib {
 			GLfloat globalAmb[] = { .1, .1, .1, 1 };
 			GLfloat lightOnePosition[] = { .0, 0.0, 1.0, 1.0 };
 
-			glEnable(GL_CULL_FACE);
+			//glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
 			glEnable(GL_DEPTH_TEST);
 			glClearColor(0.35, 0.53, 0.70, 0);
@@ -314,7 +340,36 @@ namespace MeshLib {
 
 			glLightfv(GL_LIGHT1, GL_POSITION, lightOnePosition);
 		}
+		/*! initialize bitmap image texture */
+		void initialize_bmp_texture()
+		{
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			glGenTextures(1, &texName);
+			glBindTexture(GL_TEXTURE_2D, texName);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,   GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+			//	int ImageWidth  = image.GetNumRows();
+			//	int ImageHeight = image.GetNumCols();
+			int ImageWidth = image.GetNumCols();
+			int ImageHeight = image.GetNumRows();
+			GLubyte *pr = (GLubyte *)image.ImageData();
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ImageWidth, ImageHeight, 0, GL_RGB,
+				GL_UNSIGNED_BYTE, pr);
+
+			if (textureFlag == 1)
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			else if (textureFlag == 2)
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			glEnable(GL_TEXTURE_2D);
+		}
 		/*! mouse click call back function */
 		void  mouseClick(int button, int state, int x, int y) {
 			/* set up an arcball around the Eye's center
@@ -377,12 +432,17 @@ namespace MeshLib {
 
 		}
 
+		void _Idle_func() {
+			custom_idle_func();
+			display();
+		}
+		void default_idle_func() {};
 		void init_openGL()
 		{
 			/* glut stuff */
 			int argcG = 1;
 			char* s = "none";
-			char** argvG = &s; 
+			char** argvG = &s;
 
 			glutInit(&argcG, argvG);                /* Initialize GLUT */
 			glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -391,7 +451,7 @@ namespace MeshLib {
 			glViewport(0, 0, 800, 600);
 
 			glutDisplayFunc(display);             /* Set-up callback functions */
-			glutIdleFunc(display);
+			glutIdleFunc(_Idle_func);
 			glutReshapeFunc(reshape);
 			glutMouseFunc(mouseClick);
 			glutMotionFunc(mouseMove);
@@ -399,6 +459,7 @@ namespace MeshLib {
 
 			setupGLstate();
 			glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+			initialize_bmp_texture();
 			glutMainLoop();                       /* Start GLUT event-processing loop */
 		}
 	}
@@ -419,11 +480,23 @@ namespace MeshLib {
 		* \param toComputeN   : whether to compute normal for vertices and faces again
 		* \param toNormalizer : wether to normalize your mesh
 		*/
-		CSimpleMeshViewer(void * pM, bool toComputeN = true, bool toNormalize = false) : m_pM((GLViewer::IFGL::MeshPtr)pM){
+		CSimpleMeshViewer(void * pM, bool toComputeN = true, bool toNormalize = false) : m_pM((GLViewer::IFGL::MeshPtr)pM) {
 			GLViewer::pMesh = (GLViewer::IFGL::MeshPtr)pM;
 			if (toComputeN)
 				computeNormal();
 			GLViewer::custom_user_key_func = GLViewer::default_user_key_func;
+			GLViewer::custom_idle_func = GLViewer::default_idle_func;
+
+			if (toNormalize)
+				normalizeMesh();
+		}
+		void setMeshPointer(void * pM, bool toComputeN = true, bool toNormalize = false){
+			m_pM = (GLViewer::IFGL::MeshPtr)pM;
+			GLViewer::pMesh = (GLViewer::IFGL::MeshPtr)pM;
+			if (toComputeN)
+				computeNormal();
+			GLViewer::custom_user_key_func = GLViewer::default_user_key_func;
+			GLViewer::custom_idle_func = GLViewer::default_idle_func;
 			if (toNormalize)
 				normalizeMesh();
 		}
@@ -431,17 +504,19 @@ namespace MeshLib {
 		void normalizeMesh();
 		/*
 		* You can set your key responding function own here.
-		* \param newUserFunc: It is a pointer to a function, whose return type is void and its input parameter is 
+		* \param newUserFunc: It is a pointer to a function, whose return type is void and its input parameter is
 		*                     a unsigned char, which is the key captured by OpenGL. You can use this to do you own
 		*                     key reaction. Note that 's', 'h', 'f', '?' has already been occupied.
 		*/
-		void setUserKeyFunc(void (*newUserFunc)(unsigned char key));
+		void setUserKeyFunc(void(*newUserFunc)(unsigned char key));
+		void setUserIdleFunc(void(*newIdleFunc)(void));
 		/*
-		* Show mesh. This function will open a new window. After the window was closed, the function will return to 
+		* Show mesh. This function will open a new window. After the window was closed, the function will return to
 		* your code, where the show() function was called, without terminating whole function.
 		*/
 		void show();
 		GLSetting& setting() { return GLViewer::m_glSetting; };
+		void setTexture(char* texturePath);
 	private:
 
 		GLViewer::IFGL::MeshPtr m_pM;
@@ -449,7 +524,7 @@ namespace MeshLib {
 	void CSimpleMeshViewer::computeNormal() {
 		for (auto pV : IT::MVIterator(m_pM))
 		{
-			CPoint n(0, 0, 0); 
+			CPoint n(0, 0, 0);
 			for (auto pF : IT::VFIterator(pV))
 			{
 				CPoint p[3];
@@ -489,14 +564,21 @@ namespace MeshLib {
 		}
 	}
 
-	void CSimpleMeshViewer::setUserKeyFunc(void (*newUserFunc)(unsigned char key)) 
+	void CSimpleMeshViewer::setUserKeyFunc(void(*newUserFunc)(unsigned char key))
 	{
 		GLViewer::custom_user_key_func = newUserFunc;
+	}
+	void CSimpleMeshViewer::setUserIdleFunc(void(*newIdleFunc)(void))
+	{
+		GLViewer::custom_idle_func = newIdleFunc;
 	}
 
 	void CSimpleMeshViewer::show()
 	{
 		GLViewer::init_openGL();
 	}
-
+	void CSimpleMeshViewer::setTexture(char* texturePath)
+	{
+		GLViewer::image.LoadBmpFile(texturePath);
+	}
 }

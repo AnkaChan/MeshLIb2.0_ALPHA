@@ -86,6 +86,13 @@ namespace MeshLib {
 		 */
 		CPoint2  & operator += (const CPoint2 & p) { m_c[0] += p[0]; m_c[1] += p[1]; return *this; };
 		/*!
+		* Add another point to the current point
+		* \param p
+		* \return cuccrent point is added by p.
+		*/
+		CPoint2    operator-() { return CPoint2(-m_c[0], -m_c[1]); };
+
+		/*!
 		 * Substract another point to the current point
 		 * \param p
 		 * \return cuccrent point is substracted by p.
