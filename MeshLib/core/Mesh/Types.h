@@ -1,5 +1,6 @@
 #pragma once
 #include "../Geometry/Point.h"
+#include "../Geometry/Point2.h"
 #include "../Mesh/Vertex.h"
 #include "../Mesh/Edge.h"
 #include "../Mesh/Face.h"
@@ -25,8 +26,8 @@ namespace MeshLib {
 		CPoint m_normal;
 	};
 
-	struct uv {
-		double u = 0.0, v = 0.0;
+	struct _uv {
+		CPoint2 uv;
 	};
 
 	class CVertexVisual : public CVertex, public _colorRGB {};
