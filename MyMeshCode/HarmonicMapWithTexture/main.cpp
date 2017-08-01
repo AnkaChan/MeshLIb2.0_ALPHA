@@ -47,7 +47,7 @@ int main() {
 		pV->uv() = -(pV->uv() / 2 + CPoint2(0.5, 0.5));
 	}
 	simpleViewer.setMeshPointer(pOMesh, true, true);
-	simpleViewer.setTexture("D:/Code/Data/texture/Xi.bmp");
+	simpleViewer.setTexture("D:/Code/Data/texture/chess.bmp");
 	simpleViewer.setting().showUV = true;
 	simpleViewer.show();
 }
