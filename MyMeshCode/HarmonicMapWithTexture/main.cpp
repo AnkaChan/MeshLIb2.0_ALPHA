@@ -28,7 +28,7 @@ void iterate() {
 }
 
 int main() {
-	pMesh->read_m("D:/Code/Data/Mesh/outputs/face125.m");
+	pMesh->read_m("C:/Code/Data/Mesh/outputs/face125.m");
 	CSimpleMeshViewer simpleViewer(pMesh, true, true);// simpleViewer.show();
 	CBoundary<IF::VType, IF::EType, IF::FType, IF::HEType> boundary(pMesh);
 	auto loop = boundary.loops().front(); double l = loop->length(), lt = 0.0f;
@@ -40,7 +40,7 @@ int main() {
 	simpleViewer.show();
 	simpleViewer.setUserIdleFunc(iterate);
 	simpleViewer.show();
-	IF::MeshPtr pOMesh = new IF::MeshType; pOMesh->read_m("D:/Code/Data/Mesh/outputs/face125.m");
+	IF::MeshPtr pOMesh = new IF::MeshType; pOMesh->read_m("C:/Code/Data/Mesh/outputs/face125.m");
 	for (auto pV : IT::MVIterator(pOMesh)) {
 		pV->uv()[0] = (pMesh->idVertex(pV->id())->point())[0];
 		pV->uv()[1] = (pMesh->idVertex(pV->id())->point())[1];

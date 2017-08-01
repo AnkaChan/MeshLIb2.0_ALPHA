@@ -66,10 +66,7 @@ public:
 		Save the traits to the string.
 	*/
 	void _to_string() {};
-	/*! 
-		Properties 
-	*/
-	Props & props() { return m_props; };
+
 protected:
 	/*!
 		Pointers to the halfedge attached to the current edge
@@ -84,10 +81,7 @@ protected:
 		Edge ID
 	 */
 	int				 m_id;
-	/*! 
-		Properties 
-	*/
-	Props			  m_props;
+
 };
 
 

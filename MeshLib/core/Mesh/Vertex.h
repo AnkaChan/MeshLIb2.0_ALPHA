@@ -15,7 +15,6 @@
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
 #include "HalfEdge.h"
-#include "Property.h"
 
 namespace MeshLib{
 
@@ -85,9 +84,6 @@ namespace MeshLib{
 	 */
 	std::list<CHalfEdge*> & arhe() { return m_arhe; };
 
-	/*! Properties
-	*/
-	Props & props() { return m_props; };
   protected:
 
     /*! Vertex ID. 
@@ -116,8 +112,6 @@ namespace MeshLib{
 	 */
 	std::list<CHalfEdge*> m_arhe;
 
-	/*! Properties */
-	Props			m_props;
   }; //class CVertex
 
 
