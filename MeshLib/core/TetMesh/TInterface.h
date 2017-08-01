@@ -30,6 +30,17 @@ namespace MeshLib
 
 			typedef CTMesh<TVType, VType, HEType, TEType, EType, HFType, FType, TType> TMeshType;
 			typedef TMeshType * TMeshPtr;
+
+			//Access Vertex data members
+			/*! Vertex->Edge List */
+			static std::list<EdgeType*> * VertexEdgeList(VertexType * pVertex);
+			/*! Vertex->TEdge List */
+			static std::list<TEdgeType*> * VertexTEdgeList(VertexType * pVertex);
+			/*! Vertex->HalfFace List */
+			static std::list<HalfFaceType*> * VertexHalfFaceList(VertexType * pVertex);
+			/*! Vertex->TVertex List */
+			static std::list<TVertexType*> * VertexTVertexList(VertexType * pVertex);
+
 			/*! Vertex->Edge */
 			static EdgeType   * VertexEdge(VertexType * v1, VertexType * v2);
 
@@ -68,7 +79,7 @@ namespace MeshLib
 
 			//Access Edge data members
 			/*! TEdge list of the edge */
-			static std::list<TEdgeType*>& EdgeTEdgeList(EdgeType * pEdge);
+			static std::list<TEdgeType*> * EdgeTEdgeList(EdgeType * pEdge);
 			/*! Edge->Vertex1 */
 			static VertexType* EdgeVertex1(EdgeType * pEdge);
 			/*! Edge->Vertex2 */
@@ -102,6 +113,56 @@ namespace MeshLib
 			static VertexType * TetVertex(TetType * pT, int j);
 		};
 
+		/*------------------------------------------------------------------------------------------------
+		Access Vertex data members
+		--------------------------------------------------------------------------------------------------*/
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline std::list<EdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexEdgeList(VertexType * pVertex)
+		{
+			return (std::list<EdgeType*>*) pVertex->edges();
+		};
+
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline std::list<TEdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexTEdgeList(VertexType * pVertex)
+		{
+			return (std::list<TEdgeType*>*) pVertex->tedges();
+		};
+
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline std::list<HalfFaceType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexHalfFaceList(VertexType * pVertex)
+		{
+			return (std::list<HalfFaceType*>*) pVertex->HalfFaces();
+		};
+
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline std::list<TVertexType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexTVertexList(VertexType * pVertex)
+		{
+			return (std::list<TVertexType*>*) pVertex->tvertices();
+		};
+
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexEdge(VertexType * v1, VertexType * v2)
+		{
+			std::list<CEdge*> * vEdgeList = VertexEdgeList(v1);
+
+			for (std::list<CEdge*>::iterator titer = (*vEdgeList).begin(); titer != (*vEdgeList).end(); titer++)
+			{
+				CEdge * pE = *titer;
+
+				CVertex * w1 = EdgeVertex1(pE);
+				CVertex * w2 = EdgeVertex2(pE);
+
+				if (w1 == v1 && w2 == v2)
+				{
+					return pE;
+				}
+				if (w1 == v2 && w2 == v1)
+				{
+					return pE;
+				}
+			}
+			return NULL;
+		}
 		/*------------------------------------------------------------------------------------------------
 		Access TVertex data members
 		--------------------------------------------------------------------------------------------------*/
@@ -205,7 +266,7 @@ namespace MeshLib
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<TEdgeType*>& TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeTEdgeList(EdgeType * pEdge)
+		inline std::list<TEdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeTEdgeList(EdgeType * pEdge)
 		{
 			return (std::list<TEdgeType*>*) pEdge->edges();
 		}

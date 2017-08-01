@@ -119,19 +119,6 @@ namespace MeshLib
 
 			/*! access the tet with ID */
 			TetType      * idTet(int id) { return m_map_Tets[id]; };
-			/*! Vertex->Edge */
-			EdgeType   * VertexEdge(VertexType * v1, VertexType * v2);
-
-
-			//Access Vertex data members
-			/*! Vertex->Edge List */
-			std::list<EdgeType*> * VertexEdgeList(VertexType * pVertex);
-			/*! Vertex->TEdge List */
-			std::list<TEdgeType*> * VertexTEdgeList(VertexType * pVertex);
-			/*! Vertex->HalfFace List */
-			std::list<HalfFaceType*> * VertexHalfFaceList(VertexType * pVertex);
-			/*! Vertex->TVertex List */
-			std::list<TVertexType*> * VertexTVertexList(VertexType * pVertex);
 
 		protected:
 
@@ -142,7 +129,7 @@ namespace MeshLib
 			*/
 
 			void  _construct_tet(TetType* pT, int tID, int * v);
-			void  _construct_tet_orientation(TetType* pT, int tID, int * v);
+			void  _construct_tet_orientation(TetType* pT, int tId, int  v[4]);
 			/*! construct faces */
 			void  _construct_faces();
 			/*! construct edges */
@@ -1206,55 +1193,7 @@ namespace MeshLib
 
 			_os.close();
 		}
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline EdgeType * CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexEdge(VertexType * v1, VertexType * v2)
-		{
-			std::list<CEdge*> * vEdgeList = VertexEdgeList(v1);
 
-			for (std::list<CEdge*>::iterator titer = (*vEdgeList).begin(); titer != (*vEdgeList).end(); titer++)
-			{
-				CEdge * pE = *titer;
-
-				CVertex * w1 = EdgeVertex1(pE);
-				CVertex * w2 = EdgeVertex2(pE);
-
-				if (w1 == v1 && w2 == v2)
-				{
-					return pE;
-				}
-				if (w1 == v2 && w2 == v1)
-				{
-					return pE;
-				}
-			}
-			return NULL;
-		}
-		/*------------------------------------------------------------------------------------------------
-			Access Vertex data members
-			--------------------------------------------------------------------------------------------------*/
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<EdgeType*> * CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexEdgeList(VertexType * pVertex)
-		{
-			return (std::list<EdgeType*>*) pVertex->edges();
-		};
-
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<TEdgeType*> * CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexTEdgeList(VertexType * pVertex)
-		{
-			return (std::list<TEdgeType*>*) pVertex->tedges();
-		};
-
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<HalfFaceType*> * CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexHalfFaceList(VertexType * pVertex)
-		{
-			return (std::list<HalfFaceType*>*) pVertex->HalfFaces();
-		};
-
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<TVertexType*> * CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexTVertexList(VertexType * pVertex)
-		{
-			return (std::list<TVertexType*>*) pVertex->tvertices();
-		};
 	};
 };
 #endif _MESHLIB_BASE_TET_MESH_H
