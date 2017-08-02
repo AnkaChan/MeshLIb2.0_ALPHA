@@ -143,14 +143,14 @@ namespace MeshLib
 		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
 		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexEdge(VertexType * v1, VertexType * v2)
 		{
-			std::list<CEdge*> * vEdgeList = VertexEdgeList(v1);
+			std::list<EdgeType*> * vEdgeList = VertexEdgeList(v1);
 
-			for (std::list<CEdge*>::iterator titer = (*vEdgeList).begin(); titer != (*vEdgeList).end(); titer++)
+			for (std::list<EdgeType*>::iterator titer = (*vEdgeList).begin(); titer != (*vEdgeList).end(); titer++)
 			{
-				CEdge * pE = *titer;
+				EdgeType * pE = *titer;
 
-				CVertex * w1 = EdgeVertex1(pE);
-				CVertex * w2 = EdgeVertex2(pE);
+				VertexType * w1 = EdgeVertex1(pE);
+				VertexType * w2 = EdgeVertex2(pE);
 
 				if (w1 == v1 && w2 == v2)
 				{

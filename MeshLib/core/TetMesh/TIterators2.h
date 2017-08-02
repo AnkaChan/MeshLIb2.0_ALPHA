@@ -35,7 +35,7 @@ namespace MeshLib
 				TM_VIterator begin() { return TM_VIterator(m_pMesh); };
 				TM_VIterator end() { return TM_VIterator(m_pMesh, m_pMesh->vertices().end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == m_pMesh->vertices().end(); };
 
 			protected:
@@ -87,7 +87,7 @@ namespace MeshLib
 				V_VIterator begin() { return V_VIterator(m_pV); };
 				V_VIterator end() { return V_VIterator(m_pV, pEdges->end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == pEdges->end(); };
 
 			protected:
@@ -127,7 +127,7 @@ namespace MeshLib
 				TM_TIterator begin() { return TM_TIterator(m_pMesh); };
 				TM_TIterator end() { return TM_TIterator(m_pMesh, m_pMesh->tets().end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == m_pMesh->tets().end(); };
 
 			private:
@@ -166,7 +166,7 @@ namespace MeshLib
 				T_HFIterator begin() { return T_HFIterator(m_pTet); };
 				T_HFIterator end() { return T_HFIterator(m_pTet, 4); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == 4; };
 
 			protected:
@@ -202,7 +202,7 @@ namespace MeshLib
 				TM_EIterator begin() { return TM_EIterator(m_pMesh); };
 				TM_EIterator end() { return TM_EIterator(m_pMesh, m_pMesh->edges().end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == m_pMesh->edges().end(); };
 			protected:
 				/*! Private construction function, only used to generate begin, end and tmp iterator*/
@@ -237,7 +237,7 @@ namespace MeshLib
 				E_TEIterator begin() { return E_TEIterator(m_pEdge); };
 				E_TEIterator end() { return E_TEIterator(m_pEdge, EdgeTEdgeList(m_pEdge)->end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == EdgeTEdgeList(m_pEdge)->end(); };
 			private:
 				/*! Private construction function, only used to generate begin, end and tmp iterator*/
@@ -273,7 +273,7 @@ namespace MeshLib
 				V_EIterator begin() { return V_EIterator(m_pV); };
 				V_EIterator end() { return V_EIterator(m_pV, VertexEdgeList(m_pV)->end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == pEdges->end(); };
 
 			private:
@@ -325,7 +325,7 @@ namespace MeshLib
 				T_EIterator begin() { return T_EIterator(m_pT, m_edges, m_edges.begin()); };
 				T_EIterator end() { return T_EIterator(m_pT, m_edges, m_edges.end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == pEdges->end(); };
 
 			private:
@@ -365,7 +365,7 @@ namespace MeshLib
 				TM_FIterator begin() { return TM_FIterator(m_pTMesh); };
 				TM_FIterator end() { return TM_FIterator(m_pTMesh, m_pTMesh->faces().end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == m_pTMesh->faces().end(); };
 			protected:
 				/*! Private construction function, only used to generate begin, end and tmp iterator*/
@@ -418,13 +418,12 @@ namespace MeshLib
 				E_FIterator begin() { return E_FIterator( m_faces, m_faces.begin()); };
 				E_FIterator end() { return E_FIterator( m_faces, m_faces.end()); };
 
-				/*! old style end() method, return whether the iterator has reached the end of the container*/
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == pEdges->end(); };
 
-			private:
-
+			protected:
+				/*! Private construction function, only used to generate begin, end and tmp iterator*/
 				E_FIterator(std::set<FPtr> faces, typename std::set<FPtr>::iterator iter) : m_iter(iter), m_faces(faces) {};
-
 				/*! set of edges adjacent to the central vertex */
 				std::set<FPtr> m_faces;
 				/*! edge set iterator */
@@ -432,6 +431,321 @@ namespace MeshLib
 			};
 
 
+			/*!
+			\brief HalfFace->vertex Iterator
+			go through all the vertices of a HalfFace
+			*/
+			class HF_VIterator : public std::iterator<std::forward_iterator_tag, VPtr> {
+			public:
+				HF_VIterator(HFPtr pHF) : m_pHF(pHF), m_pHE(HalfFaceHalfEdge(m_pHF)) {};
+				
+				/*! dereferencing */
+				VPtr operator*() { assert(m_pHE != NULL); return HalfEdgeTarget(m_pHE); };
+				VPtr value() { assert(m_pHE != NULL); return HalfEdgeTarget(m_pHE); };
+
+				/*! bool operator*/
+				bool operator==(const HF_VIterator& otherIter) { return m_pHE == otherIter.m_pHE; };
+				bool operator!=(const HF_VIterator& otherIter) { return m_pHE != otherIter.m_pHE; };
+
+				/*! iterator ++ */
+				HF_VIterator& operator++()
+				{
+					m_pHE = HalfEdgeNext(m_pHE);
+					if (m_pHE ==HalfFaceHalfEdge(m_pHF))
+					{
+						m_pHE = NULL;
+					}
+					return *this;
+				};
+				/*! ++ iterator */
+				HF_VIterator operator++(int)
+				{
+					HF_VIterator tmp(pHF, pHE);
+					m_pHE = HalfEdgeNext(m_pHE);
+					if (m_pHE == HalfFaceHalfEdge(m_pHF))
+					{
+						m_pHE = NULL;
+					}
+					return tmp;
+				};
+
+				/*! return the begin and end iterators*/
+				HF_VIterator begin() { return HF_VIterator(m_pHF); };
+				HF_VIterator end() { return HF_VIterator(m_pHF, NULL); };
+
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
+				bool reachEnd() { return m_PHE == NULL; };
+
+			protected:
+				/*! Private construction function, only used to generate begin, end and tmp iterator*/
+				HF_VIterator(HFPtr pHF, HEPtr pHE) : m_pHF(pHF), m_pHE(pHE) {};
+				/*! Pointer to the halfface */
+				HFPtr m_pHF;
+				/*! Pointer to the halfedge */
+				HEPtr m_pHE;
+			};
+
+
+			/*!
+			\brief HalfFace->HalfEdge Iterator
+			go through all the vertices of a HalfFace
+			*/
+			class HF_HEIterator : public std::iterator<std::forward_iterator_tag, HEPtr> {
+			public:
+				HF_HEIterator(HFPtr pHF) : m_pHF(pHF), m_pHE(HalfFaceHalfEdge(m_pHF)) {};
+
+				/*! dereferencing */
+				HEPtr operator*() { assert(m_pHE != NULL); return m_pHE; };
+				HEPtr value() { assert(m_pHE != NULL); return m_pHE; };
+
+				/*! bool operator*/
+				bool operator==(const HF_HEIterator& otherIter) { return m_pHE == otherIter.m_pHE; };
+				bool operator!=(const HF_HEIterator& otherIter) { return m_pHE != otherIter.m_pHE; };
+
+				/*! iterator ++ */
+				HF_HEIterator& operator++()
+				{
+					m_pHE = HalfEdgeNext(m_pHE);
+					if (m_pHE == HalfFaceHalfEdge(m_pHF))
+					{
+						m_pHE = NULL;
+					}
+					return *this;
+				};
+				/*! ++ iterator */
+				HF_HEIterator operator++(int)
+				{
+					HF_HEIterator tmp(pHF, pHE);
+					m_pHE = HalfEdgeNext(m_pHE);
+					if (m_pHE == HalfFaceHalfEdge(m_pHF))
+					{
+						m_pHE = NULL;
+					}
+					return tmp;
+				};
+
+				/*! return the begin and end iterators*/
+				HF_HEIterator begin() { return HF_HEIterator(m_pHF); };
+				HF_HEIterator end() { return HF_HEIterator(m_pHF, NULL); };
+
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
+				bool reachEnd() { return m_PHE == NULL; };
+
+			protected:
+				/*! Private construction function, only used to generate begin, end and tmp iterator*/
+				HF_HEIterator(HFPtr pHF, HEPtr pHE) : m_pHF(pHF), m_pHE(pHE) {};
+				/*! Pointer to the halfface */
+				HFPtr m_pHF;
+				/*! Pointer to the halfedge */
+				HEPtr m_pHE;
+			};
+
+			/*!
+			\brief Face->vertex Iterator
+			go through all the vertices of a Face
+			*/
+			class F_VIterator : public std::iterator<std::forward_iterator_tag, VPtr> {
+			public:
+				F_VIterator(FPtr pF) : m_pF(pF), m_pHF(FaceLeftHalfFace(pF)), m_pHE(HalfFaceHalfEdge(m_pHF)) {};
+				/*! dereferencing */
+				VPtr operator*() { assert(m_pHE != NULL); return HalfEdgeTarget(m_pHE); };
+				VPtr value() { assert(m_pHE != NULL); return HalfEdgeTarget(m_pHE); };
+
+				/*! bool operator*/
+				bool operator==(const F_VIterator& otherIter) { return m_pHE == otherIter.m_pHE; };
+				bool operator!=(const F_VIterator& otherIter) { return m_pHE != otherIter.m_pHE; };
+
+				/*! iterator ++ */
+				F_VIterator& operator++()
+				{
+					m_pHE = HalfEdgeNext(m_pHE);
+					if (m_pHE == HalfFaceHalfEdge(m_pHF))
+					{
+						m_pHE = NULL;
+					}
+					return *this;
+				};
+				/*! ++ iterator */
+				F_VIterator operator++(int)
+				{
+					F_VIterator tmp(m_pF, pHE);
+					m_pHE = HalfEdgeNext(m_pHE);
+					if (m_pHE == HalfFaceHalfEdge(m_pHF))
+					{
+						m_pHE = NULL;
+					}
+					return tmp;
+				};
+
+				/*! return the begin and end iterators*/
+				F_VIterator begin() { return F_VIterator(m_pF); };
+				F_VIterator end() { return F_VIterator(m_pF, NULL); };
+
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
+				bool reachEnd() { return m_PHE == NULL; };
+			protected:
+				/*! Private construction function, only used to generate begin, end and tmp iterator*/
+				F_VIterator(FPtr pF, HEPtr pHE) : m_pF(pF), m_pHF(FaceLeftHalfFace(pF)), m_pHE(pHE) {};
+				/*! Pointer to the halfface */
+				FPtr  m_pF;
+				/*! Pointer to the halfface */
+				HFPtr m_pHF;
+				/*! Pointer to the halfedge */
+				HEPtr  m_pHE;
+			};
+
+			/*!
+			\brief TVertex->InHalfEdge Iterator
+			go through all the InHalfEdge of a TVertex
+			*/
+			class TV_InHEIterator : public std::iterator<std::forward_iterator_tag, HEPtr> {
+			public:
+				TV_InHEIterator(TVPtr pTV) : m_pTV(pTV), m_pHE(HalfEdgeDual( TVertexHalfEdge(pTV) )), m_pHF(HalfEdgeHalfFace(m_pHE)) {};
+				/*! dereferencing */
+				HEPtr operator*() { assert(m_pHE != NULL); return m_pHE; };
+				HEPtr value() { assert(m_pHE != NULL); return m_pHE; };
+
+				/*! bool operator*/
+				bool operator==(const TV_InHEIterator& otherIter) { return m_pHE == otherIter.m_pHE; };
+				bool operator!=(const TV_InHEIterator& otherIter) { return m_pHE != otherIter.m_pHE; };
+
+				/*! iterator ++ */
+				TV_InHEIterator& operator++()
+				{
+					m_pHE = HalfEdgeDual( HalfEdgeNext(m_pHE) );
+					if (m_pHF == HalfEdgeHalfFace(m_pHE))
+					{
+						m_pHE = NULL;
+					}
+					return *this;
+				};
+				/*! ++ iterator */
+				TV_InHEIterator operator++(int unused)
+				{
+					TV_InHEIterator tmp(m_pTV, m_pHF, m_pHE);
+					m_pHE = HalfEdgeDual(HalfEdgeNext(m_pHE));
+					if (m_pHF == HalfEdgeHalfFace(m_pHE))
+					{
+						m_pHE = NULL;
+					}
+					return tmp;
+				};
+
+				/*! return the begin and end iterators*/
+				TV_InHEIterator begin() { return TV_InHEIterator(m_pTV); };
+				TV_InHEIterator end() { return TV_InHEIterator(m_pTV, m_pHF, NULL); };
+
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
+				bool reachEnd() { return m_PHE == NULL; };
+			protected:
+				/*! Private construction function, only used to generate begin, end and tmp iterator*/
+				TV_InHEIterator(TVPtr pTV, HFPtr pHF, HEPtr pHE) : m_pTV(pTV), m_pHE(pHE), m_pHF(pHF) {};
+				/*! Pointer to the TVertex */
+				TVPtr m_pTV;
+				/*! Pointer to the halfedge */
+				HEPtr m_pHE;
+				HFPtr m_pHF;
+			};
+
+			/*!
+			\brief TVertex->TEdge Iterator
+			go through all the TEdge of a TVertex
+			*/
+			class TV_TEIterator : public std::iterator<std::forward_iterator_tag, TEPtr> {
+			public:
+				TV_TEIterator(TVPtr pTV) : m_pTV(pTV), m_pHE(HalfEdgeDual(TVertexHalfEdge(pTV))), m_pHF(HalfEdgeHalfFace(m_pHE)) {};
+				/*! dereferencing */
+				TEPtr operator*() { assert(m_pHE != NULL); return HalfEdgeTEdge(m_pHE); };
+				TEPtr value() { assert(m_pHE != NULL); return HalfEdgeTEdge(m_pHE); };
+
+				/*! bool operator*/
+				bool operator==(const TV_TEIterator& otherIter) { return m_pHE == otherIter.m_pHE; };
+				bool operator!=(const TV_TEIterator& otherIter) { return m_pHE != otherIter.m_pHE; };
+
+				/*! iterator ++ */
+				TV_TEIterator& operator++()
+				{
+					m_pHE = HalfEdgeDual(HalfEdgeNext(m_pHE));
+					if (m_pHF == HalfEdgeHalfFace(m_pHE))
+					{
+						m_pHE = NULL;
+					}
+					return *this;
+				};
+				/*! ++ iterator */
+				TV_TEIterator operator++(int unused)
+				{
+					TV_TEIterator tmp(m_pTV, m_pHE);
+					m_pHE = HalfEdgeDual(HalfEdgeNext(m_pHE));
+					if (m_pHF == HalfEdgeHalfFace(m_pHE))
+					{
+						m_pHE = NULL;
+					}
+					return tmp;
+				};
+
+				/*! return the begin and end iterators*/
+				TV_TEIterator begin() { return TV_TEIterator(m_pTV); };
+				TV_TEIterator end() { return TV_TEIterator(m_pTV, m_pHF, NULL); };
+
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
+				bool reachEnd() { return m_PHE == NULL; };
+			protected:
+				/*! Private construction function, only used to generate begin, end and tmp iterator*/
+				TV_TEIterator(TVPtr pTV, HFPtr pHF, HEPtr pHE) : m_pTV(pTV), m_pHE(pHE), m_pHF(pHF) {};
+				/*! Pointer to the TVertex */
+				TVPtr m_pTV;
+				/*! Pointer to the halfedge */
+				HEPtr m_pHE;
+				HFPtr m_pHF;
+			};
+
+			/*!
+			\brief Vertex->TVertex Iterator
+			go through all the tvertices of a vertex
+			*/
+			class V_TVIterator : public std::iterator<std::forward_iterator_tag, TVPtr> {
+			public:
+				V_TVIterator(VPtr pV)
+				{
+					m_pV = pV;
+					m_iter = VertexTVertexList(pV)->begin();
+				};
+
+				/*! dereferencing */
+				TVPtr operator*() { return *m_iter; };
+				TVPtr value() { return *m_iter; };
+
+				/*! bool operator*/
+				bool operator==(const V_TVIterator& otherIter) { return m_iter == otherIter.m_iter; };
+				bool operator!=(const V_TVIterator& otherIter) { return m_iter != otherIter.m_iter; };
+
+				/*! ++iterator */
+				V_TVIterator& operator++() { ++m_iter; return *this; };
+				/*! iterator++ */
+				V_TVIterator operator++(int unused) { 
+					V_TVIterator tmp(m_pV, m_iter); 
+					++m_iter; 
+					return tmp;
+				};
+
+				/*! return the begin and end iterators*/
+				V_TVIterator begin() { return V_TVIterator(m_pV); };
+				V_TVIterator end() { return V_TVIterator(m_pV, VertexTVertexList(m_pV)->end()); };
+
+
+				/*! formal style, verify if the end has been reached */
+				bool reachEnd() { return m_iter == VertexTVertexList(m_pV)->end(); };
+				
+			private:
+
+				V_TVIterator(VPtr pV, typename std::list<TVPtr>::iterator iter) : m_pV(pV), m_iter(iter) {};
+				/*! pointer to the vertex */
+				VPtr m_pV;
+				/*! TVertex list iterator */
+				typename std::list<TVPtr>::iterator m_iter;
+
+			};
 		};
 
 	}
