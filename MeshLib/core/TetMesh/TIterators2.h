@@ -173,7 +173,7 @@ namespace MeshLib
 				/*! Private construction function, only used to generate begin, end and tmp iterator*/
 				T_HFIterator(TPtr pT, int id) : m_pTet(pT), m_id(id) {};
 				/*! current tet */
-				CTet *             m_pTet;
+				TPtr             m_pTet;
 				/*! current half_face */
 				int                m_id;
 			};

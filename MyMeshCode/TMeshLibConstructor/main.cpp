@@ -38,42 +38,42 @@ int main() {
 	//}
 
 
-	//int i = 0;
-	//for (auto pE : TIT::TM_EIterator(pTMesh)) {
-	//	++i;
-	//	cout << "Edge: " << pE << "\n";
-	//	cout << "Its vertices: V1: " << TIF::EdgeVertex1(pE)->id() << " , V2: " << TIF::EdgeVertex2(pE)->id() << '\n';
-	//	cout << "TEdges number:" << TIF::EdgeTEdgeList(pE)->size() << endl;
+	int i = 0;
+	for (auto pE : TIT::TM_EIterator(pTMesh)) {
+		++i;
+		cout << "Edge: " << pE << "\n";
+		cout << "Its vertices: V1: " << TIF::EdgeVertex1(pE)->id() << " , V2: " << TIF::EdgeVertex2(pE)->id() << '\n';
+		cout << "TEdges number:" << TIF::EdgeTEdgeList(pE)->size() << endl;
 
-	//	for (auto pF : TIT::E_FIterator(pE)) {
-	//		cout << "It's adjacent faces: " << pF << endl;
-	//	}
+		for (auto pF : TIT::E_FIterator(pE)) {
+			cout << "It's adjacent faces: " << pF << endl;
+		}
 
-	//	for (auto pTE : TIT::E_TEIterator(pE)) {
-	//		cout << "Its tEdges: " << pTE << endl;
-	//	}
-	//}
-	//cout << "Edges number: " << pTMesh->edges().size() << '\n';
-	//cout << "Edges count: " << i << endl;
+		for (auto pTE : TIT::E_TEIterator(pE)) {
+			cout << "Its tEdges: " << pTE << endl;
+		}
+	}
+	cout << "Edges number: " << pTMesh->edges().size() << '\n';
+	cout << "Edges count: " << i << endl;
 
-	///* Testing the Tet iterator*/
-	//for (TIF::TPtr pT : TIT::TM_TIterator(pTMesh)) {
-	//	int i = 0, j = 0;
-	//	cout << "Tet's ID: " << pT->id() << endl;
+	/* Testing the Tet iterator*/
+	for (TIF::TPtr pT : TIT::TM_TIterator(pTMesh)) {
+		int i = 0, j = 0;
+		cout << "Tet's ID: " << pT->id() << endl;
 
-	//	for (auto pE : TIT::T_EIterator(pT)) {
-	//		++j;
-	//		cout << "Edge: " << pE << '\n';
-	//	}
-	//	for (auto pHF : TIT::T_HFIterator(pT)) {
-	//		++i;
-	//		cout << "Halfface: " << pHF << "\n";
-	//	}
-	//	if (i != 4 || j != 6) {
-	//		std::cerr << "Iterator Wrong!" << endl;
-	//		getchar();
-	//	}
-	//}
+		for (auto pE : TIT::T_EIterator(pT)) {
+			++j;
+			cout << "Edge: " << pE << '\n';
+		}
+		for (auto pHF : TIT::T_HFIterator(pT)) {
+			++i;
+			cout << "Halfface: " << pHF << "\n";
+		}
+		if (i != 4 || j != 6) {
+			std::cerr << "Iterator Wrong!" << endl;
+			getchar();
+		}
+	}
 
 	/* Testing the Veretex iterator*/
 	for (auto pV : TIT::TM_VIterator(pTMesh)) {
