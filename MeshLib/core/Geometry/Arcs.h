@@ -15,7 +15,7 @@ namespace MeshLib {
 		Eigen::Vector3d getPointFromArc(double theta);
 	private:
 		Eigen::Vector3d m_A, m_B, m_O, nA, nB, u, v, w;
-		Eigen::Matrix3d G, F, FReverse;
+		Eigen::Matrix3d G, F, FInverse;
 		double m_theta, r;
 
 		Eigen::Matrix3d getG(double theta);
@@ -36,16 +36,15 @@ namespace MeshLib {
 		v = v / v.norm();
 		w = nB.cross(nA);
 
-		FReverse << u[0], v[0], w[0],
-					u[1], v[1], w[1],
-					u[2], v[2], w[2];
-		F = FReverse.reverse();
+		FInverse << u, v, w;
+		F = FInverse.inverse();
 	}
 	inline Eigen::Vector3d Arcs::getPointFromArc(double theta)
 	{
 		Eigen::Vector3d p, nP;
+		Eigen::Matrix3d U = FInverse * getG(theta) * F;
 
-		nP = FReverse * getG(theta) * F  * nA;
+		nP = U * nA;
 		p = nP * r + m_O;
 		return p;
 	}
