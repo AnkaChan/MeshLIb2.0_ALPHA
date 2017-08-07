@@ -13,6 +13,7 @@
 #include <math.h>
 #include <string>
 #include <sstream>
+#include <MeshLib\3rdParty\Eigen\Dense>
 
 
 namespace MeshLib
@@ -34,6 +35,11 @@ namespace MeshLib
 		*	CPoint default constructor, initialized as (0,0,0)
 		*/
 		CPoint() { v[0] = v[1] = v[2] = 0; };
+		/*!
+		*	CPoint constructor, from Eigen::Vector3d
+		*/
+		CPoint(Eigen::Vector3d vec) { v[0] = vec[0]; v[1] = vec[1]; v[2] = vec[2]; };
+
 		/*!
 		*	CPoint destructor
 		*/
@@ -198,6 +204,10 @@ namespace MeshLib
 			os << p[0] << " " << p[1] << " " << p[2];
 			return os;
 		};
+
+		Eigen::Vector3d getEigenVec() {
+			return Eigen::Vector3d(v[0], v[1], v[2]);
+		}
 
 	protected:
 		/*!

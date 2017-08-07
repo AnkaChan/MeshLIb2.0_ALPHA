@@ -34,12 +34,12 @@ namespace MeshLib
 		class CTVertex
 		{
 		public:
-			CTVertex(){ m_pVertex = NULL; m_pTet = NULL; m_pHalfedge = NULL; };
-			~CTVertex(){};
+			CTVertex() { m_pVertex = NULL; m_pTet = NULL; m_pHalfedge = NULL; };
+			~CTVertex() {};
 
 			int & id() { return m_iID; };
 
-			CVertex         * vert(){ return m_pVertex; };
+			CVertex         * vert() { return m_pVertex; };
 			CTet            *  tet() { return m_pTet; };
 			CHalfEdge       * halfedge() { return m_pHalfedge; };
 

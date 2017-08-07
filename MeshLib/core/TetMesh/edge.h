@@ -35,9 +35,9 @@ namespace MeshLib
 		{
 		public:
 
-			CEdge(){ m_vertices[0] = NULL; m_vertices[1] = NULL; };
+			CEdge() { m_vertices[0] = NULL; m_vertices[1] = NULL;  m_bIsBoundary = false; };
 
-			~CEdge(){ m_lTEdges.clear(); };
+			~CEdge() { m_lTEdges.clear(); };
 
 			std::list<CTEdge*> * edges() { return &m_lTEdges; };
 

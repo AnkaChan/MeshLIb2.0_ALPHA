@@ -1,6 +1,5 @@
 #pragma once
-#include <Eigen\Dense>
-#include <MeshLib\core\TetMesh\TMeshLibHeaders.h>
+#include <MeshLib\3rdParty\Eigen\Dense>
 #include <MeshLib\core\Geometry\Point.h>
 #include <vector>
 

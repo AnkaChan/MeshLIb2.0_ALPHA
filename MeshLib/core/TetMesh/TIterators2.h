@@ -130,7 +130,7 @@ namespace MeshLib
 				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == m_pMesh->tets().end(); };
 
-			private:
+			protected:
 				/*! Private construction function, only used to generate begin, end and tmp iterator*/
 				TM_TIterator(TMeshPtr pTMesh, typename std::list<TPtr>::iterator iter) : m_pMesh(pTMesh), m_iter(iter) {};
 				/*! pointer to a TetMesh */
@@ -239,7 +239,7 @@ namespace MeshLib
 
 				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == EdgeTEdgeList(m_pEdge)->end(); };
-			private:
+			protected:
 				/*! Private construction function, only used to generate begin, end and tmp iterator*/
 				E_TEIterator(EPtr pE, typename std::list<TEPtr>::iterator iter) : m_pEdge(pE), m_iter(iter) {};
 				/*! pointer to the edge */
@@ -276,7 +276,7 @@ namespace MeshLib
 				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == pEdges->end(); };
 
-			private:
+			protected:
 				/*! Private construction function, only used to generate begin, end and tmp iterator*/
 				V_EIterator(VPtr pV, typename std::list<EPtr>::iterator iter) :m_pV(pV), m_iter(iter) {};
 				/*! Edge List of the point */
@@ -328,7 +328,7 @@ namespace MeshLib
 				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == pEdges->end(); };
 
-			private:
+			protected:
 
 				T_EIterator(TPtr pT, std::set<EPtr> edges, typename std::set<EPtr>::iterator iter) : m_pT(pT), m_iter(iter), m_edges(edges) {};
 
@@ -737,7 +737,7 @@ namespace MeshLib
 				/*! formal style, verify if the end has been reached */
 				bool reachEnd() { return m_iter == VertexTVertexList(m_pV)->end(); };
 				
-			private:
+			protected:
 
 				V_TVIterator(VPtr pV, typename std::list<TVPtr>::iterator iter) : m_pV(pV), m_iter(iter) {};
 				/*! pointer to the vertex */
@@ -746,7 +746,95 @@ namespace MeshLib
 				typename std::list<TVPtr>::iterator m_iter;
 
 			};
+
+			class T_TVIterator :  public std::iterator<std::forward_iterator_tag, TVPtr>{
+			public :
+				T_TVIterator(TPtr pT) : m_pT(pT), m_ID(0) {};
+
+				/*! dereferencing */
+				TVPtr operator*() { assert(m_ID < 4); return TetTVertex(m_pT, m_ID); };
+				TVPtr value() { assert(m_ID < 4); return TetTVertex(m_pT, m_ID); };
+
+				/*! bool operator*/
+				bool operator==(const T_TVIterator& otherIter) { return m_ID == otherIter.m_ID; };
+				bool operator!=(const T_TVIterator& otherIter) { return m_ID != otherIter.m_ID; };
+
+				/*! ++iterator */
+				T_TVIterator& operator++() { ++m_ID; return *this; };
+				/*! iterator++ */
+				T_TVIterator operator++(int unused) {
+					T_TVIterator tmp(m_pT, m_ID);
+					++m_iter;
+					return tmp;
+				};
+
+				/*! return the begin and end iterators*/
+				T_TVIterator begin() { return T_TVIterator(m_pT); };
+				T_TVIterator end() { return T_TVIterator(m_pT, 4); };
+
+
+				/*! formal style, verify if the end has been reached */
+				bool reachEnd() { return m_ID == 4; };
+
+			protected:
+				T_TVIterator(TPtr pT, int id) : m_pT(pT), m_ID(id) {};
+
+				TPtr m_pT;
+				int m_ID;
+			};
+
+			class T_VIterator : public std::iterator<std::forward_iterator_tag, VPtr> {
+			public:
+				T_VIterator(TPtr pT) : m_pT(pT), m_ID(0) {};
+
+				/*! dereferencing */
+				VPtr operator*() { assert(m_ID < 4); return TetVertex(m_pT, m_ID); };
+				VPtr value() { assert(m_ID < 4); return TetVertex(m_pT, m_ID); };
+
+				/*! bool operator*/
+				bool operator==(const T_VIterator& otherIter) { return m_ID == otherIter.m_ID; };
+				bool operator!=(const T_VIterator& otherIter) { return m_ID != otherIter.m_ID; };
+
+				/*! ++iterator */
+				T_VIterator& operator++() { ++m_ID; return *this; };
+				/*! iterator++ */
+				T_VIterator operator++(int unused) {
+					T_VIterator tmp(m_pT, m_ID);
+					++m_iter;
+					return tmp;
+				};
+
+				/*! return the begin and end iterators*/
+				T_VIterator begin() { return T_VIterator(m_pT); };
+				T_VIterator end() { return T_VIterator(m_pT, 4); };
+
+
+				/*! formal style, verify if the end has been reached */
+				bool reachEnd() { return m_ID == 4; };
+
+			protected:
+				T_VIterator(TPtr pT, int id) : m_pT(pT), m_ID(id) {};
+
+				TPtr m_pT;
+				int m_ID;
+			};
 		};
 
+
+
+		template <typename TIf>
+		struct TIterators : public TIteratorCore<typename TIf::TVType, typename TIf::VType, typename TIf::HEType, 
+			typename TIf::TEType, typename TIf::EType, typename TIf::HFType, typename TIf::FType, typename TIf::TType> {
+		};
+		/*
+		TVType
+		VType
+		HEType
+		TEType
+		TType
+		EType
+		HFType
+		FType
+		*/
 	}
 }

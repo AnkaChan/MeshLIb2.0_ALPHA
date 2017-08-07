@@ -13,7 +13,7 @@
 #include <math.h>
 #include <string>
 #include <sstream>
-#include <Eigen/Dense>
+#include <MeshLib/3rdParty/Eigen/Dense>
 
 namespace MeshLib
 {
