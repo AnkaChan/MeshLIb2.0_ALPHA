@@ -23,7 +23,7 @@
 #include <GL\freeglut_ext.h>
 
 #define FACE_COLOR 0.8,0.8,0.8
-#define ZOOM_LEVEL 10.0 
+#define ZOOM_LEVEL 3.0 
 #define SOLID_MODE 1
 #define WIRE_MODE 2
 using std::cout;
@@ -45,7 +45,7 @@ typedef TIterators<TIFGL> TITGL;
 typedef CTMesh<CTVertexGL, CVertexGL, CHalfEdgeGL, CTEdgeGL, CEdgeGL, CHalfFaceGL, CFaceGL, CTetGL> CTMeshGL;
 typedef HalfFaceVertexIterator<CTVertexGL, CVertexGL, CHalfEdgeGL, CTEdgeGL, CEdgeGL, CHalfFaceGL, CFaceGL, CTetGL> HfVIterator;
 typedef TetHalfFaceIterator<CTVertexGL, CVertexGL, CHalfEdgeGL, CTEdgeGL, CEdgeGL, CHalfFaceGL, CFaceGL, CTetGL> THfIterator;
-
+typedef D3Parameterization<TIFGL> D3Para;
 /* window width and height */
 int win_width, win_height;
 int gButton;
@@ -57,6 +57,8 @@ CQrot       ObjRot(0, 0, 1, 0);
 CPoint      ObjTrans(0, 0, 0);
 CPoint		TetCenter;
 extern CTMeshGL* pMesh;
+extern D3Para * pd3Para;
+
 extern std::shared_ptr<std::list<CTetShelling *>> pShellingList;
 std::list < CTetShelling *> renderList;
 bool drawCircumSphere = false;
@@ -183,7 +185,7 @@ void draw_half_faces()
 }
 
 void draw_circumsphereFunc() {
-	CPoint newCenter = (sphere.center - sphere.center) * ZOOM_LEVEL;
+	CPoint newCenter = sphere.center;
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glTranslatef(newCenter[0], newCenter[1], newCenter[2]);
 	if (circumSphereMod == SOLID_MODE)
@@ -332,6 +334,7 @@ void specailKey(int key, int x, int y)
 			pTet->visible = true;
 			renderList.push_back(pTet);
 			++shellingIter;
+			pd3Para->mapNextTetToSphereRand();
 		}
 		break;
 	case GLUT_KEY_LEFT:

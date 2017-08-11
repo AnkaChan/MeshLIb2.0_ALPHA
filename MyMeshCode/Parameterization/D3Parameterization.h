@@ -11,6 +11,7 @@
 #include <memory>
 #include <list>
 #include <random>
+#include <cmath>
 
 #define PI 3.1415926535897932
 
@@ -36,7 +37,18 @@ namespace MeshLib {
 				m_TIter = m_pShellingList->begin();
 				++m_TIter;
 
-				normalizeTMesh2CircumSphere();
+				//normalizeTMesh2CircumSphere();
+
+				CPoint v[4] = { CPoint( 1, 0, -1.0f / sqrt(2)), 
+								CPoint(-1, 0, -1.0f / sqrt(2)),
+								CPoint(0, -1,  1.0f / sqrt(2)),
+								CPoint(0,  1,  1.0f / sqrt(2)) 
+				};
+				int i = 0;
+				for (V * pV : TIt::T_VIterator(m_pShellingList->front())) {
+					pV->position() = v[i] / v[i].norm();
+					++i;
+				}
 
 				for (HF * pHF : TIt::T_HFIterator(m_pShellingList->front())) {
 					makeBoundary(pHF);
@@ -62,12 +74,15 @@ namespace MeshLib {
 			void map3Faces(T * pNextT);
 
 			CPoint pickPointRand(HF * pHF); 
+			CPoint pickCentricPoint(HF * pHF);
 			HF* findOverlapHF(T * pT);
 			bool checkVisibility(CPoint Image, HF * pBottomHF);
 
 			void makeBoundary(HF * pHF);
 			void removerFromBoundary(HF * pHF);
 			bool isBoundary(HF * pHF);
+			double directedVolume(CPoint Image, HF * pHF);
+
 		};
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::mapNextTetToSphereRand()
@@ -120,11 +135,16 @@ namespace MeshLib {
 		{
 
 			HF * pHF = findOverlapHF(pNextT);
+			CPoint pImage;
+			
+			/*do {
+				pImage = pickPointRand(pHF);
+			} while (!checkVisibility(pImage, TIf::HalfFaceDual(pHF)));
+			*/
+			pImage = pickCentricPoint(pHF);
 
-			do {
-				CPoint pImage = pickPointRand(pHF);
-			} while (checkVisibility(pImage, pHF));
-
+			V * pV = TIf::TVertexVertex(TIf::HalfFaceOppositeTVertex(pHF));
+			pV->position() = pImage;
 			removerFromBoundary(pHF);
 
 			for (HF * pHFNewBound : TIt::T_HFIterator(*m_TIter)) {
@@ -152,6 +172,13 @@ namespace MeshLib {
 			return direction / direction.norm();
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline CPoint D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::pickCentricPoint(HF * pHF)
+		{
+			CBaryCoordinates3D baryCoords(pHF);
+			CPoint direction = baryCoords.bary2Decartes(CPoint(1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f));
+			return direction / direction.norm();
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline HF* D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::findOverlapHF(T * pT)
 		{
 			for (auto pHF : TIt::T_HFIterator(pT)) {
@@ -166,14 +193,13 @@ namespace MeshLib {
 		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::checkVisibility(CPoint Image, HF * pBottomHF)
 		{
 			for (HF * pHF : boundaryFacesSet) {
-				if (pBottomHF == pHF && directedVolume(pHF) < 0) {
+				if (pBottomHF == pHF && directedVolume(Image, pHF) > 0) {
 					return false;
 				}
-				else if (pBottomHF != pHF && directedVolume(pHF) > 0) {
+				else if (pBottomHF != pHF && directedVolume(Image, pHF) < 0) {
 					return false;
 				}
 			}
-
 			return true;
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
@@ -194,6 +220,23 @@ namespace MeshLib {
 		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::isBoundary(HF * pHF)
 		{
 			return TIf::HalfFaceFace(pHF)->isBoundaryInPara;
+		}
+
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::directedVolume(CPoint Image, HF * pHF)
+		{
+			CPoint v[4];
+			v[0] = Image;
+			int i = 1;
+			for (V * pV : TIt::HF_VIterator(pHF)) {
+				v[i] = pV->position();
+				++i;
+			}
+			CPoint AB = v[1] - v[0];
+			CPoint AC = v[2] - v[0];
+			CPoint AD = v[3] - v[0];
+
+			return  AB * (AC ^ AD);
 		}
 
 		template <typename TIf>

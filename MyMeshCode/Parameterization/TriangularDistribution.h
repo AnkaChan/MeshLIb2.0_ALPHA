@@ -15,10 +15,8 @@ namespace MeshLib {
 
 			CPoint getUnif() {
 				CPoint p(randReal(generator), randReal(generator), randReal(generator));
-				double c = (p[0] + p[1] + p[2]) / 3;
-				p[0] -= c;
-				p[1] -= c;
-				p[2] -= c;
+				double c = (p[0] + p[1] + p[2]);
+				p /= c;
 
 				return p;
 			}

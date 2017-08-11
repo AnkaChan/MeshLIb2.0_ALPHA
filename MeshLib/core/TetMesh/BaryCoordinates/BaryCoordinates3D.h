@@ -17,7 +17,16 @@ namespace MeshLib
 		class CBaryCoordinates3D {
 		public:
 			CBaryCoordinates3D()  {};
-			CBaryCoordinates3D(CHalfFace * pHF);
+			CBaryCoordinates3D(CHalfFace * pHF)
+			{
+				int i = 0;
+				for (auto pHE : TIt::HF_HEIterator(pHF)) {
+					setpHE(pHE, i);
+					CVertex* pV = TIf::HalfEdgeTarget(TIf::HalfEdgeNext(pHE));
+					setpV(pV, i);
+					++i;
+				}
+			}
 
 			CVertex* getpV(int i) { assert(i >= 0 && i < DIMENSION_BARYCOORD_3D); return vpVerticeCorresponding[i]; };
 			CHalfEdge* getpHE(int i) { assert(i >= 0 && i < DIMENSION_BARYCOORD_3D); return vpHalfEdgeCorresponding[i]; };
@@ -38,16 +47,5 @@ namespace MeshLib
 			CVertex* vpVerticeCorresponding[DIMENSION_BARYCOORD_3D];
 			CHalfEdge* vpHalfEdgeCorresponding[DIMENSION_BARYCOORD_3D];
 		};
-
-		CBaryCoordinates3D::CBaryCoordinates3D(CHalfFace * pHF)
-		{
-			int i = 0;
-			for (auto pHE : TIt::HF_HEIterator(pHF)) {
-				setpHE(pHE, i);
-				CVertex* pV = TIf::HalfEdgeTarget(TIf::HalfEdgeNext(pHE));
-				setpV(pV, i);
-				++i;
-			}
-		}
 	}
 }

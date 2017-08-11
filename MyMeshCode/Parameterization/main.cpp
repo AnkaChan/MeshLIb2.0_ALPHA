@@ -31,7 +31,7 @@ typedef D3Parameterization<TIf> D3Para;
 typedef TIterators<TIf> TIt;
 typedef TIf::TMeshType MyTMesh;
 
-
+D3Para * pd3Para;
 TIf::TMeshPtr pMesh(new TIf::TMeshType);
 std::shared_ptr<std::list<CTetShelling *>> pShellingList;
 TIf::TMeshType& mesh = *pMesh;
@@ -72,10 +72,9 @@ int main(int argc, char ** argv)
 	pShellingList = sheller.getShellingOrder();
 	
 	D3Para d3Para(pMesh, pShellingList);
-
-	CTetCircumSphere circumSphere = d3Para.getCircumSphere();
-	sphere.center = circumSphere.getCenter();
-	sphere.radius = circumSphere.getRaduis();
+	pd3Para = &d3Para;
+	sphere.center = CPoint(0,0,0);
+	sphere.radius = 1.0;
 
 	init_openGL();
 	//mesh._write_t("D:\\Data\\tet\\FastOutDemo.t");
