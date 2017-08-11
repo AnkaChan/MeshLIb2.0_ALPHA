@@ -6,6 +6,8 @@
 #include <MeshLib/core/TetMesh/BaryCoordinates/BaryCoordinates3D.h>
 #include "SphericalDistribution.h"
 #include "TriangularDistribution.h"
+
+#include <assert.h>
 #include <memory>
 #include <list>
 #include <random>
@@ -19,13 +21,14 @@ namespace MeshLib {
 			bool isBoundaryInPara = false;
 		};
 
+		class CFaceD3Parameterization : public CFace, public _faceParameterization {};
 
-		template< typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		class D3Parameterization {
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		class D3ParameterizationCore {
 		public:
 			typedef TInterface<TV, V, HE, TE, E, HF, F, T> TIf;
-			typedef TIterators<TV, V, HE, TE, E, HF, F, T> TIt;
-			D3Parameterization(TIf::TMeshPtr pTMesh, std::shared_ptr<std::list<TIf::TPtr>> pShellingList):
+			typedef TIterators<TIf> TIt;
+			D3ParameterizationCore(typename TIf::TMeshPtr pTMesh, std::shared_ptr<std::list<T *>> pShellingList):
 				m_pTMesh(pTMesh),
 				m_pShellingList(pShellingList),
 				m_circumSphere(m_pShellingList->front())
@@ -34,36 +37,47 @@ namespace MeshLib {
 				++m_TIter;
 
 				normalizeTMesh2CircumSphere();
+
+				for (HF * pHF : TIt::T_HFIterator(m_pShellingList->front())) {
+					makeBoundary(pHF);
+				}
 			}
 
 			/* return true if succeeded */
 			bool mapNextTetToSphereRand();
+
+			CTetCircumSphere getCircumSphere() { return m_circumSphere; };
 		private:
-			std::shared_ptr<std::list<TIf::TPtr>> m_pShellingList;
-			std::set<TIf::HFPtr> boundaryFacesSet;
-			TIf::TMeshPtr m_pTMesh;
+			std::shared_ptr<std::list<T *>> m_pShellingList;
+			std::set<HF *> boundaryFacesSet;
+			typename TIf::TMeshPtr m_pTMesh;
 			CTetCircumSphere m_circumSphere;
-			typename std::list<TIf::TPtr>::iterator m_TIter;
+			typename std::list<T *>::iterator m_TIter;
 
 			void normalizeTMesh2CircumSphere();
 
-			void map1Point(TIf::TPtr pNextT);
-			void map2Faces(TIf::TPtr pNextT);
-			void map3Faces(TIf::TPtr pNextT);
+			int countIntersectionFace(T * pNextT);
+			void map1Point(T * pNextT);
+			void map2Faces(T * pNextT);
+			void map3Faces(T * pNextT);
 
-			CPoint pickPointRand(TIf::HFPtr pHF); 
-			bool checkVisibility(CPoint Image);
+			CPoint pickPointRand(HF * pHF); 
+			HF* findOverlapHF(T * pT);
+			bool checkVisibility(CPoint Image, HF * pBottomHF);
 
+			void makeBoundary(HF * pHF);
+			void removerFromBoundary(HF * pHF);
+			bool isBoundary(HF * pHF);
 		};
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		bool D3Parameterization<TV, V, HE, TE, E, HF, F, T>::mapNextTetToSphereRand()
+		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::mapNextTetToSphereRand()
 		{
 
 			if (m_TIter == m_pShellingList->end()) {
 				return false;
 			}
 
-			TIf::TPtr pNextT = *m_TIter;
+			T * pNextT = *m_TIter;
 
 			int n = countIntersectionFace(pNextT);
 			switch (n)
@@ -80,29 +94,55 @@ namespace MeshLib {
 			default:
 				break;
 			}
+			++m_TIter;
 			return true;
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		void D3Parameterization<TV, V, HE, TE, E, HF, F, T>::normalizeTMesh2CircumSphere()
+		void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::normalizeTMesh2CircumSphere()
 		{
-			for (TIf::VPtr pV : TIt::TM_VIterator(m_TMesh)) {
+			for (TIf::VPtr pV : TIt::TM_VIterator(m_pTMesh)) {
 				CPoint &p = pV->position();
 				p = (p - m_circumSphere.getCenter()) / m_circumSphere.getRaduis();
 			}
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		void D3Parameterization<TV, V, HE, TE, E, HF, F, T>::map1Point(TIf::TPtr pNextT)
+		inline int D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::countIntersectionFace(T * pNext)
+		{
+			int n = 0;
+			for (auto pHF : TIt::T_HFIterator(pNext)) {
+				if (isBoundary(pHF))
+					++n;
+			}
+			return n;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map1Point(T * pNextT)
 		{
 
-			TIf::HFPtr pHF = findOverlapHF(pNextT);
+			HF * pHF = findOverlapHF(pNextT);
 
 			do {
 				CPoint pImage = pickPointRand(pHF);
-				
-			} while (checkVisibility(pImage));
+			} while (checkVisibility(pImage, pHF));
+
+			removerFromBoundary(pHF);
+
+			for (HF * pHFNewBound : TIt::T_HFIterator(*m_TIter)) {
+				if (pHFNewBound != pHF){
+					makeBoundary(pHFNewBound);
+				}
+			}
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		CPoint D3Parameterization<TV, V, HE, TE, E, HF, F, T>::pickPointRand(TIf::HFPtr pHF)
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map2Faces(T * pNextT)
+		{
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map3Faces(T * pNextT)
+		{
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		CPoint D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::pickPointRand(HF * pHF)
 		{
 			static CTriangularDistribution triDst;
 
@@ -112,11 +152,56 @@ namespace MeshLib {
 			return direction / direction.norm();
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		bool D3Parameterization<TV, V, HE, TE, E, HF, F, T>::checkVisibility(CPoint Image)
+		inline HF* D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::findOverlapHF(T * pT)
 		{
+			for (auto pHF : TIt::T_HFIterator(pT)) {
+				if (isBoundary(pHF))
+					return pHF;
+			}
 
-
-			return false;
+			/* Suppose never gets here. */
+			return NULL;
 		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::checkVisibility(CPoint Image, HF * pBottomHF)
+		{
+			for (HF * pHF : boundaryFacesSet) {
+				if (pBottomHF == pHF && directedVolume(pHF) < 0) {
+					return false;
+				}
+				else if (pBottomHF != pHF && directedVolume(pHF) > 0) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::makeBoundary(HF * pHF)
+		{
+			boundaryFacesSet.insert(pHF);
+			F * pF = TIf::HalfFaceFace(pHF);
+			pF->isBoundaryInPara = true;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::removerFromBoundary(HF * pHF)
+		{
+			boundaryFacesSet.erase(pHF);
+			F * pF = TIf::HalfFaceFace(pHF);
+			pF->isBoundaryInPara = false;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::isBoundary(HF * pHF)
+		{
+			return TIf::HalfFaceFace(pHF)->isBoundaryInPara;
+		}
+
+		template <typename TIf>
+		class D3Parameterization : public D3ParameterizationCore<typename TIf::TVType, typename TIf::VType, typename TIf::HEType,
+			typename TIf::TEType, typename TIf::EType, typename TIf::HFType, typename TIf::FType, typename TIf::TType> 
+		{
+		public:
+			D3Parameterization(typename TIf::TMeshPtr pTMesh, std::shared_ptr<std::list<typename TIf::TPtr>> pShellingList) : D3ParameterizationCore(pTMesh, pShellingList) {};
+		};
 	}
 }

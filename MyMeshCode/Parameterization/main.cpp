@@ -13,21 +13,28 @@
 #include <MeshLib/core/TetMesh/tet.h>
 		 
 #include <MeshLib/core/TetMesh/titerators.h>
+#include <MeshLib/core/TetMesh/titerators2.h>
 #include <MeshLib/algorithm/Shelling/TetSheller.h>
 #include <MeshLib/core/Geometry/Circumsphere.h>
 #include <MeshLib/core/Geometry/Point.h>
 
+#include "D3Parameterization.h"
 #include "GLTetViewReverseShelling.h"
 
 
 using namespace MeshLib;
 using namespace MeshLib::TMeshLib;
-typedef CTMesh<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFace, CTetShelling> MyTMesh;
-typedef CTetSheller<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFace, CTetShelling> CTSheller;
 
-MyTMesh* pMesh(new MyTMesh);
-std::shared_ptr<std::list<CTetShelling *>> shellingList;
-MyTMesh & mesh = *pMesh;
+typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFaceD3Parameterization, CTetShelling> TIf;
+typedef CTetSheller<TIf> CTSheller;
+typedef D3Parameterization<TIf> D3Para;
+typedef TIterators<TIf> TIt;
+typedef TIf::TMeshType MyTMesh;
+
+
+TIf::TMeshPtr pMesh(new TIf::TMeshType);
+std::shared_ptr<std::list<CTetShelling *>> pShellingList;
+TIf::TMeshType& mesh = *pMesh;
 int argcG;
 char ** argvG;
 struct Sphere {
@@ -62,16 +69,11 @@ int main(int argc, char ** argv)
 	beginList.push_back(*pBoundryTetIter);
 	sheller.biShellingBreadthFirstGreedy(beginList, 500);
 
-	shellingList = sheller.getShellingOrder();
-	CTetShelling * pFirstTet = shellingList->front();
+	pShellingList = sheller.getShellingOrder();
+	
+	D3Para d3Para(pMesh, pShellingList);
 
-	CPoint v0, v1, v2, v3;
-	v0 = pFirstTet->vertex(0)->position();
-	v1 = pFirstTet->vertex(1)->position();
-	v2 = pFirstTet->vertex(2)->position();
-	v3 = pFirstTet->vertex(3)->position();
-
-	CTetCircumSphere circumSphere(v0, v1, v2, v3);
+	CTetCircumSphere circumSphere = d3Para.getCircumSphere();
 	sphere.center = circumSphere.getCenter();
 	sphere.radius = circumSphere.getRaduis();
 
@@ -79,6 +81,6 @@ int main(int argc, char ** argv)
 	//mesh._write_t("D:\\Data\\tet\\FastOutDemo.t");
 	//std::cout << "Save done.\n";
 	getchar();
-    return 0;
+	return 0;
 }
 

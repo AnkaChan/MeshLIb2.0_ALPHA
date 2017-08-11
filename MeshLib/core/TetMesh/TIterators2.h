@@ -820,8 +820,6 @@ namespace MeshLib
 			};
 		};
 
-
-
 		template <typename TIf>
 		struct TIterators : public TIteratorCore<typename TIf::TVType, typename TIf::VType, typename TIf::HEType, 
 			typename TIf::TEType, typename TIf::EType, typename TIf::HFType, typename TIf::FType, typename TIf::TType> {

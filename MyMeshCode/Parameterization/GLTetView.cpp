@@ -5,7 +5,7 @@
 #include <MeshLib/core/TetMesh/vertex.h>
 #include <MeshLib/core/TetMesh/tvertex.h>
 #include <MeshLib/core/TetMesh/edge.h>
-#include <MeshLib/core/TetMesh/tedge.h>
+#include <MeshLib/core/TetMesh/tedge.h>	
 #include <MeshLib/core/TetMesh/face.h>
 #include <MeshLib/core/TetMesh/halfface.h>
 #include <MeshLib/core/TetMesh/halfedge.h>
@@ -17,6 +17,7 @@
 #include <MeshLib/algorithm/Shelling/TetSheller.h>
 #include <MeshLib/core/Geometry/Arcs.h>
 #include <MeshLib/core/TetMesh/titerators2.h>
+#include "D3Parameterization.h"
 
 #include <GL\glut.h>
 #include <GL\freeglut_ext.h>
@@ -36,7 +37,7 @@ typedef CHalfEdge CHalfEdgeGL;
 typedef CTEdge CTEdgeGL;
 typedef CEdge CEdgeGL;
 typedef CHalfFace CHalfFaceGL;
-typedef CFace CFaceGL;
+typedef CFaceD3Parameterization CFaceGL;
 typedef CTetShelling CTetGL;
 
 typedef TInterface<CTVertexGL, CVertexGL, CHalfEdgeGL, CTEdgeGL, CEdgeGL, CHalfFaceGL, CFaceGL, CTetGL> TIFGL;
@@ -56,7 +57,7 @@ CQrot       ObjRot(0, 0, 1, 0);
 CPoint      ObjTrans(0, 0, 0);
 CPoint		TetCenter;
 extern CTMeshGL* pMesh;
-extern std::shared_ptr<std::list<CTetShelling *>> shellingList;
+extern std::shared_ptr<std::list<CTetShelling *>> pShellingList;
 std::list < CTetShelling *> renderList;
 bool drawCircumSphere = false;
 int circumSphereMod = SOLID_MODE;
@@ -73,7 +74,7 @@ extern struct Sphere sphere;
 CArcball arcball;
 
 void caculateCenter() {
-	TIFGL::TPtr pFirstT = (TIFGL::TPtr)(shellingList->front());
+	TIFGL::TPtr pFirstT = (TIFGL::TPtr)(pShellingList->front());
 	for (auto pV : TITGL::T_VIterator(pFirstT)) {
 		TetCenter += pV->position();
 	}
@@ -209,7 +210,7 @@ void draw_arcs(CPoint A, CPoint B, CPoint O, int nSeg) {
 }
 
 void draw_edges_on_sphere() {
-	CTetGL* pT = (CTetGL*)shellingList->front();
+	CTetGL* pT = (CTetGL*)pShellingList->front();
 	for (auto pE : TITGL::T_EIterator(pT)) {
 		TIFGL::VPtr pV1, pV2;
 		pV1 = TIFGL::EdgeVertex1(pE);
@@ -319,13 +320,13 @@ void keyBoard(unsigned char key, int x, int y)
 
 void specailKey(int key, int x, int y)
 {
-	static auto shellingIter = shellingList->begin();
+	static auto shellingIter = pShellingList->begin();
 	CTetGL * pTet;
 	switch (key)
 	{
 
 	case GLUT_KEY_RIGHT:
-		if (shellingIter != shellingList->end())
+		if (shellingIter != pShellingList->end())
 		{
 			pTet = *shellingIter;
 			pTet->visible = true;
@@ -336,7 +337,7 @@ void specailKey(int key, int x, int y)
 	case GLUT_KEY_LEFT:
 		pTet = *shellingIter;
 		pTet->visible = false;
-		if (shellingIter != shellingList->begin())
+		if (shellingIter != pShellingList->begin())
 			renderList.pop_back();
 			--shellingIter;
 		break;

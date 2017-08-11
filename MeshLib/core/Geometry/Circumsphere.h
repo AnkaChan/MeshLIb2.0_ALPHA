@@ -38,7 +38,15 @@ namespace MeshLib
 			double m_radius;
 		};
 		CTetCircumSphere::CTetCircumSphere(CTet * pT){
-
+			CPoint v[4];
+			for (int i = 0; i < 4; ++i) {
+				v[i] = pT->vertex(i)->position();
+			}
+			m_v0 = v[0];
+			m_v1 = v[1];
+			m_v2 = v[2];
+			m_v3 = v[3];
+			calculateCircumsphere();
 		}
 		void CTetCircumSphere::calculateCircumsphere(){
 			 Eigen::Matrix4d M_D_x, M_D_y, M_D_z, M_a, M_c;

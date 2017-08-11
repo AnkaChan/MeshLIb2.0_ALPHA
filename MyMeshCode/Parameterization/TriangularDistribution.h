@@ -13,7 +13,6 @@ namespace MeshLib {
 		public:
 			CTriangularDistribution() : generator(time(NULL)), randReal(0.0, 1.0) {};
 
-
 			CPoint getUnif() {
 				CPoint p(randReal(generator), randReal(generator), randReal(generator));
 				double c = (p[0] + p[1] + p[2]) / 3;
