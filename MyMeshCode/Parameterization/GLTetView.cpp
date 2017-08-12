@@ -23,7 +23,7 @@
 #include <GL\freeglut_ext.h>
 
 #define FACE_COLOR 0.8,0.8,0.8
-#define ZOOM_LEVEL 3.0 
+#define ZOOM_LEVEL 1.0 
 #define SOLID_MODE 1
 #define WIRE_MODE 2
 using std::cout;
@@ -60,9 +60,12 @@ extern CTMeshGL* pMesh;
 extern D3Para * pd3Para;
 
 extern std::shared_ptr<std::list<CTetShelling *>> pShellingList;
+std::list<CTetShelling *>::iterator shellingIter;
+
 std::list < CTetShelling *> renderList;
-bool drawCircumSphere = false;
-int circumSphereMod = SOLID_MODE;
+bool drawCircumSphere = true;
+bool drawEdgeArcs = true;
+int circumSphereMod = WIRE_MODE;
 double arcWidth = 2.0;
 extern int argcG;
 extern char** argvG;
@@ -189,9 +192,9 @@ void draw_circumsphereFunc() {
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glTranslatef(newCenter[0], newCenter[1], newCenter[2]);
 	if (circumSphereMod == SOLID_MODE)
-		glutSolidSphere(sphere.radius * ZOOM_LEVEL, 40, 40);
+		glutSolidSphere(sphere.radius * ZOOM_LEVEL, 20, 20);
 	else if (circumSphereMod == WIRE_MODE)
-		glutWireSphere(sphere.radius * ZOOM_LEVEL, 40, 40);
+		glutWireSphere(sphere.radius * ZOOM_LEVEL, 20, 20);
 	glEnd();
 }
 
@@ -212,13 +215,17 @@ void draw_arcs(CPoint A, CPoint B, CPoint O, int nSeg) {
 }
 
 void draw_edges_on_sphere() {
-	CTetGL* pT = (CTetGL*)pShellingList->front();
-	for (auto pE : TITGL::T_EIterator(pT)) {
-		TIFGL::VPtr pV1, pV2;
-		pV1 = TIFGL::EdgeVertex1(pE);
-		pV2 = TIFGL::EdgeVertex2(pE);
+	//CTetGL* pT = (CTetGL*)pShellingList->front();
+	const std::set<CHalfFaceGL *> & boundaryHFs = pd3Para->getBoundaryHFSet();
+	for (auto pHF : boundaryHFs) {
+		for (auto pHE : TITGL::HF_HEIterator(pHF)) {
+			auto pE = TIFGL::HalfEdgeEdge(pHE);
+			TIFGL::VPtr pV1, pV2;
+			pV1 = TIFGL::EdgeVertex1(pE);
+			pV2 = TIFGL::EdgeVertex2(pE);
 
-		draw_arcs(pV1->position(), pV2->position(), sphere.center, 100);
+			draw_arcs(pV1->position(), pV2->position(), sphere.center, 100);
+		}
 	}
 }
 
@@ -239,6 +246,8 @@ void display()
 	draw_axis();
 	if (drawCircumSphere) {
 		draw_circumsphereFunc();
+	}
+	if (drawEdgeArcs) {
 		draw_edges_on_sphere();
 	}
 	glPopMatrix();
@@ -303,6 +312,9 @@ void keyBoard(unsigned char key, int x, int y)
 	case 'd':
 		drawCircumSphere = !drawCircumSphere;
 		break;
+	case 'e':
+		drawEdgeArcs = !drawEdgeArcs;
+		break;
 	case 'q':
 		circumSphereMod = SOLID_MODE;
 		break;
@@ -322,7 +334,6 @@ void keyBoard(unsigned char key, int x, int y)
 
 void specailKey(int key, int x, int y)
 {
-	static auto shellingIter = pShellingList->begin();
 	CTetGL * pTet;
 	switch (key)
 	{
@@ -527,6 +538,11 @@ void init_openGL()
 
 	setupGLstate();
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+
+	shellingIter = pShellingList->begin();
+	renderList.push_back(*shellingIter);
+	++shellingIter;
+
 	glutMainLoop();                       /* Start GLUT event-processing loop */
 }
 

@@ -59,6 +59,7 @@ namespace MeshLib {
 			bool mapNextTetToSphereRand();
 
 			CTetCircumSphere getCircumSphere() { return m_circumSphere; };
+			const std::set<HF *> & getBoundaryHFSet() {return boundaryFacesSet; };
 		private:
 			std::shared_ptr<std::list<T *>> m_pShellingList;
 			std::set<HF *> boundaryFacesSet;
