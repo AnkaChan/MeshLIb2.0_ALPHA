@@ -27,8 +27,6 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		class D3ParameterizationCore {
 		public:
-			typedef TInterface<TV, V, HE, TE, E, HF, F, T> TIf;
-			typedef TIterators<TIf> TIt;
 			D3ParameterizationCore(typename TIf::TMeshPtr pTMesh, std::shared_ptr<std::list<T *>> pShellingList):
 				m_pTMesh(pTMesh),
 				m_pShellingList(pShellingList),
@@ -60,6 +58,9 @@ namespace MeshLib {
 
 			CTetCircumSphere getCircumSphere() { return m_circumSphere; };
 		private:
+			typedef TInterface<TV, V, HE, TE, E, HF, F, T> TIf;
+			typedef TIterators<TIf> TIt;
+
 			std::shared_ptr<std::list<T *>> m_pShellingList;
 			std::set<HF *> boundaryFacesSet;
 			typename TIf::TMeshPtr m_pTMesh;
