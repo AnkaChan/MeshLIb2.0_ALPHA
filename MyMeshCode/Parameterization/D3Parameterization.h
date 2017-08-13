@@ -57,6 +57,7 @@ namespace MeshLib {
 			bool mapNextTetToSphereRand();
 
 			CTetCircumSphere getCircumSphere() { return m_circumSphere; };
+			const std::set<HF *> & getBoundaryHFSet() {return boundaryFacesSet; };
 		private:
 			typedef TInterface<TV, V, HE, TE, E, HF, F, T> TIf;
 			typedef TIterators<TIf> TIt;

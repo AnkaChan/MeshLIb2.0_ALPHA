@@ -72,6 +72,8 @@ namespace MeshLib
 			static HalfEdgeType * HalfEdgeNext(HalfEdgeType * pHalfEdge);
 			/*! HalfEdge->prev HalfEdge */
 			static HalfEdgeType * HalfEdgePrev(HalfEdgeType * pHalfEdge);
+			/*! HalfEdge->Edge Edge */
+			static EdgeType * HalfEdgeEdge(HalfEdgeType * pHalfEdge);
 			/*! HalfEdge->TEdge TEdge */
 			static TEdgeType * HalfEdgeTEdge(HalfEdgeType * pHalfEdge);
 			/*! HalfEdge->HalfFace */
@@ -253,6 +255,12 @@ namespace MeshLib
 		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgePrev(HalfEdgeType * pHalfEdge)
 		{
 			return (HalfEdgeType*)pHalfEdge->prev();
+		}
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeEdge(HalfEdgeType * pHalfEdge)
+		{
+			return (EdgeType*)pHalfEdge->tedge()->edge();
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
