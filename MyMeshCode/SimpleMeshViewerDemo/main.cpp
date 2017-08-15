@@ -25,7 +25,7 @@
 */
 
 //Path to the input file. You may need to change this.
-#define INPUT_FILE "D:/Code/Data/Mesh/outputs/face125.m"
+#define INPUT_FILE "D:/Code/Data/Mesh/eight12.m"
 
 //The call back function which will delivered to simpleViewer
 //It captures the 'n' key and iteratively mark the faces of the mesh to black.

@@ -576,18 +576,20 @@ namespace MeshLib {
 
 				FacePtr f = createFace(v, id);
 
-				if (!stokenizer.nextToken("\t\r\n")) continue;
 				token = stokenizer.getToken();
+				if (strutil::startsWith(token, "{")) {
 
-				//stokenizer.reset();
-				token = line;
-				int sp = (int)token.find("{");
-				int ep = (int)token.find("}");
+					//stokenizer.reset();
+					token = line;
+					int sp = (int)token.find("{");
+					int ep = (int)token.find("}");
 
-				if (sp >= 0 && ep >= 0)
-				{
-					f->string() = token.substr(sp + 1, ep - sp - 1);
+					if (sp >= 0 && ep >= 0)
+					{
+						f->string() = token.substr(sp + 1, ep - sp - 1);
+					}
 				}
+				
 				/*
 				if( strutil::startsWith( token, "{" ) )
 				{
@@ -595,7 +597,6 @@ namespace MeshLib {
 				f->string() = strutil::trim( token, "{}" );
 				}
 				*/
-				continue;
 			}
 
 			//read in edge attributes
