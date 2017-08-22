@@ -195,9 +195,10 @@ protected:
 template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 class CBoundary
 {
-	typedef CLoop<VertexType,EdgeType, FaceType, HalfEdgeType> TLoop;
 
 public:
+	typedef CLoop<VertexType, EdgeType, FaceType, HalfEdgeType> TLoop;
+
 	/*!
 	CBoundary constructor
 	\param pMesh pointer to the current mesh

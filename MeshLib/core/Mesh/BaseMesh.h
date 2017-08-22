@@ -24,7 +24,7 @@
 
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
-#include "../Parser/StrUtil.h"
+#include "../Parser/StrUtil_fast.h"
 #include "Interface.h"
 
 namespace MeshLib {
@@ -578,7 +578,6 @@ namespace MeshLib {
 
 				token = stokenizer.getToken();
 				if (strutil::startsWith(token, "{")) {
-
 					//stokenizer.reset();
 					token = line;
 					int sp = (int)token.find("{");
@@ -1245,7 +1244,7 @@ namespace MeshLib {
 		for (int i = 0; i < nv; i++) {
 			VertexPtr v2 = v[i + 1 == nv ? 0 : i + 1];
 			HalfEdgePtr he = new HalfEdgeType;
-			he->he_prev() = (CHalfEdge*)hep;//子类的值可以赋给父类 反过来 ？ 不知道 忘了
+			he->he_prev() = (CHalfEdge*)hep;
 			// he->next is set below
 			he->vertex() = v2;
 			//One incoming halfedge of the vertex , but always re assign each vertex many times

@@ -20,14 +20,15 @@
 
 #include "D3Parameterization.h"
 #include "GLTetViewReverseShelling.h"
-
+#include "VertexDecomposable.h"
 
 using namespace MeshLib;
 using namespace MeshLib::TMeshLib;
 
-typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFaceD3Parameterization, CTetShelling> TIf;
+typedef TInterface<CTVertex, CVertexDecomposition,CHalfEdge, CTEdge, CEdge, CHalfFace, CFaceD3Parameterization, CTetDecomposition> TIf;
 typedef CTetSheller<TIf> CTSheller;
 typedef D3Parameterization<TIf> D3Para;
+typedef CVertexDecomposer<TIf> CVDecomposer;
 typedef TIterators<TIf> TIt;
 typedef TIf::TMeshType MyTMesh;
 
@@ -53,30 +54,13 @@ int main(int argc, char ** argv)
 	}
 	mesh._load_t(argv[1]);
 	std::cout << "Load done.\n";
-	CTSheller sheller(pMesh);
-	//CTetShelling * p_startTet = pMesh->idTet(10000);
-	std::list<CTetShelling *> beginList;
+	CVDecomposer decomposer;
+	 
+	decomposer.setInputTMesh(&mesh);
+	TIf::TPtr pTStart = mesh.idTet(1);
+	decomposer.vertexDecompositionGreedily(pTStart);
 
-	auto isBoundaryTet = [&sheller](CTetShelling * pTet) {
-		if (sheller.numFaceOnSurfaceInShelling(pTet) > 0) {
-			return true;
-		}
-		return false;
-	};
-
-	auto pBoundryTetIter = std::find_if<>(pMesh->tets().begin(), pMesh->tets().end(), isBoundaryTet);
-
-	beginList.push_back(*pBoundryTetIter);
-	sheller.biShellingBreadthFirstGreedy(beginList, 500);
-
-	pShellingList = sheller.getShellingOrder();
-	
-	D3Para d3Para(pMesh, pShellingList);
-	pd3Para = &d3Para;
-	sphere.center = CPoint(0,0,0);
-	sphere.radius = 1.0;
-
-	init_openGL();
+	//init_openGL();
 	//mesh._write_t("D:\\Data\\tet\\FastOutDemo.t");
 	//std::cout << "Save done.\n";
 	getchar();
