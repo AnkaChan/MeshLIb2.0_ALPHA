@@ -8,3 +8,5 @@
 #include "boundary.h"
 #include "iterators.h"
 #include "iterators2.h"
+
+#include "Types.h"

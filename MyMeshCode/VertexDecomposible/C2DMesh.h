@@ -39,13 +39,15 @@ namespace MeshLib {
 
 	class C2DMeshCore;
 
-	class C2DMesh {
+	class C2DMesh
+	{
 	public:
 		C2DMesh();
 		void readArray(const VList & vlist, const FList & flist);
 		bool manifoldDeterminition();
 		bool isD2();
-
+		C2DMeshCore * getpMesh();
+		void show();
 	private:
 		std::shared_ptr<C2DMeshCore> m_p2DMesh;
 	};

@@ -40,8 +40,7 @@ namespace MeshLib {
 			}
 			createFace(v, f.id);
 		}
-		labelBoundary();
-		pBoundary = std::shared_ptr<BoundaryType>(new BoundaryType(this));
+
 	}
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	inline bool CBaseMeshReadArray<VertexType, EdgeType, FaceType, HalfEdgeType>::manifoldDeterminition()
@@ -67,6 +66,8 @@ namespace MeshLib {
 		if (!manifoldDeterminition()) {
 			return false;
 		}
+		labelBoundary();
+		pBoundary = std::shared_ptr<BoundaryType>(new BoundaryType(this));
 		if (pBoundary->loops().size() == 1) {
 			return true;
 		}

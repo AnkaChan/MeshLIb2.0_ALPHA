@@ -9,7 +9,7 @@
 #include "Arcball.h"
 #include <GL\glut.h>
 #include <GL\freeglut_ext.h>
-#include <MeshLib/core/Mesh/MesCoreHeader.h>
+#include <MeshLib/core/Mesh/MeshHeaders.h>
 #include <MeshLib/core/bmp/RgbImage.h>
 #define MAX(a,b) ((a)>(b) ? (a) : (b))
 

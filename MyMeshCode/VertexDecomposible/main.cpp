@@ -34,7 +34,6 @@ typedef TIf::TMeshType MyTMesh;
 
 D3Para * pd3Para;
 TIf::TMeshPtr pMesh(new TIf::TMeshType);
-std::shared_ptr<std::list<CTetShelling *>> pShellingList;
 TIf::TMeshType& mesh = *pMesh;
 int argcG;
 char ** argvG;

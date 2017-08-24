@@ -18,7 +18,8 @@ class myTet : public CTet { public: int i = 23; };
 int main() {
 	typedef TInterface<myTV, myV, myHE, myTE, myE, myHF, myF, myTet> TIF;
 	TIF::TMeshPtr pTMesh = new TIF::TMeshType;
-	typedef TIteratorCore<myTV, myV, myHE, myTE, myE, myHF, myF, myTet> TIT;
+	//typedef TIteratorCore<myTV, myV, myHE, myTE, myE, myHF, myF, myTet> TIT;
+	typedef TIterators<TIF> TIT;
 	pTMesh->_load_t("D:/Data/tet/lion_h.t");
 
 	/* Testing the Face iterator*/
@@ -98,6 +99,7 @@ int main() {
 			}
 			for (auto pTE : TIT::TV_TEIterator(pTV)) {
 				cout << "Vertex TVertex TEdge : " << pTE << endl;
+				TIF::TPtr pT = TIF::TVertexTet(pTV);
 			}
 		}
 

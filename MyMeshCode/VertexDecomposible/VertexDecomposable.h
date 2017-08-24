@@ -16,6 +16,9 @@
 #include <MeshLib/core/TetMesh/tet.h>
 #include <MeshLib/core/TetMesh/titerators2.h>
 #include <MeshLib/core/TetMesh/tinterface.h>
+
+#define SHOWDIALOG 
+#include <MeshLib/toolbox/DebugSetting.h>
 #include "C2DMesh.h"
 
 using std::cout;
@@ -67,6 +70,18 @@ namespace MeshLib {
 			std::set<HF*> surfaceHalfFaceSet;
 
 			void putInDecompositionList(V * pV) {
+				ShowDialog(std:cout << "Vertex: " << pV->id() << " in decomposition list. " << endl;);
+				for (TV * pTV : TIt::V_TVIterator(pV)) {
+					T * pT = TIf::TVertexTet(pTV);
+					for (HF * pHF : TIt::T_HFIterator(pT)) {
+						HF * pHFDual = TIf::HalfFaceDual(pHF);
+						if (pHFDual != NULL) {
+							if (TIf::HalfFaceTet(pHFDual)->inDecompositionList) {
+								TIf::HalfFaceTet(pHF)->inDecompositionList = true;
+							}
+						}
+					}
+				}
 				m_pVertexDecompositionList->push_back(pV);
 				pV->inDecompositionList = true;
 			};
@@ -77,15 +92,6 @@ namespace MeshLib {
 
 			void putInCandidateList(V * pV) {
 				candidateList.push_back(pV);
-				for (TV * pTV : TIt::V_TVIterator(pV)) {
-					T * pT = TIf::TVertexTet(pTV);
-					for (HF * pHF : TIt::T_HFIterator(pT)) {
-						HF * pHFDual = TIf::HalfFaceDual(pHF);
-						if (TIf::HalfFaceTet(pHFDual)->inDecompositionList) {
-							TIf::HalfFaceTet(pHF)->inDecompositionList = true;
-						}
-					}
-				}
 				pV->inCandidateList = true;
 			};
 			void removeFromCandidateList(typename std::list<V*>::iterator iter) {
@@ -177,9 +183,9 @@ namespace MeshLib {
 					vList.push_back(ve);
 				}
 
-				C2DMesh linkMesh;
+				MeshLib::C2DMesh linkMesh;
 				linkMesh.readArray(vList, fList);
-
+				//linkMesh.show();
 				if (linkMesh.isD2()) {
 					removeFromCandidateList(vIter);
 					return pV;
@@ -194,8 +200,10 @@ namespace MeshLib {
 				T * pT = TIf::TVertexTet(pTV);
 				for (HF * pHF : TIt::T_HFIterator(pT)) {
 					HF * pHFDual = TIf::HalfFaceDual(pHF);
-					if (TIf::HalfFaceTet(pHFDual)->inDecompositionList) {
-						pLinkSet.insert(pHFDual);
+					if (pHFDual != NULL) {
+						if (TIf::HalfFaceTet(pHFDual)->inDecompositionList) {
+							pLinkSet.insert(pHFDual);
+						}
 					}
 				}
 			}
