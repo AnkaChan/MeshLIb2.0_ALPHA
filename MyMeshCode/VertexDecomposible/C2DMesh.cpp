@@ -11,7 +11,7 @@
 #include <MeshLib/core/viewer/SimpleMeshViewer.h>
 
 namespace MeshLib {
-	class C2DMeshCore : public CBaseMeshReadArray<CVertex, CEdge, CFace, CHalfEdge> 
+	class C2DMeshCore : public CBaseMeshReadArray<CVertexManifold, CEdge, CFace, CHalfEdge> 
 	{};
 
 	C2DMesh::C2DMesh() : m_p2DMesh(new C2DMeshCore)

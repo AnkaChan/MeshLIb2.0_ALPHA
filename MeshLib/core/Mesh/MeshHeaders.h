@@ -6,6 +6,7 @@
 #include "BaseMesh.h"
 
 #include "boundary.h"
+#include "Interface.h"
 #include "iterators.h"
 #include "iterators2.h"
 

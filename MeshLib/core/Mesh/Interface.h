@@ -650,7 +650,6 @@ namespace MeshLib
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
 	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::vertexNextClwOutHalfEdge(HEPtr he)	
 	{
-		assert(he->he_sym() != NULL);
 		return (HalfEdgeType*)he->clw_rotate_about_source();
 	}
 
@@ -673,7 +672,6 @@ namespace MeshLib
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
 	inline HalfEdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::vertexNextCcwInHalfEdge(HEPtr he)
 	{
-		assert(he->he_sym() != NULL);
 		return (HalfEdgeType*)he->ccw_rotate_about_target();
 	}
 
