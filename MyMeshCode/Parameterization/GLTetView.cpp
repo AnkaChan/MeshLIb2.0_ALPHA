@@ -23,6 +23,10 @@
 #include <GL\freeglut_ext.h>
 
 #define FACE_COLOR 0.8,0.8,0.8
+#define FACE_COLOR_INSERT 1.0,0.5,0.5
+#define FACE_COLOR_INSERT_4D 1.0,0.5,0.5,0.5
+#define FACE_COLOR_INSERT_INNER 0.8,0.8,0.8,1.0
+#define Edge_COLOR 0.2,0.2,0.2
 #define ZOOM_LEVEL 1.0 
 #define SOLID_MODE 1
 #define WIRE_MODE 2
@@ -65,8 +69,10 @@ std::list<CTetShelling *>::iterator shellingIter;
 std::list < CTetShelling *> renderList;
 bool drawCircumSphere = true;
 bool drawEdgeArcs = true;
+bool drawSurfaceEdges = true;
 int circumSphereMod = WIRE_MODE;
 double arcWidth = 2.0;
+double innerEdgeWidth = 4.0;
 extern int argcG;
 extern char** argvG;
 struct Sphere {
@@ -141,50 +147,106 @@ void draw_axis()
 	glLineWidth(1.0);
 }
 
+void draw_edge(CEdge* pE, double width, double * color) {
+	TIFGL::VPtr pV1, pV2;
+	pV1 = TIFGL::EdgeVertex1(pE);
+	pV2 = TIFGL::EdgeVertex2(pE);
+	CPoint p1 = pV1->position();
+	CPoint p2 = pV2->position();
+
+	glLineWidth(width);
+	glColor3f(color[0], color[1], color[2]);
+	glBegin(GL_LINES);
+	glVertex3d(p1[0], p1[1], p1[2]);
+	glVertex3d(p2[0], p2[1], p2[2]);
+	glEnd();
+}
+void draw_half_face(CHalfFaceGL* pHF, double * colorRGB, double alpha = 1.0f, bool invertNormal = false) {
+	
+	CPoint n(0.0, 0.0, 0.0);
+
+	CHalfEdgeGL * pHE = pHF->half_edge();
+	CPoint  p[3];
+	for (int k = 0; k < 3; k++)
+	{
+		p[k] = pHE->target()->position();
+		pHE = pHE->next();
+	}
+	CPoint fn = (p[1] - p[0]) ^ (p[2] - p[0]);
+	n = fn / fn.norm();
+	if (invertNormal) {
+		n = -n;
+	}
+	glColor4f(colorRGB[0], colorRGB[1], colorRGB[2], alpha);
+
+	glBegin(GL_TRIANGLES);
+	glNormal3d(n[0], n[1], n[2]);
+	for (int k = 0; k < 3; k++)
+	{
+		glVertex3d(p[k][0], p[k][1], p[k][2]);
+	}
+	glEnd();
+}
+
 /*! draw half faces */
 void draw_half_faces()
 {
 	std::list<CHalfFace *> &HalfFaces = pMesh->half_faces();
 
 	//glBindTexture(GL_TEXTURE_2D, texName);
-	glBegin(GL_TRIANGLES);
+	
+
+	CTet * pNextT = *shellingIter;
 
 	for (auto renderTetIter = renderList.begin(); renderTetIter != renderList.end(); ++renderTetIter)
 	{
 		CTetGL *pT = *renderTetIter;
+		bool hasInsertFace = false;
+		CHalfFace *pInsertHF = NULL;
 		for (THfIterator THfIter(pMesh, pT); !THfIter.end(); ++THfIter)
 		{
-			glColor3f(FACE_COLOR);
 			CHalfFace *pHF = *THfIter;
-			if (pHF->dual() != NULL) {
+			if (TIFGL::HalfFaceDual(pHF) != NULL) {
+				if (TIFGL::HalfFaceTet(TIFGL::HalfFaceDual(pHF))->id() == pNextT->id()) {
+					hasInsertFace = true;
+					pInsertHF = pHF;
+				}
+			}
+		}
+		
+		double insertFaceColor[3] = { FACE_COLOR_INSERT };
+		double normalFaceColor[3] = { FACE_COLOR };
+		if (hasInsertFace) {
+			draw_half_face(pInsertHF, insertFaceColor, 1.0);
+			glEnd();
+			for (auto pE : TITGL::T_EIterator(pT)) {
+				double eColor[3] = { 0.0, 1.0, 0.0 };
+				draw_edge(pE, 5.0, eColor);
+			}
+		}
+		
+		for (THfIterator THfIter(pMesh, pT); !THfIter.end(); ++THfIter)
+		{
+			CHalfFaceGL * pHF = *THfIter;
+			if (pInsertHF == pHF)
+				continue;
+			if (TIFGL::HalfFaceDual(pHF) != NULL) {
 				CTetGL * pTetNeighbor = (CTetGL *)pHF->dual()->tet();
 				if (pTetNeighbor->visible) {
 					continue;
 				}
 			}
-			for (HfVIterator fvIter(pMesh, pHF); !fvIter.end(); ++fvIter)
-			{
-				CVertexGL * v = *fvIter;
-				CPoint pt = v->position();
-				CPoint n(0.0, 0.0, 0.0);
-
-				CHalfEdgeGL * pHE = pHF->half_edge();
-				CPoint  p[3];
-				for (int k = 0; k < 3; k++)
-				{
-					p[k] = pHE->target()->position();
-					pHE = pHE->next();
-				}
-				CPoint fn = (p[1] - p[0]) ^ (p[2] - p[0]);
-				n = fn / fn.norm();
-
-				glNormal3d(n[0], n[1], n[2]);
-				pt = ZOOM_LEVEL * (pt - sphere.center);
-				glVertex3d(pt[0], pt[1], pt[2]);
-			}
+			draw_half_face(pHF, normalFaceColor, 1.0);
 		}
+		
+			/*if (isInsertFace) {
+				for (auto pE : TITGL::T_EIterator(pT)) {
+					double eColor[3] = {0.0, 0.0, 0.0};
+					draw_edge(pE, 10.0, eColor);
+				}
+			}*/
 	}
-	glEnd();
+	
 }
 
 void draw_circumsphereFunc() {
@@ -223,7 +285,17 @@ void draw_edges_on_sphere() {
 			TIFGL::VPtr pV1, pV2;
 			pV1 = TIFGL::EdgeVertex1(pE);
 			pV2 = TIFGL::EdgeVertex2(pE);
+			if (drawSurfaceEdges) {
+				CPoint p1 = pV1->position();
+				CPoint p2 = pV2->position();
 
+				glBegin(GL_LINES);
+				glLineWidth(arcWidth);
+				glColor3f(Edge_COLOR);
+				glVertex3d(p1[0], p1[1], p1[2]);
+				glVertex3d(p2[0], p2[1], p2[2]);
+				glEnd();
+			}
 			draw_arcs(pV1->position(), pV2->position(), sphere.center, 100);
 		}
 	}
@@ -364,6 +436,7 @@ void setupGLstate() {
 	GLfloat globalAmb[] = { .1, .1, .1, 1 };
 	GLfloat lightOnePosition[] = { .0, 0.0, 1.0, 1.0 };
 
+	//glDisable(GL_CULL_FACE);
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 	glEnable(GL_DEPTH_TEST);
@@ -381,6 +454,9 @@ void setupGLstate() {
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
 	glLightfv(GL_LIGHT1, GL_POSITION, lightOnePosition);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	caculateCenter();
 }
@@ -525,7 +601,7 @@ void init_openGL()
 	glutInit(&argcG, argvG);                /* Initialize GLUT */
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(800, 600);
-	glutCreateWindow("Mesh Viewer");	  /* Create window with given title */
+	glutCreateWindow("TMesh Viewer");	  /* Create window with given title */
 	glViewport(0, 0, 800, 600);
 
 	glutDisplayFunc(display);             /* Set-up callback functions */

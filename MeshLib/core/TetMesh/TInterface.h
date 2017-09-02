@@ -48,6 +48,7 @@ namespace MeshLib
 			static VertexType * TVertexVertex(TVertexType * pTVertex);
 			static TetType * TVertexTet(TVertexType * pTVertex);
 			static HalfEdgeType * TVertexHalfEdge(TVertexType * pTVertex);
+			static HalfFaceType * TVertexOppositeHalfFace(TVertexType * pTVertex);
 
 			//Access TEdge data memebers
 			static HalfEdgeType * TEdgeLeftHalfEdge(TEdgeType * pTEdge);
@@ -185,7 +186,11 @@ namespace MeshLib
 		{
 			return (HalfEdgeType*)pTVertex->halfedge();
 		}
-
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TVertexOppositeHalfFace(TVertexType * pTVertex)
+		{
+			return (HalfFaceType*)pTVertex->halfedge()->next()->dual()->half_face();
+		}
 		/*------------------------------------------------------------------------------------------------
 		Access TEdge data members
 		--------------------------------------------------------------------------------------------------*/

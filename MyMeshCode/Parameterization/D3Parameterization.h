@@ -27,7 +27,7 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		class D3ParameterizationCore {
 		public:
-			D3ParameterizationCore(typename TIf::TMeshPtr pTMesh, std::shared_ptr<std::list<T *>> pShellingList):
+			D3ParameterizationCore(CTMesh< TV, V, HE, TE, E, HF, F, T > * pTMesh, std::shared_ptr<std::list<T *>> pShellingList):
 				m_pTMesh(pTMesh),
 				m_pShellingList(pShellingList),
 				m_circumSphere(m_pShellingList->front())

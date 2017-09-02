@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
 	auto pBoundryTetIter = std::find_if<>(pMesh->tets().begin(), pMesh->tets().end(), isBoundaryTet);
 
 	beginList.push_back(*pBoundryTetIter);
-	sheller.biShellingBreadthFirstGreedy(beginList, 500);
+	sheller.shellingBreadthFirstGreedy(beginList);
 
 	pShellingList = sheller.getShellingOrder();
 	
