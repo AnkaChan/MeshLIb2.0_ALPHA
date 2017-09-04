@@ -85,7 +85,7 @@ namespace MeshLib {
 			void removerFromBoundary(HF * pHF);
 			bool isBoundary(HF * pHF);
 			double directedVolume(CPoint Image, HF * pHF);
-
+			double orientedVolume(T* pT);
 		};
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::mapNextTetToSphereRand()
@@ -159,6 +159,11 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map2Faces(T * pNextT)
 		{
+			if (orientedVolume(pNextT) > 0) {
+				return;
+			}
+			HF 2OverlapedHFs[2];
+			assert(findOverlapHFs(pNextT, 2, 2OverlapedHFs));
 
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
@@ -186,6 +191,7 @@ namespace MeshLib {
 		inline HF* D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::findOverlapHF(T * pT)
 		{
 			for (auto pHF : TIt::T_HFIterator(pT)) {
+				// default isBoundary value is false. 
 				if (isBoundary(pHF))
 					return pHF;
 			}
@@ -259,6 +265,21 @@ namespace MeshLib {
 			CPoint AD = v[3] - v[0];
 
 			return  AB * (AC ^ AD);
+		}
+
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::orientedVolume(T * pT)
+		{
+			CPoint A = pT->vertex(0)->position();
+			CPoint B = pT->vertex(1)->position();
+			CPoint C = pT->vertex(2)->position();
+			CPoint D = pT->vertex(3)->position();
+			CPoint AB = B - A;
+			CPoint AC = C - A;
+			CPoint AD = D - A;
+
+			double orientation_product = AB * (AC ^ AD);
+			return orientation_product;
 		}
 
 		template <typename TIf>
