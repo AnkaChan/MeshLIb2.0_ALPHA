@@ -88,7 +88,7 @@ int main(int argc, char **argv){
 	tViewer.setting().drawAxis = true;
 	//tViewer.setting().renderAllEdges = true;
 	tViewer.setting().useCustomEdgeSize = true;
-	tViewer.setting().edgeColorMode = GLTetSetting::none;
+	tViewer.setting().edgeColorMode = GLTetSetting::userDefined;
 	//tViewer.setting().halfFaceColorMode = GLTetSetting::none;
 
 	double s = 1.0;

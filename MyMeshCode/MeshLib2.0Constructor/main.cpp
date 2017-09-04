@@ -56,7 +56,7 @@ int main() {
 
 	IF::MeshPtr pMesh = new IF::MeshType;
 
-	pMesh->read_m("D:/Code/Data/Mesh/outputs/face125.m");
+	pMesh->read_m("D:/Data/Mesh/outputs/face125.m");
 
 
 	cout << "Iterating Edges." << endl;
