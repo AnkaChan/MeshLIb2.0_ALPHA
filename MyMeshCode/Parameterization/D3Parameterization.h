@@ -78,6 +78,7 @@ namespace MeshLib {
 			CPoint pickPointRand(HF * pHF); 
 			CPoint pickCentricPoint(HF * pHF);
 			HF* findOverlapHF(T * pT);
+			bool findOverlapHFs(T * pT, int numHFs, HF* HFArray);
 			bool checkVisibility(CPoint Image, HF * pBottomHF);
 
 			void makeBoundary(HF * pHF);
@@ -158,6 +159,7 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map2Faces(T * pNextT)
 		{
+
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map3Faces(T * pNextT)
@@ -190,6 +192,24 @@ namespace MeshLib {
 
 			/* Suppose never gets here. */
 			return NULL;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::findOverlapHFs(T * pT, int numHFs, HF* HFArray)
+		{
+			int i = 0;
+			for (auto pHF : TIt::T_HFIterator(pT)) {
+				if (isBoundary(pHF)){
+					HFArray[i] = pHF;
+					++i;
+				}
+				if (i > numHFs) {
+					return false;
+				}
+			}
+			if (i != numHFs) {
+				return false;
+			}
+			return true;	
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::checkVisibility(CPoint Image, HF * pBottomHF)
