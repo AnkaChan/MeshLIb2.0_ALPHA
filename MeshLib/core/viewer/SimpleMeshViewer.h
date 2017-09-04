@@ -171,8 +171,11 @@ namespace MeshLib {
 		}
 
 		void draw_edges() {
+			glEnable(GL_LINE_SMOOTH);
+			glLineWidth(m_glSetting.edgeSize);
+			//glEnable(GL_BLEND);
+			glDisable(GL_LIGHTING);
 			for (auto pE : ITGL::MEIterator(pMesh)) {
-				glLineWidth(m_glSetting.edgeSize);
 				glBegin(GL_LINES);
 				switch (m_glSetting.edgeColorMode) {
 				case GLSetting::ColorMode::defaultColor:
@@ -188,8 +191,9 @@ namespace MeshLib {
 				CPoint v2 = IFGL::edgeVertex2(pE)->point();
 				glVertex3f(v1[0], v1[1], v1[2]);
 				glVertex3f(v2[0], v2[1], v2[2]);
-				glEnd();
 			}
+			glEnd();
+			glEnable(GL_LIGHTING);
 		}
 
 		void draw_vertices() {
