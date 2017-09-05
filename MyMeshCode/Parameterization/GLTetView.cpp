@@ -156,10 +156,15 @@ void draw_edge(CEdge* pE, double width, double * color) {
 
 	glLineWidth(width);
 	glColor3f(color[0], color[1], color[2]);
+	glEnable(GL_LINE_SMOOTH);
+	//glEnable(GL_BLEND);
+	glDisable(GL_LIGHTING);
 	glBegin(GL_LINES);
 	glVertex3d(p1[0], p1[1], p1[2]);
 	glVertex3d(p2[0], p2[1], p2[2]);
 	glEnd();
+	glEnable(GL_LIGHTING);
+
 }
 void draw_half_face(CHalfFaceGL* pHF, double * colorRGB, double alpha = 1.0f, bool invertNormal = false) {
 	
@@ -218,7 +223,6 @@ void draw_half_faces()
 		double normalFaceColor[3] = { FACE_COLOR };
 		if (hasInsertFace) {
 			draw_half_face(pInsertHF, insertFaceColor, 1.0);
-			glEnd();
 			for (auto pE : TITGL::T_EIterator(pT)) {
 				double eColor[3] = { 0.0, 1.0, 0.0 };
 				draw_edge(pE, 5.0, eColor);
@@ -239,12 +243,12 @@ void draw_half_faces()
 			draw_half_face(pHF, normalFaceColor, 1.0);
 		}
 		
-			/*if (isInsertFace) {
-				for (auto pE : TITGL::T_EIterator(pT)) {
-					double eColor[3] = {0.0, 0.0, 0.0};
-					draw_edge(pE, 10.0, eColor);
-				}
-			}*/
+		/*if (isInsertFace) {
+			for (auto pE : TITGL::T_EIterator(pT)) {
+				double eColor[3] = {0.0, 0.0, 0.0};
+				draw_edge(pE, 10.0, eColor);
+			}
+		}*/
 	}
 	
 }

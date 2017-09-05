@@ -4,6 +4,7 @@
 #include <MeshLib/core/TetMesh/titerators2.h>
 #include <MeshLib/core/Geometry/Circumsphere.h>
 #include <MeshLib/core/TetMesh/BaryCoordinates/BaryCoordinates3D.h>
+#include <MeshLib/toolbox/DebugSetting.h>
 #include "SphericalDistribution.h"
 #include "TriangularDistribution.h"
 
@@ -78,7 +79,7 @@ namespace MeshLib {
 			CPoint pickPointRand(HF * pHF); 
 			CPoint pickCentricPoint(HF * pHF);
 			HF* findOverlapHF(T * pT);
-			bool findOverlapHFs(T * pT, int numHFs, HF* HFArray);
+			bool findOverlapHFs(T * pT, int numHFs, HF** HFArray);
 			bool checkVisibility(CPoint Image, HF * pBottomHF);
 
 			void makeBoundary(HF * pHF);
@@ -86,6 +87,12 @@ namespace MeshLib {
 			bool isBoundary(HF * pHF);
 			double directedVolume(CPoint Image, HF * pHF);
 			double orientedVolume(T* pT);
+			bool adjustVertices(T* pT, HF** overlapedHFs);
+			bool isAvaliablePosition(CPoint newA, TV* pTV);
+			void splitEdge(T* pNextT, TE* pTE);
+
+			double step = 0.05;
+			double minAngle = 10;
 		};
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::mapNextTetToSphereRand()
@@ -98,6 +105,8 @@ namespace MeshLib {
 			T * pNextT = *m_TIter;
 
 			int n = countIntersectionFace(pNextT);
+			cout << "Tet " << pNextT->id() << ", has " << n << " insert faces.\n";
+
 			switch (n)
 			{
 			case 1:
@@ -136,7 +145,6 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map1Point(T * pNextT)
 		{
-
 			HF * pHF = findOverlapHF(pNextT);
 			CPoint pImage;
 			
@@ -148,7 +156,7 @@ namespace MeshLib {
 
 			V * pV = TIf::TVertexVertex(TIf::HalfFaceOppositeTVertex(pHF));
 			pV->position() = pImage;
-			removerFromBoundary(pHF);
+			removerFromBoundary(TIf::HalfFaceDual( pHF ));
 
 			for (HF * pHFNewBound : TIt::T_HFIterator(*m_TIter)) {
 				if (pHFNewBound != pHF){
@@ -159,16 +167,45 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map2Faces(T * pNextT)
 		{
-			if (orientedVolume(pNextT) > 0) {
+			double oV = orientedVolume(pNextT);
+			cout << "Oriented volume fot this Tet: " << oV <<"\n";
+			HF* OverlapedHFs[2];
+			bool succeed = findOverlapHFs(pNextT, 2, OverlapedHFs);
+			// If truely found two overlaped halffaces
+			assert(succeed);
+			//cout << "Find 2 overlap faces: " << OverlapedHFs[0] << ", " << OverlapedHFs[1] << "\n";
+			if (oV > 0) {
+				removerFromBoundary(TIf::HalfFaceDual( OverlapedHFs[0]) );
+				removerFromBoundary(TIf::HalfFaceDual( OverlapedHFs[1]) );
+
+				for (HF * pHFNewBound : TIt::T_HFIterator(pNextT)) {
+					if (pHFNewBound != OverlapedHFs[0] && pHFNewBound != OverlapedHFs[1]) {
+						makeBoundary(pHFNewBound);
+					}
+				}
 				return;
 			}
-			HF 2OverlapedHFs[2];
-			assert(findOverlapHFs(pNextT, 2, 2OverlapedHFs));
+
+			if (adjustVertices(pNextT, OverlapedHFs)) {
+				removerFromBoundary(TIf::HalfFaceDual(OverlapedHFs[0]));
+				removerFromBoundary(TIf::HalfFaceDual(OverlapedHFs[1]));
+
+				for (HF * pHFNewBound : TIt::T_HFIterator(pNextT)) {
+					if (pHFNewBound != OverlapedHFs[0] && pHFNewBound != OverlapedHFs[1]) {
+						makeBoundary(pHFNewBound);
+					}
+				}
+			}
+			else {
+				TE* pTE;
+				splitEdge(pNextT, pTE);
+			}
 
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::map3Faces(T * pNextT)
 		{
+
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		CPoint D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::pickPointRand(HF * pHF)
@@ -200,7 +237,7 @@ namespace MeshLib {
 			return NULL;
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::findOverlapHFs(T * pT, int numHFs, HF* HFArray)
+		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::findOverlapHFs(T * pT, int numHFs, HF** HFArray)
 		{
 			int i = 0;
 			for (auto pHF : TIt::T_HFIterator(pT)) {
@@ -280,6 +317,106 @@ namespace MeshLib {
 
 			double orientation_product = AB * (AC ^ AD);
 			return orientation_product;
+		}
+
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::adjustVertices(T * pT, HF ** overlapedHFs)
+		{
+			CPoint d[4];
+			CPoint pointsBeforeAdjusting[4];
+			pointsBeforeAdjusting[0] = pT->vertex(0)->position();
+			pointsBeforeAdjusting[1] = pT->vertex(1)->position();
+			pointsBeforeAdjusting[2] = pT->vertex(2)->position();
+			pointsBeforeAdjusting[3] = pT->vertex(3)->position();
+
+			//calculate step weight
+			std::map<TV*, double> edgeWeightsMap;
+			HF *pHF0 = overlapedHFs[0];
+			HF *pHF1 = overlapedHFs[1];
+			HE * pHEDual = NULL;
+			HE * pHE;
+			for (auto pHE0 : TIt::HF_HEIterator(pHF0)) {
+				for (auto pHE1 : TIt::HF_HEIterator(pHF1)) {
+					if (pHE1 == TIf::HalfEdgeDual(pHE0)) {
+						pHEDual = pHE1;
+						break;
+					}
+				}
+				if (pHEDual != NULL) {
+					pHE = pHE0;
+					break;
+				}
+			}
+			
+			double edgeLength0 = TIf::EdgeLength(TIf::HalfEdgeEdge(pHE));
+			edgeWeightsMap.insert(std::map<TV*, double>::value_type(TIf::HalfEdgeTTarget(pHE), edgeLength0));
+			edgeWeightsMap.insert(std::map<TV*, double>::value_type(TIf::HalfEdgeTSource(pHE), edgeLength0));
+			TV* pTVOut0 = TIf::HalfEdgeTTarget(TIf::HalfEdgeNext(pHE));
+			TV* pTVOut1 = TIf::HalfEdgeTTarget(TIf::HalfEdgeNext(pHEDual));
+			double edgeLength1 = (TIf::TVertexVertex(pTVOut0)->position() - TIf::TVertexVertex(pTVOut1)->position()).norm();
+			edgeWeightsMap.insert(std::map<TV*, double>::value_type(pTVOut0, edgeLength1));
+			edgeWeightsMap.insert(std::map<TV*, double>::value_type(pTVOut1, edgeLength1));
+
+			cout << "Adjusting tet " << pT->id() << ".\n";
+			cout << "Initial oriented volume: " << orientedVolume(pT) << ".\n";
+
+
+			while (orientedVolume(pT) < 0) {
+				int k = 0;
+				for (auto pTV : TIt::T_TVIterator(pT)) {
+					HF*  pHF = TIf::TVertexOppositeHalfFace(pTV);
+					CPoint & A = TIf::TVertexVertex(pTV)->position();
+					CPoint V[3];
+					ShowInDebug(cout << "Adjusting vertex: " << pTV->vert()->id() << "\n";);
+					ShowInDebug(cout << "Opposite Halfface: ";);
+					int i = 0;
+					for (auto pV : TIt::HF_VIterator(pHF)) {
+						V[i] = pV->position();
+						++i;
+						ShowInDebug(cout << pV->id() << ", ";);
+					}
+					CPoint BA = A - V[0];
+					CPoint BC = V[0] - V[1];
+					CPoint BD = V[0] - V[2];
+
+					ShowInDebug(cout << "\nOriented volume: " << (BA ^ BC) * BD << "\n";);
+
+					d[k] = CPoint(BC[1] * BD[2] - BD[1] * BC[2], -(BC[0] * BD[2] - BD[0] * BC[2]), BC[0] * BD[1] - BD[0] * BC[1]);
+					d[k] = -d[k] / d[k].norm();
+					CPoint OA = A;
+					d[k] = d[k] - (d[k] * OA)*OA;
+					d[k] = d[k] / d[k].norm();
+					//cout << "\nOriented volume after: " << AB * (AC ^ AD) << endl;
+					ShowInDebug(cout << "Move direction: " << d[k] << endl;);
+					++k;
+
+				}
+				k = 0;
+				for (auto pTV : TIt::T_TVIterator(pT)) {
+					CPoint & A = TIf::TVertexVertex(pTV)->position();
+					CPoint newA = A;
+					newA += edgeWeightsMap[pTV] * step * d[k];
+					newA = newA / newA.norm();
+					if (isAvaliablePosition(newA, pTV)) {
+						A = newA;
+					}
+					++k;
+				}
+				cout << "New oriented volume: " << orientedVolume(pT) << ".\n";
+			}
+			return true;
+			
+		}
+
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::isAvaliablePosition(CPoint newA, TV * pTV)
+		{
+			return true;
+		}
+
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::splitEdge(T * pNextT, TE * pTE)
+		{
 		}
 
 		template <typename TIf>
