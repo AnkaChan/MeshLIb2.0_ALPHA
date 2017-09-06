@@ -93,6 +93,7 @@ namespace MeshLib {
 
 			double step = 0.05;
 			double minAngle = 10;
+			double getMinCosAngle(T * pT);
 		};
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::mapNextTetToSphereRand()
@@ -411,12 +412,30 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::isAvaliablePosition(CPoint newA, TV * pTV)
 		{
+			CPoint oA = TIf::TVertexVertex(pTV)->position();
+			TIf::TVertexVertex(pTV)->position() = newA;
+			V* pV = TIf::TVertexVertex(pTV);
+			for (auto pTVTet : TIt::V_TVIterator(pV)) {
+				T* pT = TIf::TVertexTet(pTVTet);
+				double minCosAngle = getMinCosAngle(pT);
+			}
+
+			TIf::TVertexVertex(pTV)->position() = oA;
 			return true;
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::splitEdge(T * pNextT, TE * pTE)
 		{
+		}
+
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::getMinCosAngle(T * pT)
+		{
+			for (auto pTE : TIt::T_TEIterator(pT)) {
+
+			}
+			return 0.0;
 		}
 
 		template <typename TIf>
