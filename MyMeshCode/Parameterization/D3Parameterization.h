@@ -22,7 +22,10 @@ namespace MeshLib {
 		public:
 			bool isBoundaryInPara = false;
 		};
-
+		class _tetParameterization {
+		public:
+			bool mapped;
+		};
 		class CFaceD3Parameterization : public CFace, public _faceParameterization {};
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
@@ -52,10 +55,13 @@ namespace MeshLib {
 				for (HF * pHF : TIt::T_HFIterator(m_pShellingList->front())) {
 					makeBoundary(pHF);
 				}
+
+				setMinAngle(minAngle);
 			}
 
 			/* return true if succeeded */
 			bool mapNextTetToSphereRand();
+			double setMinAngle(double newMinAngle);
 
 			CTetCircumSphere getCircumSphere() { return m_circumSphere; };
 			const std::set<HF *> & getBoundaryHFSet() {return boundaryFacesSet; };
@@ -93,6 +99,7 @@ namespace MeshLib {
 
 			double step = 0.05;
 			double minAngle = 10;
+			double maxCosAngle;
 			double getMinCosAngle(T * pT);
 		};
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
@@ -124,6 +131,13 @@ namespace MeshLib {
 			}
 			++m_TIter;
 			return true;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::setMinAngle(double newMinAngle)
+		{
+			minAngle = newMinAngle;
+			maxCosAngle = cos(minAngle);
+			return 0.0;
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::normalizeTMesh2CircumSphere()
@@ -362,7 +376,7 @@ namespace MeshLib {
 			cout << "Initial oriented volume: " << orientedVolume(pT) << ".\n";
 
 
-			while (orientedVolume(pT) < 0) {
+			while (abs(getMinCosAngle(pT)) > maxCosAngle || orientedVolume(pT) < 0) {
 				int k = 0;
 				for (auto pTV : TIt::T_TVIterator(pT)) {
 					HF*  pHF = TIf::TVertexOppositeHalfFace(pTV);
@@ -393,6 +407,7 @@ namespace MeshLib {
 
 				}
 				k = 0;
+				int numFixPoints = 0;
 				for (auto pTV : TIt::T_TVIterator(pT)) {
 					CPoint & A = TIf::TVertexVertex(pTV)->position();
 					CPoint newA = A;
@@ -401,7 +416,21 @@ namespace MeshLib {
 					if (isAvaliablePosition(newA, pTV)) {
 						A = newA;
 					}
+					else {
+						numFixPoints++;
+					}
 					++k;
+				}
+				if (numFixPoints == 4) {
+					cout << "All the 4 points are not movable.\n";
+					if (orientedVolume(pT) > 0) {
+						cout << "Oriented Volume stops at " << orientedVolume(pT) << ".\n";
+						return true;
+					}
+					else
+					{
+						return false;
+					}
 				}
 				cout << "New oriented volume: " << orientedVolume(pT) << ".\n";
 			}
@@ -412,16 +441,26 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::isAvaliablePosition(CPoint newA, TV * pTV)
 		{
+			bool avaliable = true;
 			CPoint oA = TIf::TVertexVertex(pTV)->position();
 			TIf::TVertexVertex(pTV)->position() = newA;
 			V* pV = TIf::TVertexVertex(pTV);
 			for (auto pTVTet : TIt::V_TVIterator(pV)) {
 				T* pT = TIf::TVertexTet(pTVTet);
-				double minCosAngle = getMinCosAngle(pT);
+				double maxCosAngleThisTet = getMinCosAngle(pT);
+				if (abs(maxCosAngleThisTet) > abs(maxCosAngle)) {
+					avaliable = false;
+					break;
+				}
+				double orientedVolumeThisTet = orientedVolume(pT);
+				if (pT->mapped && orientedVolumeThisTet < 0) {
+					avaliable = false;
+					break;
+				}
 			}
 
 			TIf::TVertexVertex(pTV)->position() = oA;
-			return true;
+			return avaliable;
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>

@@ -25,7 +25,9 @@
 using namespace MeshLib;
 using namespace MeshLib::TMeshLib;
 
-typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFaceD3Parameterization, CTetShelling> TIf;
+class CTetParaShelling : public CTetShelling , public _tetParameterization {};
+
+typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFaceD3Parameterization, CTetParaShelling> TIf;
 typedef CTetSheller<TIf> CTSheller;
 typedef D3Parameterization<TIf> D3Para;
 typedef TIterators<TIf> TIt;
@@ -33,7 +35,7 @@ typedef TIf::TMeshType MyTMesh;
 
 D3Para * pd3Para;
 TIf::TMeshPtr pMesh(new TIf::TMeshType);
-std::shared_ptr<std::list<CTetShelling *>> pShellingList;
+std::shared_ptr<std::list<CTetParaShelling *>> pShellingList;
 TIf::TMeshType& mesh = *pMesh;
 int argcG;
 char ** argvG;
@@ -55,9 +57,9 @@ int main(int argc, char ** argv)
 	std::cout << "Load done.\n";
 	CTSheller sheller(pMesh);
 	//CTetShelling * p_startTet = pMesh->idTet(10000);
-	std::list<CTetShelling *> beginList;
+	std::list<TIf::TPtr> beginList;
 
-	auto isBoundaryTet = [&sheller](CTetShelling * pTet) {
+	auto isBoundaryTet = [&sheller](TIf::TPtr pTet) {
 		if (sheller.numFaceOnSurfaceInShelling(pTet) > 0) {
 			return true;
 		}

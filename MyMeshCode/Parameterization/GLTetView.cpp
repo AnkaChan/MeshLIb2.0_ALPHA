@@ -34,6 +34,7 @@ using std::cout;
 using std::endl;
 using namespace MeshLib;
 using namespace MeshLib::TMeshLib;
+class CTetParaShellling;
 
 typedef CTVertex CTVertexGL;
 typedef CVertex CVertexGL;
@@ -42,7 +43,7 @@ typedef CTEdge CTEdgeGL;
 typedef CEdge CEdgeGL;
 typedef CHalfFace CHalfFaceGL;
 typedef CFaceD3Parameterization CFaceGL;
-typedef CTetShelling CTetGL;
+typedef CTetParaShellling CTetGL;
 
 typedef TInterface<CTVertexGL, CVertexGL, CHalfEdgeGL, CTEdgeGL, CEdgeGL, CHalfFaceGL, CFaceGL, CTetGL> TIFGL;
 typedef TIterators<TIFGL> TITGL;
