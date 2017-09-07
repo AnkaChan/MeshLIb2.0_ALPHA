@@ -3,6 +3,7 @@
 #include <list>
 #include <assert.h>
 #include <iterator>
+#include <memory>
 #include "TInterface.h"
 namespace MeshLib
 {
@@ -291,7 +292,9 @@ namespace MeshLib
 			*/
 			class T_EIterator : public std::iterator<std::forward_iterator_tag, EPtr> {
 			public:
-				T_EIterator(TPtr pT) : m_pT(pT)
+				T_EIterator(TPtr pT) :
+					m_pT(pT),
+					pEdges(new std::set<EPtr>)
 				{
 					for (int i = 0; i < 4; i++)
 					{
@@ -301,11 +304,11 @@ namespace MeshLib
 						{
 							TEPtr pTE = HalfEdgeTEdge(pHE);
 							EPtr pE = TEdgeEdge(pTE);
-							m_edges.insert(pE);
+							pEdges->insert(pE);
 							pHE = HalfEdgeNext(pHE);
 						}
 					}
-					m_iter = m_edges.begin();
+					m_iter = pEdges->begin();
 				};
 
 				/*! dereferencing */
@@ -319,27 +322,81 @@ namespace MeshLib
 				/*! Iterator ++ */
 				T_EIterator& operator++() { ++m_iter; return *this; };
 				/*! ++ Iterator */
-				T_EIterator  operator++(int) { T_EIterator tmp(m_pT, m_edges, m_iter);  ++m_iter; return tmp; }
+				T_EIterator  operator++(int) { T_EIterator tmp(m_pT, pEdges, m_iter);  ++m_iter; return tmp; }
 
 				/*! return the begin and end iterators*/
-				T_EIterator begin() { return T_EIterator(m_pT, m_edges, m_edges.begin()); };
-				T_EIterator end() { return T_EIterator(m_pT, m_edges, m_edges.end()); };
+				T_EIterator begin() { return T_EIterator(m_pT, pEdges, pEdges->begin()); };
+				T_EIterator end() { return T_EIterator(m_pT, pEdges, pEdges->end()); };
 
 				/*! formal style end() method, return whether the iterator has reached the end of the container*/
 				bool reachEnd() { return m_iter == pEdges->end(); };
 
 			protected:
 
-				T_EIterator(TPtr pT, std::set<EPtr> edges, typename std::set<EPtr>::iterator iter) : m_pT(pT), m_iter(iter), m_edges(edges) {};
+				T_EIterator(TPtr pT, std::shared_ptr<std::set<EPtr>> edges, typename std::set<EPtr>::iterator iter) : m_pT(pT), m_iter(iter), pEdges(edges) {};
 
 				/*! Pointer to the tet */
 				TPtr m_pT;
 				/*! set of edges adjacent to the central vertex */
-				std::set<EPtr> m_edges;
+				std::shared_ptr<std::set<EPtr>> pEdges;
 				/*! edge set iterator */
 				typename std::set<EPtr>::iterator m_iter;
 			};
+			/*!
+			\brief Tet->Edge Iterator
+			go through all the edges of a Tet
+			*/
+			class T_TEIterator : public std::iterator<std::forward_iterator_tag, TEPtr> {
+			public:
+				T_TEIterator(TPtr pT) : 
+					m_pT(pT), 
+					pTEdges(new std::set<TEPtr>)
+				{
+					for (int i = 0; i < 4; i++)
+					{
+						HFPtr pHF = TetHalfFace(pT, i);
+						HEPtr pHE = HalfFaceHalfEdge(pHF);
+						for (int j = 0; j < 3; j++)
+						{
+							TEPtr pTE = HalfEdgeTEdge(pHE);
+							pTEdges->insert(pTE);
+							pHE = HalfEdgeNext(pHE);
+						}
+					}
+					m_iter = pTEdges->begin();
+				};
 
+				/*! dereferencing */
+				TEPtr value() { return *m_iter; };
+				TEPtr operator*() { return *m_iter; };
+
+				/*! bool operator*/
+				bool operator==(const T_TEIterator& otherIter) { return m_iter == otherIter.m_iter; };
+				bool operator!=(const T_TEIterator& otherIter) { return m_iter != otherIter.m_iter; };
+
+				/*! Iterator ++ */
+				T_TEIterator& operator++() { ++m_iter; return *this; };
+				/*! ++ Iterator */
+				T_TEIterator  operator++(int) { T_TEIterator tmp(m_pT, pTEdges, m_iter);  ++m_iter; return tmp; }
+
+				/*! return the begin and end iterators*/
+				T_TEIterator begin() { return T_TEIterator(m_pT, pTEdges, pTEdges->begin()); };
+				T_TEIterator end() { return T_TEIterator(m_pT, pTEdges, pTEdges->end()); };
+
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
+				bool reachEnd() { return m_iter == pTEdges->end(); };
+
+			protected:
+
+				T_TEIterator(TPtr pT, std::shared_ptr<std::set<TEPtr>> pNewTEdges, typename std::set<TEPtr>::iterator iter) : m_pT(pT), m_iter(iter), pTEdges(pNewTEdges) {};
+
+				/*! Pointer to the tet */
+				TPtr m_pT;
+				/*! set of edges adjacent to the central vertex */
+				std::shared_ptr<std::set<TEPtr>> pTEdges;
+				/*! edge set iterator */
+				typename std::set<TEPtr>::iterator m_iter;
+			};
 			/*!
 			\brief Mesh->Face Iterator
 			go through all the faces of a Mesh
@@ -382,7 +439,9 @@ namespace MeshLib
 			*/
 			class E_FIterator : public std::iterator<std::forward_iterator_tag, FPtr> {
 			public:
-				E_FIterator(EPtr pE) {
+				E_FIterator(EPtr pE):
+					pFaces(new std::set<FPtr>)
+				{
 					std::list<TEPtr> * TEdges = EdgeTEdgeList(pE);
 					for (TEPtr pT : *TEdges)
 					{
@@ -391,14 +450,14 @@ namespace MeshLib
 								    
 						HFPtr pHF = HalfEdgeHalfFace(pL);
 						FPtr   pF = HalfFaceFace(pHF);
-						m_faces.insert(pF);
+						pFaces->insert(pF);
 
 						pHF = HalfEdgeHalfFace(pR);
 						pF  = HalfFaceFace(pHF);
-						m_faces.insert(pF);
+						pFaces->insert(pF);
 					}
 
-					m_iter = m_faces.begin();
+					m_iter = pFaces->begin();
 				}
 
 				/*! dereferencing */
@@ -412,20 +471,20 @@ namespace MeshLib
 				/*! Iterator ++ */
 				E_FIterator& operator++() { ++m_iter; return *this; };
 				/*! ++ Iterator */
-				E_FIterator  operator++(int) { E_FIterator tmp(m_faces, m_iter);  ++m_iter; return tmp; }
+				E_FIterator  operator++(int) { E_FIterator tmp(pFaces, m_iter);  ++m_iter; return tmp; }
 
 				/*! return the begin and end iterators*/
-				E_FIterator begin() { return E_FIterator( m_faces, m_faces.begin()); };
-				E_FIterator end() { return E_FIterator( m_faces, m_faces.end()); };
+				E_FIterator begin() { return E_FIterator(pFaces, pFaces->begin()); };
+				E_FIterator end() { return E_FIterator(pFaces, pFaces->end()); };
 
 				/*! formal style end() method, return whether the iterator has reached the end of the container*/
-				bool reachEnd() { return m_iter == pEdges->end(); };
+				bool reachEnd() { return m_iter == pFaces->end(); };
 
 			protected:
 				/*! Private construction function, only used to generate begin, end and tmp iterator*/
-				E_FIterator(std::set<FPtr> faces, typename std::set<FPtr>::iterator iter) : m_iter(iter), m_faces(faces) {};
+				E_FIterator(std::shared_ptr<std::set<FPtr>> faces, typename std::set<FPtr>::iterator iter) : m_iter(iter), pFaces(faces) {};
 				/*! set of edges adjacent to the central vertex */
-				std::set<FPtr> m_faces;
+				std::shared_ptr<std::set<FPtr>> pFaces;
 				/*! edge set iterator */
 				typename std::set<FPtr>::iterator m_iter;
 			};

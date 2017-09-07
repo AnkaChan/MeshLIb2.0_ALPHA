@@ -56,12 +56,12 @@ namespace MeshLib {
 					makeBoundary(pHF);
 				}
 
-				setMinAngle(minAngle);
+				setMinAngleDegree(minAngle);
 			}
 
 			/* return true if succeeded */
 			bool mapNextTetToSphereRand();
-			double setMinAngle(double newMinAngle);
+			double setMinAngleDegree(double newMinAngle);
 
 			CTetCircumSphere getCircumSphere() { return m_circumSphere; };
 			const std::set<HF *> & getBoundaryHFSet() {return boundaryFacesSet; };
@@ -99,8 +99,10 @@ namespace MeshLib {
 
 			double step = 0.05;
 			double minAngle = 10;
+			int maxIteration = 100;
 			double maxCosAngle;
-			double getMinCosAngle(T * pT);
+			double getMaxCosAngle(T * pT);
+			CPoint halfFaceNormal(HF * pHF);
 		};
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::mapNextTetToSphereRand()
@@ -129,15 +131,16 @@ namespace MeshLib {
 			default:
 				break;
 			}
+			pNextT->mapped = true;
 			++m_TIter;
 			return true;
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::setMinAngle(double newMinAngle)
+		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::setMinAngleDegree(double newMinAngle)
 		{
-			minAngle = newMinAngle;
-			maxCosAngle = cos(minAngle);
-			return 0.0;
+			minAngle = PI * newMinAngle / 180.0;
+			maxCosAngle = abs(cos(minAngle));
+			return maxCosAngle;
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::normalizeTMesh2CircumSphere()
@@ -375,8 +378,8 @@ namespace MeshLib {
 			cout << "Adjusting tet " << pT->id() << ".\n";
 			cout << "Initial oriented volume: " << orientedVolume(pT) << ".\n";
 
-
-			while (abs(getMinCosAngle(pT)) > maxCosAngle || orientedVolume(pT) < 0) {
+			int numIterations = 0;
+			while (abs(getMaxCosAngle(pT)) > maxCosAngle || orientedVolume(pT) < 0) {
 				int k = 0;
 				for (auto pTV : TIt::T_TVIterator(pT)) {
 					HF*  pHF = TIf::TVertexOppositeHalfFace(pTV);
@@ -417,22 +420,34 @@ namespace MeshLib {
 						A = newA;
 					}
 					else {
-						numFixPoints++;
+56						numFixPoints++;
 					}
 					++k;
 				}
-				if (numFixPoints == 4) {
-					cout << "All the 4 points are not movable.\n";
+				cout << "Number of fixed points: " << numFixPoints << "\n";
+				if (numFixPoints == 4 || numIterations > maxIteration) {
+					if (numFixPoints == 4) {
+						cout << "All the 4 points are not movable.\n";
+					}
+					else {
+						cout << "Over max Iteration.\n";
+					}
 					if (orientedVolume(pT) > 0) {
 						cout << "Oriented Volume stops at " << orientedVolume(pT) << ".\n";
 						return true;
 					}
 					else
 					{
+						cout << "*****************************************************************\n"
+							<< "ATTENTION:\n";
+						cout << "Oriented Volume stops at negative value, failed.\n";
+						cout << "*****************************************************************\n";
 						return false;
 					}
 				}
 				cout << "New oriented volume: " << orientedVolume(pT) << ".\n";
+				cout << "New max cos angle: " << abs(getMaxCosAngle(pT)) << ", target is less than: " << maxCosAngle << ".\n";
+				++numIterations;
 			}
 			return true;
 			
@@ -447,8 +462,8 @@ namespace MeshLib {
 			V* pV = TIf::TVertexVertex(pTV);
 			for (auto pTVTet : TIt::V_TVIterator(pV)) {
 				T* pT = TIf::TVertexTet(pTVTet);
-				double maxCosAngleThisTet = getMinCosAngle(pT);
-				if (abs(maxCosAngleThisTet) > abs(maxCosAngle)) {
+				double maxCosAngleThisTet = getMaxCosAngle(pT);
+				if (pT->mapped && abs(maxCosAngleThisTet) > abs(maxCosAngle)) {
 					avaliable = false;
 					break;
 				}
@@ -469,12 +484,38 @@ namespace MeshLib {
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::getMinCosAngle(T * pT)
+		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::getMaxCosAngle(T * pT)
 		{
+			double maxCos = 0.0;
 			for (auto pTE : TIt::T_TEIterator(pT)) {
+				HE* pHEL = TIf::TEdgeLeftHalfEdge(pTE);
+				HE* pHER = TIf::TEdgeRightHalfEdge(pTE);
 
+				HF* pHFL = TIf::HalfEdgeHalfFace(pHEL);
+				HF* pHFR = TIf::HalfEdgeHalfFace(pHER);
+
+				CPoint nL = halfFaceNormal(pHFL);
+				CPoint nR = halfFaceNormal(pHFR);
+
+				if (abs(maxCos) < abs(nL*nR)) {
+					maxCos = abs(nL*nR);
+				}
 			}
-			return 0.0;
+			return maxCos;
+		}
+
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline CPoint D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::halfFaceNormal(HF * pHF)
+		{
+			HE* pHE = TIf::HalfFaceHalfEdge(pHF);
+			CPoint  p[3];
+			for (int k = 0; k < 3; k++)
+			{
+				p[k] = pHE->target()->position();
+				pHE = TIf::HalfEdgeNext(pHE);
+			}
+			CPoint fn = (p[1] - p[0]) ^ (p[2] - p[0]);
+			return fn / fn.norm();
 		}
 
 		template <typename TIf>

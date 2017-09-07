@@ -5,6 +5,7 @@
 #include <random>
 #include <iostream>
 
+#include "../../core/TetMesh/TInterface.h"
 #include "../../core/TetMesh/BaseTMesh.h"
 #include "../../core/TetMesh/vertex.h"
 #include "../../core/TetMesh/tvertex.h"
