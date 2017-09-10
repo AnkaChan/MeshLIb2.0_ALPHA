@@ -140,8 +140,14 @@ namespace MeshLib
 		\param he the input halfedge.
 		\return the edge of he.
 		*/
-
 		static EPtr       halfedgeEdge(HEPtr he);
+		//halfedge->vector
+		/*!
+		Return the vector \in R^3 of a halfedge.
+		\param he the input halfedge.
+		\return the vector as CPoint.
+		*/
+		static CPoint     halfedgeVec(HEPtr he);
 		//v->halfedge
 		/*!
 		The halfedge targeting at a vertex.
@@ -291,6 +297,7 @@ namespace MeshLib
 		*/
 		static HEPtr faceNextClwHalfEdge(HEPtr  he);
 
+		static CPoint faceNormal(FPtr pF);
 
 		/*!
 		Edge length
@@ -487,6 +494,13 @@ namespace MeshLib
 	inline EdgeType * CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::halfedgeEdge(HEPtr  he)
 	{
 		return (EPtr)he->edge();
+	}
+
+	//turn the halfedge to a vector 
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	inline CPoint CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeVec(HEPtr he)
+	{
+		return he->target()->point() - he->source()->point();
 	}
 
 	//access vertex->halfedge
