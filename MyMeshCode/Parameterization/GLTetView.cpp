@@ -34,7 +34,7 @@ using std::cout;
 using std::endl;
 using namespace MeshLib;
 using namespace MeshLib::TMeshLib;
-class CTetParaShellling;
+class CTetParaShelling : public CTetShelling, public _tetParameterization {};
 
 typedef CTVertex CTVertexGL;
 typedef CVertex CVertexGL;
@@ -43,7 +43,7 @@ typedef CTEdge CTEdgeGL;
 typedef CEdge CEdgeGL;
 typedef CHalfFace CHalfFaceGL;
 typedef CFaceD3Parameterization CFaceGL;
-typedef CTetParaShellling CTetGL;
+typedef CTetParaShelling CTetGL;
 
 typedef TInterface<CTVertexGL, CVertexGL, CHalfEdgeGL, CTEdgeGL, CEdgeGL, CHalfFaceGL, CFaceGL, CTetGL> TIFGL;
 typedef TIterators<TIFGL> TITGL;
@@ -64,10 +64,10 @@ CPoint		TetCenter;
 extern CTMeshGL* pMesh;
 extern D3Para * pd3Para;
 
-extern std::shared_ptr<std::list<CTetShelling *>> pShellingList;
-std::list<CTetShelling *>::iterator shellingIter;
+extern std::shared_ptr<std::list<CTetGL *>> pShellingList;
+std::list<CTetGL *>::iterator shellingIter;
 
-std::list < CTetShelling *> renderList;
+std::list < CTetGL *> renderList;
 bool drawCircumSphere = true;
 bool drawEdgeArcs = true;
 bool drawSurfaceEdges = true;
@@ -202,7 +202,7 @@ void draw_half_faces()
 	//glBindTexture(GL_TEXTURE_2D, texName);
 	
 
-	CTet * pNextT = *shellingIter;
+	CTetGL * pNextT = *shellingIter;
 
 	for (auto renderTetIter = renderList.begin(); renderTetIter != renderList.end(); ++renderTetIter)
 	{
