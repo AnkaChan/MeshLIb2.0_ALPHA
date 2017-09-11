@@ -531,15 +531,8 @@ namespace MeshLib {
 			CPoint n(0, 0, 0);
 			for (auto pF : IT::VFIterator(pV))
 			{
-				CPoint p[3];
-				CHalfEdge * he = pF->halfedge();
-				for (int k = 0; k < 3; k++)
-				{
-					p[k] = he->target()->point();
-					he = he->he_next();
-				}
-				CPoint fn = (p[1] - p[0]) ^ (p[2] - p[0]);
-				pF->normal() = fn / fn.norm();
+				CPoint fn = IF::faceNormal(pF);
+				pF->normal() = fn;
 				n += fn;
 			}
 			n = n / n.norm();

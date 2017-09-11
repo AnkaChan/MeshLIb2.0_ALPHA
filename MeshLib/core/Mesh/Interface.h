@@ -1,4 +1,5 @@
 #pragma once
+#include "MeshLib\core\Geometry\Point.h"
 
 namespace MeshLib
 {
@@ -299,6 +300,8 @@ namespace MeshLib
 
 		static CPoint faceNormal(FPtr pF);
 
+		static CPoint faceOrientedArea(FPtr pF);
+
 		/*!
 		Edge length
 		\param e the input edge
@@ -497,8 +500,8 @@ namespace MeshLib
 	}
 
 	//turn the halfedge to a vector 
-	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
-	inline CPoint CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>::halfedgeVec(HEPtr he)
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
+	inline CPoint CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::halfedgeVec(HEPtr he)
 	{
 		return he->target()->point() - he->source()->point();
 	}
@@ -755,6 +758,22 @@ namespace MeshLib
 		return (HalfEdgeType*)he->he_next();
 	}
 
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
+	inline CPoint CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::faceNormal(FPtr pF)
+	{
+		CPoint fNormal = faceOrientedArea(pF);
+		return fNormal / fNormal.norm();
+	}
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType, template<typename, typename, typename, typename> typename MeshTemplate = CBaseMesh>
+	inline CPoint MeshLib::CInterface<VertexType, EdgeType, FaceType, HalfEdgeType, MeshTemplate>::faceOrientedArea(FPtr pF)
+	{
+		HalfEdgeType * pHE = faceHalfedge(pF);
+		HalfEdgeType * pHENext = halfedgeNext(pHE);
+		CPoint v1 = -halfedgeVec(pHE);
+		CPoint v2 = halfedgeVec(pHENext);
+		return v2^v1;
+	}
 	/*!
 	Edge length
 	*/
