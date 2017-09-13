@@ -16,7 +16,14 @@ typedef CIterators<If> It;
 typedef SphericalHarmonicMap<If>  SHMapper;
 SHMapper * pMapper;
 void shMapIdlefunc() {
-	pMapper->adjustPointVisualOneStep();
+	static bool succeeded = false;
+	if (succeeded) {
+		return;
+	}
+	if (succeeded = pMapper->adjustPointVisualOneStep()) {
+		cout << "Algorithm Succeeded." << endl;
+	}
+
 }
 
 void smoothMesh(If::MeshPtr pMesh) {

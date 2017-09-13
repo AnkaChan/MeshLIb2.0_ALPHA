@@ -434,6 +434,42 @@ namespace MeshLib
 			};
 
 			/*!
+			\brief Mesh->HalfFace Iterator
+			go through all the halffaces of a Mesh
+			*/
+			class TM_HFIterator : public std::iterator<std::forward_iterator_tag, HFPtr> {
+			public:
+				TM_HFIterator(TMeshPtr pTMesh) : m_pTMesh(pTMesh), m_iter(m_pTMesh->half_faces().begin()) {};
+
+				/*! dereferencing */
+				HFPtr value() { return *m_iter; };
+				HFPtr operator*() { return *m_iter; };
+
+				/*! bool operator*/
+				bool operator==(const TM_HFIterator& otherIter) { return m_iter == otherIter.m_iter; };
+				bool operator!=(const TM_HFIterator& otherIter) { return m_iter != otherIter.m_iter; };
+
+				/*! iterate ++ */
+				TM_HFIterator& operator++() { ++m_iter; return *this; };
+				/*! ++iterator */
+				TM_HFIterator operator++(int) { TM_HFIterator tmp(m_pTMesh, m_iter); ++m_iter; return tmp; };
+
+				/*! return the begin and end iterators*/
+				TM_HFIterator begin() { return TM_HFIterator(m_pTMesh); };
+				TM_HFIterator end() { return TM_HFIterator(m_pTMesh, m_pTMesh->half_faces().end()); };
+
+				/*! formal style end() method, return whether the iterator has reached the end of the container*/
+				bool reachEnd() { return m_iter == m_pTMesh->half_faces().end(); };
+			protected:
+				/*! Private construction function, only used to generate begin, end and tmp iterator*/
+				TM_HFIterator(TMeshPtr pTMesh, typename std::list<HFPtr>::iterator iter) : m_pTMesh(pTMesh), m_iter(iter) {};
+				/*! pointer to the mesh */
+				TMeshPtr m_pTMesh;
+				/*! edge list iterator */
+				typename std::list<HFPtr>::iterator m_iter;
+			};
+
+			/*!
 			\brief Edge->Face Iterator
 			go through all the faces adjacent to an edge
 			*/

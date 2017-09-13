@@ -101,6 +101,7 @@ namespace MeshLib
 			static HalfFaceType * HalfFaceDual(HalfFaceType * pHalfFace);
 			/*! HalfFace's opposite tvertex, i.e, the tvertex not contain in the halfface */
 			static TVertexType * HalfFaceOppositeTVertex(HalfFaceType * pHalfFace);
+			static void HalfFace3Points(HalfFaceType * pHF, CPoint * v);
 
 			//Face
 			/*! access the left half face of a face */
@@ -342,7 +343,14 @@ namespace MeshLib
 
 			return HalfEdgeTTarget(pHEDualNext);
 		}
-
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline void TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFace3Points(HalfFaceType * pHF, CPoint * v)
+		{
+			HalfEdgeType * pHE = HalfFaceHalfEdge(pHF);
+			v[0] = HalfEdgeSource(pHE)->position();
+			v[1] = HalfEdgeTarget(pHE)->position();
+			v[2] = HalfEdgeTarget(HalfEdgeNext(pHE))->position();
+		}
 
 		/*------------------------------------------------------------------------------------------------
 		Access Face data members

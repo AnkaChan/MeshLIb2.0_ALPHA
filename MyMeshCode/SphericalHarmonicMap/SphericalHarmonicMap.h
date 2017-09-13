@@ -29,14 +29,14 @@ namespace MeshLib {
 		void setStep(double newStep);
 		void setStopEpsion(double newEpsion);
 		double totalEnergy();
-		void adjustPointVisualOneStep();
+		bool adjustPointVisualOneStep();
 
 	private:
 		MeshType * pMesh;
 		void calculateStringConstraints();
 		void iterativelyAdjustPoint();
 		double halfedgeStringEnergy(HE * pHE);
-		double step = 0.01;
+		double step = 0.001;
 		double Epsion = 0.00001;
 	};
 
@@ -140,7 +140,7 @@ namespace MeshLib {
 	}
 
 	template<typename V, typename E, typename F, typename HE>
-	inline void SphericalHarmonicMapCore<V, E, F, HE>::adjustPointVisualOneStep()
+	inline bool SphericalHarmonicMapCore<V, E, F, HE>::adjustPointVisualOneStep()
 	{
 		int numV = pMesh->vertices().size();
 
@@ -173,6 +173,12 @@ namespace MeshLib {
 		formalEnergy = currentEnergy;
 		currentEnergy = totalEnergy();
 		std::cout << "New Harmonic Energy: " << currentEnergy << std::endl;
+		if (abs(currentEnergy - formalEnergy) > Epsion) {
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 
 	template<typename V, typename E, typename F, typename HE>

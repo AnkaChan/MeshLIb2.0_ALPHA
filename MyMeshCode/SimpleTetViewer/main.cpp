@@ -5,12 +5,14 @@ using namespace MeshLib;
 using namespace TMeshLib;
 using std::cout;
 using std::endl;
+#define DEFAULT_FACE_COLOR 0.8,0.8,0.8
 
 typedef TInterface<CTVertex, CVertexVisual, CHalfEdge, CTEdge, CEdgeVisual, CHalfFaceVisual, CFace, CTetVisual> TIF;
 typedef TIterators<TIF> TIT;
 
 TIF::TPtr pOverlapT;
 double step = 0.05;
+CSimpleTetViewer * pViewer;
 void adjustVertice() {
 	CPoint d[4];
 
@@ -55,8 +57,24 @@ void adjustVertice() {
 void myKeyFunc(unsigned char key) {
 	switch (key)
 	{
-	case 'n':
+	/*case 'n':
 		adjustVertice();
+		break;*/
+	case 'e':
+		if (pViewer->setting().edgeColorMode == GLTetSetting::none) {
+			pViewer->setting().edgeColorMode = GLTetSetting::userDefined;
+		}
+		else {
+			pViewer->setting().edgeColorMode = GLTetSetting::none;
+		}
+		break;
+	case 'f':
+		if (pViewer->setting().halfFaceColorMode == GLTetSetting::none) {
+			pViewer->setting().halfFaceColorMode = GLTetSetting::userDefined;
+		}
+		else {
+			pViewer->setting().halfFaceColorMode = GLTetSetting::none;
+		}
 		break;
 	default:
 		break;
@@ -85,10 +103,12 @@ int main(int argc, char **argv){
 	TIF::TMeshPtr pTMesh = new TIF::TMeshType;
 	pTMesh->_load_t(inDir);
 	CSimpleTetViewer tViewer;
+	pViewer = &tViewer;
 	tViewer.setting().drawAxis = true;
 	//tViewer.setting().renderAllEdges = true;
 	tViewer.setting().useCustomEdgeSize = true;
 	tViewer.setting().edgeColorMode = GLTetSetting::userDefined;
+	tViewer.setting().halfFaceColorMode = GLTetSetting::userDefined;
 	//tViewer.setting().halfFaceColorMode = GLTetSetting::none;
 
 	double s = 1.0;
@@ -103,11 +123,30 @@ int main(int argc, char **argv){
 		++i;
 	}
 	for (auto pT : TIT::TM_TIterator(pTMesh)) {
-		std::cout << "The oriented volume for Tet " << pT->id() << ": " << orientedVolume(pT) << std::endl;
+		//std::cout << "The oriented volume for Tet " << pT->id() << ": " << orientedVolume(pT) << std::endl;
+		double oT = orientedVolume(pT);
+		if (oT < 0) {
+			std::cout << "Negative oriented volume: " << oT << std::endl;
+			for (TIF::HFPtr pHF : TIT::T_HFIterator(pT)) {
+				pHF->color[0] = 0.9;
+				pHF->color[1] = 0.3;
+				pHF->color[2] = 0.3;
+			}
+			//getchar();
+		}
+		else {
+			for (TIF::HFPtr pHF : TIT::T_HFIterator(pT)) {
+				pHF->color[0] = 0.8;
+				pHF->color[1] = 0.8;
+				pHF->color[2] = 0.8;
+			}
+		}
 	}
+	
 	pOverlapT = pTMesh->idTet(4);
 
 	tViewer.setMeshP1ointer(pTMesh);
+	tViewer.normalizeTMesh();
 	tViewer.setUserKeyFunc(myKeyFunc);
 	tViewer.show();
 	//Mesh->_write_t("D:/GoogleDrive/Data/Tet/D3/3HalfWheel_O.t");

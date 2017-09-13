@@ -9,6 +9,7 @@
 #define DEFAULT_VERTEX_COLOR 0,0,0
 #define DEFAULT_EDGE_SIZE 1.0
 #define DEFAULT_VERTEX_SIZE 5.0
+#define MAX(a,b) ((a)>(b) ? (a) : (b))
 
 using namespace MeshLib;
 using namespace TMeshLib;
@@ -517,6 +518,23 @@ void CSimpleTetViewer::setMeshP1ointer(void * pM, bool toNormalize)
 }
 void CSimpleTetViewer::normalizeTMesh()
 {
+	CPoint center(0, 0, 0);
+	CPoint min(100000000, 100000000, 100000000);
+	CPoint max(-100000000, -100000000, -100000000);
+	for (auto pV : TITGL::TM_VIterator(m_pM)) {
+		CPoint v = pV->position();
+		center += v;
+		for (int i = 0; i < 3; ++i) {
+			min[i] = v[i] < min[i] ? v[i] : min[i];
+			max[i] = v[i] > max[i] ? v[i] : max[i];
+		}
+	}
+	center = center / m_pM->vertices().size();
+	CPoint scale = (max - min) / 3;
+	double l = MAX(scale[0], MAX(scale[1], scale[2]));
+	for (auto pV : TITGL::TM_VIterator(m_pM)) {
+		pV->position() = (pV->position() - center) / l;
+	}
 	//wait to be fulfilled
 }
 void CSimpleTetViewer::setUserKeyFunc(void(*newUserFunc)(unsigned char key))
@@ -537,3 +555,4 @@ GLTetSetting & MeshLib::TMeshLib::CSimpleTetViewer::setting()
 {
 	return m_glSetting;
 }
+#undef MAX

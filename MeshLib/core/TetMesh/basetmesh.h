@@ -237,7 +237,7 @@ namespace MeshLib
 		};
 
 		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		void CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::_load(const char * input, bool checkOrientation = false_)
+		void CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::_load(const char * input, bool checkOrientation = false)
 		{
 			m_maxVertexId = 0;
 
@@ -334,6 +334,7 @@ namespace MeshLib
 				//skip the first "4" in the line
 				stokenizer.nextToken();
 				std::string token = stokenizer.getToken();
+				int tid = strutil::parseString<int>(token);
 
 				for (int k = 0; k < 4; k++)
 				{
