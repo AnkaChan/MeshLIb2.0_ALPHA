@@ -111,7 +111,9 @@ namespace MeshLib {
 					pV->pVImage = pVImage;
 				}
 				else {
+					for (auto pV : TIt::TM_TIterator(pSTMesh)) {
 
+					}
 				}
 			}
 		}
