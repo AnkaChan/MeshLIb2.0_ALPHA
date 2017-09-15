@@ -70,6 +70,15 @@ namespace MeshLib
 			CTet* getCorrespondingPTet() { return pTetCorresponding; };
 			void setVpVertice(CVertex* value, int i) { assert(i >= 0 && i < DIMENSION_BARYCOORD_4D); vpVerticeCorresponding[i] = value; };
 			void setVpHalfface(CHalfFace* value, int i) { assert(i >= 0 && i < DIMENSION_BARYCOORD_4D); vpHalffaceCorresponding[i] = value; };
+			bool withinTet(CPoint p) {
+				CPoint4 b = descartes2Bary(p);
+				for (int i = 0; i < DIMENSION_BARYCOORD_4D; ++i) {
+					if (b[i] < 0) {
+						return false;
+					}
+				}
+				return true;
+			}
 		private:
 			typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFace, CTet> TIf;
 			typedef TIteratorCore<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFace, CTet> TIt;

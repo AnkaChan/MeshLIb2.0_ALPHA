@@ -19,6 +19,7 @@ namespace MeshLib {
 			CPoint newPos;
 			CVertex * pVImage;
 			CTet* pTImage;
+			CPoint4 bary;
 
 		};
 		class CVertexWithImageVPtrAndNewPos : public CVertex, public _vertexWithImageVPtrAndNewPos {};
@@ -92,10 +93,13 @@ namespace MeshLib {
 				}
 			};
 		public:
-			CInnerMap() : kdtree(KDTreeNode(-1,-1,-1), KDTreeNode(1, 1, 1))
+			CInnerMap() : 
+				kdtree(KDTreeNode(-1,-1,-1), KDTreeNode(1, 1, 1)), 
+				kdtreeTet(KDTreeNodeTet(-1, -1, -1), KDTreeNodeTet(1, 1, 1))
 			{};
-			CInnerMap(TIf::TMeshPtr pSurfaceTMesh, TIf::TMeshPtr pSphericalSurfaceTMesh, TIf::TMeshPtr pOriginalTMesh)
-				: kdtree(KDTreeNode(-1, -1, -1), KDTreeNode(1, 1, 1))
+			CInnerMap(TIf::TMeshPtr pSurfaceTMesh, TIf::TMeshPtr pSphericalSurfaceTMesh, TIf::TMeshPtr pOriginalTMesh) :
+				kdtree(KDTreeNode(-1, -1, -1), KDTreeNode(1, 1, 1)),
+				kdtreeTet(KDTreeNodeTet(-1, -1, -1), KDTreeNodeTet(1, 1, 1))
 			{
 				setSurfaceTMesh(pSurfaceTMesh);
 				setSphericalSurfaceTMesh(pSphericalSurfaceTMesh);
@@ -107,6 +111,7 @@ namespace MeshLib {
 			void setSurfaceTMesh(TIf::TMeshPtr pSurfaceTMesh) {
 				pSTMesh = pSurfaceTMesh;
 				buildSTMeshKDTree();
+				buidlSTMeshKDTetTree();
 				makeBaryCoords(pSurfaceTMesh);
 			};
 			void setSphericalSurfaceTMesh(TIf::TMeshPtr pSphericalSurfaceTMesh) {
@@ -123,9 +128,14 @@ namespace MeshLib {
 
 		private:
 			typedef KD::Core<3, KDTreeNode> CORE;
+			typedef KD::Core<3, KDTreeNodeTet> CORETet;
+
 			TIf::TMeshPtr pSTMesh, pSSTMesh, pOTMesh;
 			KD::Tree<CORE> kdtree;
+			KD::Tree<CORETet> kdtreeTet;
+
 			void makeBaryCoords(TIf::TMeshPtr pTMesh);
+			void buidlSTMeshKDTetTree();
 		};
 
 		CVertexWithImageVPtrAndNewPos* MeshLib::TMeshLib::CInnerMap::mapVertexFromOriginalTMeshToSurfaceTMesh(CVertex* pVOnOTMesh)
@@ -135,7 +145,18 @@ namespace MeshLib {
 		}
 		inline CTetWithBaryCoords * CInnerMap::mapVertexFromOriginalTMeshToSurfaceTMeshTet(CVertex * pVOnOTMesh)
 		{
-			std::vector<KDTreeNode> Tets;
+			CPoint p = pVOnOTMesh->position();
+			int failureCount = 0;
+			while (1) {
+				std::vector<KDTreeNodeTet> Tets = kdtreeTet.nearest(KDTreeNodeTet(p[0], p[1], p[2]), SEARCH_COUNT*(1 + failureCount));
+				for (auto TNode : Tets) {
+					TIf::TPtr pTOnSTMesh = (CTetWithBaryCoords*)TNode.pT;
+					if (pTOnSTMesh->pBaryCoord->withinTet(p)) {
+						return pTOnSTMesh;
+					}
+				}
+				++failureCount;
+			}
 		}
 		void CInnerMap::buildSTMeshKDTree()
 		{
@@ -151,11 +172,11 @@ namespace MeshLib {
 					pV->pVImage = pVImage;
 				}
 				else {
-					for (auto pV : TIt::TM_TIterator(pSTMesh)) {
-
+					for (auto pV : TIt::TM_VIterator(pSTMesh)) {
+						TIf::TPtr pTImage = mapVertexFromOriginalTMeshToSurfaceTMeshTet(pV);
+						pV->pTImage = pTImage;
+						pV->bary = pTImage->pBaryCoord->descartes2Bary(pV->position());
 					}
-					TIf::TPtr pTImage = mapVertexFromOriginalTMeshToSurfaceTMeshTet(pV);
-					pV->pTImage;
 				}
 			}
 		}
@@ -174,6 +195,12 @@ namespace MeshLib {
 		{
 			for (auto pT : TIt::TM_TIterator(pTMesh)) {
 				pT->pBaryCoord = new CBaryCoordinates4D(pT);
+			}
+		}
+		inline void CInnerMap::buidlSTMeshKDTetTree()
+		{
+			for (TIf::TPtr pT : TIt::TM_TIterator(pSTMesh)) {
+				kdtreeTet.insert(KDTreeNodeTet(pT));
 			}
 		}
 	}
