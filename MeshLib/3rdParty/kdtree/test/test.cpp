@@ -9,7 +9,7 @@
 
 inline long long int nanosec() {
   timespec time;
-  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
+  //clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
   return 1000000000LL * time.tv_sec + time.tv_nsec;
 }
 
