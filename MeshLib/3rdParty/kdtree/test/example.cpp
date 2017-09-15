@@ -32,11 +32,12 @@ int main() {
   Point max(9, 9, 9);
   KD::Tree<CORE> kdtree(min, max);
 
-  kdtree.insert(Point(1, 2, 3));
+  kdtree.insert(Point(-1, -2, -3));
   kdtree.insert(Point(8, 2, 5));
   kdtree.insert(Point(1, 0, 8));
-  kdtree.insert(Point(3, 1, 4));
+  kdtree.insert(Point(-1, -1, -3));
 
-  std::cout << kdtree.nearest(Point(5, 5, 5)) << std::endl;
+  std::cout << kdtree.nearest(Point(-5, -5, -5)) << std::endl;
+  getchar();
   return 0;
 }

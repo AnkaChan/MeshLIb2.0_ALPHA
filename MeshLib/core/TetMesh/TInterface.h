@@ -79,6 +79,8 @@ namespace MeshLib
 			static TEdgeType * HalfEdgeTEdge(HalfEdgeType * pHalfEdge);
 			/*! HalfEdge->HalfFace */
 			static HalfFaceType * HalfEdgeHalfFace(HalfEdgeType * pHalfEdge);
+			/*! Turn halfedge into vector in CPoint */
+			static CPoint HalfEdgeVec(HalfEdgeType * pHalfEdge);
 
 			//Access Edge data members
 			/*! TEdge list of the edge */
@@ -102,6 +104,7 @@ namespace MeshLib
 			/*! HalfFace's opposite tvertex, i.e, the tvertex not contain in the halfface */
 			static TVertexType * HalfFaceOppositeTVertex(HalfFaceType * pHalfFace);
 			static void HalfFace3Points(HalfFaceType * pHF, CPoint * v);
+			static CPoint HalfFaceNormal(HalfFaceType * pHF);
 
 			//Face
 			/*! access the left half face of a face */
@@ -282,6 +285,12 @@ namespace MeshLib
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeVec(HalfEdgeType * pHalfEdge)
+		{
+			return HalfEdgeTarget(pHalfEdge)->position() - HalfEdgeSource(pHalfEdge)->position();
+		}
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
 		inline std::list<TEdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeTEdgeList(EdgeType * pEdge)
 		{
 			return (std::list<TEdgeType*>*) pEdge->edges();
@@ -350,6 +359,20 @@ namespace MeshLib
 			v[0] = HalfEdgeSource(pHE)->position();
 			v[1] = HalfEdgeTarget(pHE)->position();
 			v[2] = HalfEdgeTarget(HalfEdgeNext(pHE))->position();
+		}
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFaceNormal(HalfFaceType * pHF)
+		{
+			HalfEdgeType * pHE1 = HalfFaceHalfEdge(pHF);;
+			HalfEdgeType * pHE2 = HalfEdgeNext(pHE1);;
+		
+			CPoint v1 = HalfEdgeVec(pHE1);
+			CPoint v2 = HalfEdgeVec(pHE2);
+			CPoint n = v1^v2;
+			n /= n.norm();
+
+			return n;
 		}
 
 		/*------------------------------------------------------------------------------------------------
