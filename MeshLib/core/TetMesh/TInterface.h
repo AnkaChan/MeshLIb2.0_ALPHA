@@ -120,6 +120,7 @@ namespace MeshLib
 			static TVertexType * TetTVertex(TetType * pT, int j);
 			/*! access the j-th vertex of a tet */
 			static VertexType * TetVertex(TetType * pT, int j);
+			static CPoint TetCentroid(TetType* pT);
 		};
 
 		/*------------------------------------------------------------------------------------------------
@@ -409,6 +410,16 @@ namespace MeshLib
 		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TetVertex(TetType * pT, int j)
 		{
 			return (VertexType*)pT->tvertex(j)->vert();
+		}
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TetCentroid(TetType * pT)
+		{
+			CPoint centroid;
+			for (int i = 0; i < 4, ++i) {
+				centroid += TetVertex(i)->position();
+			}
+			centroid /= 4;
+			return centroid;
 		}
 
 	}

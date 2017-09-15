@@ -1,7 +1,7 @@
 #ifndef KD_ARRAY_TREE_H
 #define KD_ARRAY_TREE_H
 
-#include "../src/finder.h"
+#include "../src/Chaff/Chaff.h"
 
 namespace KD
 {
