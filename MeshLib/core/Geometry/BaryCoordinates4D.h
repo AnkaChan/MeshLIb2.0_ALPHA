@@ -21,6 +21,7 @@ namespace MeshLib
 			CBaryCoordinates4D() {};
 
 			void setTet(CTet* pT) {
+				pTetCorresponding = pT;
 				int i = 0;
 				for (CHalfFace* pHF : TIt::T_HFIterator(pT))
 				{
@@ -66,7 +67,7 @@ namespace MeshLib
 
 			CVertex* getCorrespondingPVertex(int i) { assert(i >= 0 && i < DIMENSION_BARYCOORD_4D); return vpVerticeCorresponding[i]; };
 			CHalfFace* getCorrespondingPHalfface(int i) { assert(i >= 0 && i < DIMENSION_BARYCOORD_4D); return vpHalffaceCorresponding[i]; };
-
+			CTet* getCorrespondingPTet() { return pTetCorresponding; };
 			void setVpVertice(CVertex* value, int i) { assert(i >= 0 && i < DIMENSION_BARYCOORD_4D); vpVerticeCorresponding[i] = value; };
 			void setVpHalfface(CHalfFace* value, int i) { assert(i >= 0 && i < DIMENSION_BARYCOORD_4D); vpHalffaceCorresponding[i] = value; };
 		private:
@@ -74,6 +75,7 @@ namespace MeshLib
 			typedef TIteratorCore<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFace, CTet> TIt;
 			CVertex* vpVerticeCorresponding[DIMENSION_BARYCOORD_4D];
 			CHalfFace* vpHalffaceCorresponding[DIMENSION_BARYCOORD_4D];
+			CTet* pTetCorresponding;
 		};
 
 	}
