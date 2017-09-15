@@ -150,6 +150,7 @@ namespace MeshLib
 
 		template<typename DataType>
 		void DeleteHLocProp(std::string name);
+<<<<<<< HEAD
 
 		std::list<std::pair<VertexType *, std::string>> & vlocpro() { return m_vlocp; };
 
@@ -157,6 +158,15 @@ namespace MeshLib
 
 		std::list<std::pair<VertexType *, std::string>> & flocpro() { return m_flocp; };
 
+=======
+
+		std::list<std::pair<VertexType *, std::string>> & vlocpro() { return m_vlocp; };
+
+		std::list<std::pair<VertexType *, std::string>> & elocpro() { return m_elocp; };
+
+		std::list<std::pair<VertexType *, std::string>> & flocpro() { return m_flocp; };
+
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 		std::list<std::pair<VertexType *, std::string>> & hlocpro() { return m_hlocp; };
 
 	private:
@@ -172,6 +182,7 @@ namespace MeshLib
 		std::list<std::pair<HalfEdgeType *, std::string>>	m_hlocp;
 	};
 
+<<<<<<< HEAD
 	/*
 	// vertex with properties
 	class CPVertex : public CVertex, public Props
@@ -220,6 +231,8 @@ namespace MeshLib
 	};
 	*/
 
+=======
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 	//add property
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	template<typename DataType>

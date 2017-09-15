@@ -19,6 +19,7 @@ namespace MeshLib{
 /*!
 	\brief FaceType base class of all kinds of face classes
 */
+
 class CFace
 {
 public:
@@ -54,12 +55,15 @@ public:
 		read face traits from the string.
 	*/
 	void                  _from_string() {};
+<<<<<<< HEAD
 
 	/*!
 	Face normals
 	*/
 	CPoint & normal() { return m_normal; };
 
+=======
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 protected:
 	/*!
 		id of the current face
@@ -73,10 +77,13 @@ protected:
 		String of the current face.
 	*/
     std::string        m_string;
+<<<<<<< HEAD
 	/*!
 	Properties
 	*/
 	CPoint             m_normal;
+=======
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 };
 
 

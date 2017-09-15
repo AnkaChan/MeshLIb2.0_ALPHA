@@ -27,6 +27,7 @@
 #include "../Parser/StrUtil_fast.h"
 #include "Interface.h"
 
+<<<<<<< HEAD
 namespace MeshLib {
 	/*!
 	* \brief CBaseMesh, base class for all types of mesh classes
@@ -43,6 +44,25 @@ namespace MeshLib {
 	* \tparam HalfEdgeType halfedge class, derived from MeshLib::HalfEdgeType class
 	*/
 
+=======
+
+namespace MeshLib {
+	/*!
+	* \brief CBaseMesh, base class for all types of mesh classes
+	*
+	*  This is the fundamental class for meshes. It includes a list of vertices,
+	*  a list of edges, a list of faces. All the geometric objects are connected by pointers,
+	*  vertex, edge, face are connected by halfedges. The mesh class has file IO functionalities,
+	*  supporting .obj, .m and .off file formats. It offers Euler operators, each geometric primative
+	*  can access its neighbors freely.
+	*
+	* \tparam VertexType   vertex   class, derived from MeshLib::CVertex   class
+	* \tparam EdgeType     edge     class, derived from MeshLib::EdgeType     class
+	* \tparam FaceType     face     class, derived from MeshLib::FaceType     class
+	* \tparam HalfEdgeType halfedge class, derived from MeshLib::HalfEdgeType class
+	*/
+
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
 	class CBaseMesh : public CInterface<VertexType, EdgeType, FaceType, HalfEdgeType>
 	{
@@ -144,7 +164,10 @@ namespace MeshLib {
 		List of the vertices of the mesh.
 		*/
 		std::list<VertexPtr> & vertices() { return m_verts; };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 		/*
 			bool with_uv() { return m_with_texture; };
 			bool with_normal() { return m_with_normal; };
@@ -158,7 +181,10 @@ namespace MeshLib {
 		/*! list of faces */
 		std::list<FacePtr>						m_faces;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 		//maps
 
 		/*! map between vetex and its id*/
@@ -269,6 +295,7 @@ namespace MeshLib {
 			EdgeType * pE = *eiter;
 			delete pE;
 		}
+<<<<<<< HEAD
 
 		m_edges.clear();
 
@@ -278,6 +305,17 @@ namespace MeshLib {
 		//m_map_edge.clear();
 	};
 
+=======
+
+		m_edges.clear();
+
+		//clear all the maps
+		m_map_vert.clear();
+		m_map_face.clear();
+		//m_map_edge.clear();
+	};
+
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 	/*!
 	Read an .obj file.
 	\param filename the filename .obj file name
@@ -342,8 +380,13 @@ namespace MeshLib {
 				uvs.push_back(uv);
 				continue;
 			}
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 			if (token == "vn")
 			{
 				with_normal = true;
@@ -537,6 +580,7 @@ namespace MeshLib {
 
 				int sp = (int)token.find("{");
 				int ep = (int)token.find("}");
+<<<<<<< HEAD
 
 				if (sp >= 0 && ep >= 0)
 				{
@@ -596,6 +640,67 @@ namespace MeshLib {
 				f->string() = strutil::trim( token, "{}" );
 				}
 				*/
+=======
+
+				if (sp >= 0 && ep >= 0)
+				{
+					v->string() = token.substr(sp + 1, ep - sp - 1);
+				}
+				continue;
+			}
+
+
+			if (token == "Face")
+			{
+
+				stokenizer.nextToken();
+				token = stokenizer.getToken();
+				id = strutil::parseString<int>(token);
+
+				std::vector<VertexType*> v;
+
+				//assume each face is a triangle
+				/*
+				for( int i = 0;i < 3; i ++ )
+				{
+				stokenizer.nextToken();
+				token = stokenizer.getToken();
+				int vid = strutil::parseString<int>(token);
+				v.push_back( idVertex( vid ) );
+				}
+				*/
+
+				while (stokenizer.nextToken())
+				{
+					token = stokenizer.getToken();
+					if (strutil::startsWith(token, "{")) break;
+					int vid = strutil::parseString<int>(token);
+					v.push_back(idVertex(vid));
+				}
+
+				FacePtr f = createFace(v, id);
+
+				if (!stokenizer.nextToken("\t\r\n")) continue;
+				token = stokenizer.getToken();
+
+				//stokenizer.reset();
+				token = line;
+				int sp = (int)token.find("{");
+				int ep = (int)token.find("}");
+
+				if (sp >= 0 && ep >= 0)
+				{
+					f->string() = token.substr(sp + 1, ep - sp - 1);
+				}
+				/*
+				if( strutil::startsWith( token, "{" ) )
+				{
+
+				f->string() = strutil::trim( token, "{}" );
+				}
+				*/
+				continue;
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 			}
 
 			//read in edge attributes
@@ -1244,7 +1349,11 @@ namespace MeshLib {
 		for (int i = 0; i < nv; i++) {
 			VertexPtr v2 = v[i + 1 == nv ? 0 : i + 1];
 			HalfEdgePtr he = new HalfEdgeType;
+<<<<<<< HEAD
 			he->he_prev() = (CHalfEdge*)hep;
+=======
+			he->he_prev() = (CHalfEdge*)hep;//子类的值可以赋给父类 反过来 ？ 不知道 忘了
+>>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
 			// he->next is set below
 			he->vertex() = v2;
 			//One incoming halfedge of the vertex , but always re assign each vertex many times
