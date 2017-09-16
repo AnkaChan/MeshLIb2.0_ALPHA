@@ -1,5 +1,7 @@
 #ifndef CHAFF_H
 #define CHAFF_H
+#undef min
+#undef max
 
 #include <limits>
 #include <queue>

@@ -69,6 +69,7 @@ namespace MeshLib {
 					for (int i = 0; i < 4; ++i) {
 						c += pT->tvertex(i)->vert()->position();
 					}
+					c /= 4;
 					pT = newpT;
 					data[0] = c[0];
 					data[1] = c[1];
@@ -88,7 +89,7 @@ namespace MeshLib {
 					return data[0] == p[0] && data[1] == p[1] && data[2] == p[2];
 				}
 
-				friend std::ostream& operator << (std::ostream& s, const KDTreeNode& p) {
+				friend std::ostream& operator << (std::ostream& s, const KDTreeNodeTet& p) {
 					return s << '(' << p[0] << ", " << p[1] << ", " << p[2] << ')';
 				}
 			};
@@ -156,6 +157,7 @@ namespace MeshLib {
 					}
 				}
 				++failureCount;
+				std::cout << "Failure count: " << failureCount << std::endl;
 			}
 		}
 		void CInnerMap::buildSTMeshKDTree()
@@ -189,7 +191,23 @@ namespace MeshLib {
 		}
 		inline void CInnerMap::changePointsOnOriginalTMesh()
 		{
-			//for (pV)
+			mapOriginalTMeshToSurfaceTMesh();
+			mapSufaceeTMeshToSphericalTMesh();
+			for (auto pV : TIt::TM_VIterator(pOTMesh)){
+				if (pV->boundary()) {
+					TIf::VPtr pVOnSTMesh = (TIf::VPtr)pV->pVImage;
+					pV->newPos = pVOnSTMesh->pVImage->position();
+				}
+				else {
+					TIf::TPtr pTOnSTMesh = (TIf::TPtr)pV->pTImage;
+					TIf::TPtr pTOnSSTMesh = (TIf::TPtr)pTOnSTMesh->pTImage;
+
+					pV->newPos = pTOnSSTMesh->pBaryCoord->bary2Descartes(pV->bary);
+				}
+			}
+			for (auto pV : TIt::TM_VIterator(pOTMesh)) {
+				pV->position() = pV->newPos;
+			}
 		}
 		inline void CInnerMap::makeBaryCoords(TIf::TMeshPtr pTMesh)
 		{
