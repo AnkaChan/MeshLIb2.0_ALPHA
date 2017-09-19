@@ -65,15 +65,19 @@ int main(int argc, char** argv) {
 	shMapper.setInputMesh(pMesh);
 	viewer.show();
 	shMapper.guassianMap();
-	shMapper.centerVisualMap(CPoint(-0.560882, -0.630, 0));
+	shMapper.setStep(0.0001);
+	shMapper.setStopEpsion(0.000001);
+	//shMapper.centerVisualMap(CPoint(-0.560882, -0.630, 0));
 	//shMapper.centerVisualMap(CPoint(0,0,0));
 	viewer.show();
 	pMapper = &shMapper;
-	viewer.setUserIdleFunc(shMapIdlefunc);
+	//viewer.setUserIdleFunc(shMapIdlefunc);
+	shMapper.iterativelyAdjustPoint();
 	viewer.show();
 	std::string outPath = fp.path + fp.name + "Spherical" + ".m";
 	std::string outPathObj = fp.path + fp.name + "Spherical" + ".obj";
-	pMesh->write_m(outPath.c_str());
-	pMesh->write_obj(outPathObj.c_str());
+	cout << "Save to: " << outPath << endl;
+	pMesh->write_m_high_precision(outPath.c_str());
+	//pMesh->write_obj(outPathObj.c_str());
 
 }

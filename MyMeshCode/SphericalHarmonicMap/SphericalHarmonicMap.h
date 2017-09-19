@@ -30,11 +30,11 @@ namespace MeshLib {
 		void setStopEpsion(double newEpsion);
 		double totalEnergy();
 		bool adjustPointVisualOneStep();
+		void iterativelyAdjustPoint();
 
 	private:
 		MeshType * pMesh;
 		void calculateStringConstraints();
-		void iterativelyAdjustPoint();
 		double halfedgeStringEnergy(HE * pHE);
 		double step = 0.001;
 		double Epsion = 0.00001;
@@ -88,6 +88,16 @@ namespace MeshLib {
 		}
 	}
 	template<typename V, typename E, typename F, typename HE>
+	inline void SphericalHarmonicMapCore<V, E, F, HE>::setStep(double newStep)
+	{
+		step = newStep;
+	}
+	template<typename V, typename E, typename F, typename HE>
+	inline void SphericalHarmonicMapCore<V, E, F, HE>::setStopEpsion(double newEpsion)
+	{
+		Epsion = newEpsion;
+	}
+	template<typename V, typename E, typename F, typename HE>
 	inline void SphericalHarmonicMapCore<V, E, F, HE>::calculateStringConstraints()
 	{
 		for (E* pE : It::MEIterator(pMesh)) {
@@ -104,6 +114,7 @@ namespace MeshLib {
 
 		double formalEnergy, currentEnergy;
 		currentEnergy = totalEnergy();
+		int count = 0;
 		do{
 			CPoint newCenter(0,0,0);
 			for (auto pV : It::MVIterator(pMesh)) {
@@ -122,6 +133,7 @@ namespace MeshLib {
 				CPoint d = P - nP / totalK;
 				CPoint tangentComponent = d - (P * d) * P;
 				pV->newPos = P - step * tangentComponent;
+				tangentComponent /= sqrt(tangentComponent.norm());
 				//tangentComponent /= tangentComponent.norm();
 				newCenter += pV->newPos;
 			}
@@ -134,7 +146,11 @@ namespace MeshLib {
 			}
 			formalEnergy = currentEnergy;
 			currentEnergy = totalEnergy();
-			std::cout << "New Harmonic Energy: " << currentEnergy << std::endl;
+			++count;
+			if (count >= 1000) {
+				count = 0;
+				std::cout << "New Harmonic Energy: " << currentEnergy << ". Step ERR: " << abs(currentEnergy - formalEnergy) << "\n";
+			}
 		} while (abs(currentEnergy - formalEnergy) > Epsion);
 		std::cout << "Algorithm has converged" << std::endl;
 	}

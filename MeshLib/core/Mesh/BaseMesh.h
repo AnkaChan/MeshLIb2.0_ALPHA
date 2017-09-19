@@ -21,6 +21,7 @@
 #include <vector>
 #include <map>
 #include <array>
+#include <iomanip>
 
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
@@ -91,6 +92,11 @@ namespace MeshLib {
 		\param output the output .m file name
 		*/
 		void write_m(const char * output);
+		/*!
+		Write an .m file, with 16 decimal accuracy
+		\param output the output .m file name
+		*/
+		void write_m_high_precision(const char * output);
 		/*!
 		Write an .g file.
 		\param output the output .g file name
@@ -747,6 +753,113 @@ namespace MeshLib {
 			for (int i = 0; i < 3; i++)
 			{
 				_os << " " << v->point()[i];
+			}
+			if (v->string().size() > 0)
+			{
+				_os << " " << "{" << v->string() << "}";
+			}
+			_os << std::endl;
+		}
+
+		for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
+		{
+			FacePtr f = *fiter;
+
+			_os << "Face " << f->id();
+			HalfEdgePtr he = faceHalfedge(f);
+			do {
+				_os << " " << he->target()->id();
+				he = halfedgeNext(he);
+			} while (he != f->halfedge());
+
+			if (f->string().size() > 0)
+			{
+				_os << " " << "{" << f->string() << "}";
+			}
+			_os << std::endl;
+		}
+
+		for (std::list<EdgeType*>::iterator eiter = m_edges.begin(); eiter != m_edges.end(); eiter++)
+		{
+			EdgePtr e = *eiter;
+			if (e->string().size() > 0)
+			{
+				_os << "Edge " << edgeVertex1(e)->id() << " " << edgeVertex2(e)->id() << " ";
+				_os << "{" << e->string() << "}" << std::endl;
+			}
+		}
+
+		for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
+		{
+			FacePtr f = *fiter;
+
+			HalfEdgePtr he = faceHalfedge(f);
+
+			do {
+				if (he->string().size() > 0)
+				{
+					_os << "Corner " << he->vertex()->id() << " " << f->id() << " ";
+					_os << "{" << he->string() << "}" << std::endl;
+				}
+				he = halfedgeNext(he);
+			} while (he != f->halfedge());
+
+		}
+
+		_os.close();
+	};
+
+	template<typename VertexType, typename EdgeType, typename FaceType, typename HalfEdgeType>
+	void CBaseMesh<VertexType, EdgeType, FaceType, HalfEdgeType>::write_m_high_precision(const char * output)
+	{
+		//write traits to string
+		for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
+		{
+			VertexType * pV = *viter;
+			pV->_to_string();
+		}
+
+		for (std::list<EdgeType*>::iterator eiter = m_edges.begin(); eiter != m_edges.end(); eiter++)
+		{
+			EdgeType * pE = *eiter;
+			pE->_to_string();
+		}
+
+		for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
+		{
+			FaceType * pF = *fiter;
+			pF->_to_string();
+		}
+
+		for (std::list<FaceType*>::iterator fiter = m_faces.begin(); fiter != m_faces.end(); fiter++)
+		{
+			FaceType * pF = *fiter;
+			HalfEdgeType * pH = faceMostCcwHalfEdge(pF);
+			do {
+				pH->_to_string();
+				pH = faceNextCcwHalfEdge(pH);
+			} while (pH != faceMostCcwHalfEdge(pF));
+		}
+
+		std::fstream _os(output, std::fstream::out);
+		if (_os.fail())
+		{
+			fprintf(stderr, "Error is opening file %s\n", output);
+			return;
+		}
+
+		_os << std::setiosflags(std::ios::fixed);
+
+		//remove vertices
+		for (std::list<VertexType*>::iterator viter = m_verts.begin(); viter != m_verts.end(); viter++)
+		{
+			VertexPtr v = *viter;
+
+			_os << "Vertex " << v->id();
+
+			for (int i = 0; i < 3; i++)
+			{
+				_os << " " << std::setprecision(16) << v->point()[i];
 			}
 			if (v->string().size() > 0)
 			{
