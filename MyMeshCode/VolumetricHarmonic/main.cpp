@@ -28,8 +28,8 @@ int main(int argc, char ** argv) {
 	pInitialMapTMesh->_load_t(initialMapPath);
 	VHMapper.setpTMesh(pTMesh);
 	VHMapper.calculateEdgeWeights();
-	VHMapper.setEpison(0.0001);
-	VHMapper.setStep(0.001);
+	VHMapper.setEpison(0.00001);
+	VHMapper.setStep(0.00001);
 	VHMapper.setInitialMap(pInitialMapTMesh);
 	VHMapper.adjustVertices();
 	pTMesh->_write_t(outPath.c_str());
