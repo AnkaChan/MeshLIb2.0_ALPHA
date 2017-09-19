@@ -56,8 +56,8 @@ namespace MeshLib
 			static EdgeType *		TEdgeEdge(TEdgeType * pTEdge);
 			static TEdgeType *	TEdgeDualTEdge(TEdgeType * pTEdge);
 			static TetType *		TEdgeTet(TEdgeType * pTEdge);
-			static HalfFaceType * TEdgeTEdgeLeftHalfFace(TEdgeType * pTEdge);
-			static HalfFaceType * TEdgeTEdgeRightHalfFace(TEdgeType * pTEdge);
+			static HalfFaceType * TEdgeLeftHalfFace(TEdgeType * pTEdge);
+			static HalfFaceType * TEdgeRightHalfFace(TEdgeType * pTEdge);
 
 			//Access HalfEdge data members
 			/*! HalfEdge->source vertex */
@@ -227,13 +227,13 @@ namespace MeshLib
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeTEdgeLeftHalfFace(TEdgeType * pTEdge)
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeLeftHalfFace(TEdgeType * pTEdge)
 		{
 			return HalfEdgeHalfFace(TEdgeLeftHalfEdge(pTEdge));
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeTEdgeRightHalfFace(TEdgeType * pTEdge)
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeRightHalfFace(TEdgeType * pTEdge)
 		{
 			return HalfEdgeHalfFace(TEdgeRightHalfEdge(pTEdge));
 		}

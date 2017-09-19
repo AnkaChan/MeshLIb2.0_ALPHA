@@ -1,16 +1,20 @@
 #pragma once
 #include "MeshLib\core\TetMesh\TMeshLibHeaders.h"
 #include <cmath>
-#define STRING_EN(pE) (pE->k*pow((TIf::edgeVertex1(pE)->position()-TIf::edgeVertex2(pE)->position()).norm(),2))
+#define STRING_EN(pE) (pE->k*pow((TIf::EdgeVertex1(pE)->position()-TIf::EdgeVertex2(pE)->position()).norm(),2))
 
 namespace MeshLib {
 	namespace TMeshLib {
 		struct _vertexVHarmonic {
 			CPoint newPos;
 		};
+		class CVertexVHarmonic : public CVertex,public _vertexVHarmonic {};
+
 		struct _edgeVHarmonic {
 			double k;
 		};
+		class CEdgeVHarmonic : public CEdge, public _edgeVHarmonic {};
+
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		class VolumetricHarmonicCore {
 		private:
@@ -45,7 +49,7 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline void VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::setpTMesh(TMeshType * new_pTMesh)
 		{
-			pTMesh = newpTMesh;
+			pTMesh = new_pTMesh;
 			/*for (TIf::VPtr pV : TIt::TM_VIterator(pTMesh)) {
 				pV->newPos = pV->position();
 			}*/
@@ -65,10 +69,10 @@ namespace MeshLib {
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline void VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::setInitialMap(TMeshType * pInitalMapTMesh)
+		inline void VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::setInitialMap(TMeshType * pInitialMapTMesh)
 		{
 			for (TIf::VPtr pV : TIt::TM_VIterator(pTMesh)) {
-				TIf::VPtr pVImage = pInitialMapTMesh->idVextex(pV->id());
+				TIf::VPtr pVImage = pInitialMapTMesh->idVertex(pV->id());
 				pV->position() = pVImage->position();
 			}
 		}
@@ -76,25 +80,43 @@ namespace MeshLib {
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		void VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::adjustVertices()
 		{
-			double originalEnergy, newEnergy = 0;
-			originalEnergy = totalEnergy();
-			while (abs(totalEnergy - originalEnergy) > epison)
+			double originalEnergy = 0;
+			double newEnergy = totalEnergy();
+			
+			while (abs(newEnergy - originalEnergy) > epison)
 			{
+				double totalK = 0;
+				
 				for (auto pV : TIt::TM_VIterator(pTMesh)) {
+					CPoint nP;
+					CPoint& P = pV->position();
 					if (!pV->boundary()) {
-
-
+						for (auto pNV : TIt::V_VIterator(pV)) {
+							TIf::EPtr pEV_NV = TIf::VertexEdge(pV, pNV);
+							nP += pNV->position()*pEV_NV->k;
+							totalK += pEV_NV->k;
+						}
+						CPoint d = P - nP / totalK;
+						pV->newPos = P - step * d;
 					}
 				}
+				for (auto pV : TIt::TM_VIterator(pTMesh)) {
+					if (!pV->boundary()) {
+						pV->position() = pV->newPos;
+					}
+				}
+				originalEnergy = newEnergy;
+				newEnergy = totalEnergy();
+				cout << "New Energy: " << newEnergy << ". ERR: " << newEnergy - originalEnergy << ".\n";
 			}
-			
+			cout << "Algorithm Converged.\n";
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline double VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::totalEnergy()
 		{
 			double energy = 0;
-			for (TIf::EPtr pE : TIt::TM_EIterator(pTMesh->edges())) {
+			for (TIf::EPtr pE : TIt::TM_EIterator(pTMesh)) {
 				energy += STRING_EN(pE);
 			}
 			return energy;
@@ -115,7 +137,7 @@ namespace MeshLib {
 				double cosTheta = nL * nR;
 				double sinTheta = (nL ^ nR).norm();
 
-				TIf::EPtr pTEOpposite = TIf::TEdgeDualTEdge(pTE);
+				TIf::TEPtr pTEOpposite = TIf::TEdgeDualTEdge(pTE);
 				w += TIf::EdgeLength(TIf::TEdgeEdge(pTEOpposite)) * (cosTheta / sinTheta);
 			}
 			return w;

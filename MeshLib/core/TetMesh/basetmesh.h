@@ -21,6 +21,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <string>
 
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
