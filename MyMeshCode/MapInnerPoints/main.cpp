@@ -20,14 +20,14 @@ int main(int argc, char ** argv) {
 	TIf::TMeshPtr pSurfaceTMesh = new TIf::TMeshType;
 	pSurfaceTMesh->_load_t(surfaceTMeshPath.c_str());
 	TIf::TMeshPtr pSphericalSurfaceTMesh = new TIf::TMeshType;
-	pSphericalSurfaceTMesh->_load_t(surfaceTMeshPath.c_str());
+	pSphericalSurfaceTMesh->_load_t(sphericalSurfaceTMeshPath.c_str());
 	TIf::TMeshPtr pOriginalTMesh = new TIf::TMeshType;
-	pOriginalTMesh->_load_t(surfaceTMeshPath.c_str());
+	pOriginalTMesh->_load_t(originalTMeshPath.c_str());
 
 	CInnerMap InnerMap(pSurfaceTMesh, pSphericalSurfaceTMesh, pOriginalTMesh);
 	InnerMap.changePointsOnOriginalTMesh();
 
-	string outPath = fp.path + fp.name + "Mapped.t";
+	string outPath = fp.path + fp.name + "_mapped.t";
 	pOriginalTMesh->_write_t(outPath.c_str());
 	getchar();
 }

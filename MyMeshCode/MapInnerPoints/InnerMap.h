@@ -1,7 +1,7 @@
 #pragma once
 #include <MeshLib/core/TetMesh/TMeshLibHeaders.h>
 #include <MeshLib/3rdParty/kdtree/src/tree.h>
-#define SEARCH_COUNT 10
+#define SEARCH_COUNT 100
 namespace MeshLib {
 	namespace TMeshLib {
 		struct _tetBary {
@@ -65,6 +65,7 @@ namespace MeshLib {
 
 				KDTreeNodeTet() {}
 				KDTreeNodeTet(CTet * newpT) {
+					pT = newpT;
 					CPoint c;
 					for (int i = 0; i < 4; ++i) {
 						c += pT->tvertex(i)->vert()->position();
@@ -150,8 +151,8 @@ namespace MeshLib {
 			int failureCount = 0;
 			while (1) {
 				std::vector<KDTreeNodeTet> Tets = kdtreeTet.nearest(KDTreeNodeTet(p[0], p[1], p[2]), SEARCH_COUNT*(1 + failureCount));
-				for (auto TNode : Tets) {
-					TIf::TPtr pTOnSTMesh = (CTetWithBaryCoords*)TNode.pT;
+				for (int i = SEARCH_COUNT * failureCount; i < Tets.size(); ++i) {
+					TIf::TPtr pTOnSTMesh = (CTetWithBaryCoords*)Tets[i].pT;
 					if (pTOnSTMesh->pBaryCoord->withinTet(p)) {
 						return pTOnSTMesh;
 					}
@@ -174,16 +175,18 @@ namespace MeshLib {
 					pV->pVImage = pVImage;
 				}
 				else {
-					for (auto pV : TIt::TM_VIterator(pSTMesh)) {
-						TIf::TPtr pTImage = mapVertexFromOriginalTMeshToSurfaceTMeshTet(pV);
-						pV->pTImage = pTImage;
-						pV->bary = pTImage->pBaryCoord->descartes2Bary(pV->position());
-					}
+					TIf::TPtr pTImage = mapVertexFromOriginalTMeshToSurfaceTMeshTet(pV);
+					pV->pTImage = pTImage;
+					pV->bary = pTImage->pBaryCoord->descartes2Bary(pV->position());
 				}
 			}
 		}
 		inline void CInnerMap::mapSufaceeTMeshToSphericalTMesh()
 		{
+			for (auto pV : TIt::TM_VIterator(pSTMesh)) {
+				TIf::VPtr pVImage = pSSTMesh->idVertex(pV->id());
+				pV->pVImage = pVImage;
+			}
 			for (auto pT : TIt::TM_TIterator(pSTMesh)) {
 				TIf::TPtr pTImage = pSSTMesh->idTet(pT->id());
 				pT->pTImage = pTImage;
