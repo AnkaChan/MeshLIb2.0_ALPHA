@@ -22,6 +22,7 @@ namespace MeshLib{
   /*!
   \brief CVertex class, which is the base class of all kinds of vertex classes
   */
+
   class CVertex
   {
   public:
@@ -82,10 +83,7 @@ namespace MeshLib{
 	/*!	Adjacent edges, temporarily used for loading the mesh
 	 */
 	std::list<CHalfEdge*> & arhe() { return m_arhe; };
-<<<<<<< HEAD
 
-=======
->>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
   protected:
 
     /*! Vertex ID. 
@@ -113,10 +111,7 @@ namespace MeshLib{
 	/*! List of adjacent edges, such that current vertex is the end vertex of the edge with smaller id
 	 */
 	std::list<CHalfEdge*> m_arhe;
-<<<<<<< HEAD
 
-=======
->>>>>>> 8d426747a581b6594a44b7eb5b652884a339d6a1
   }; //class CVertex
 
 
