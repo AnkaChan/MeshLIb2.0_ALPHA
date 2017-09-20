@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 	viewer.show();
 	shMapper.guassianMap();
 	shMapper.setStep(0.0001);
-	shMapper.setStopEpsion(0.000001);
+	shMapper.setStopEpsion(0.0000001);
 	//shMapper.centerVisualMap(CPoint(-0.560882, -0.630, 0));
 	//shMapper.centerVisualMap(CPoint(0,0,0));
 	viewer.show();

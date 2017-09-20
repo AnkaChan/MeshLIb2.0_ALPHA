@@ -31,6 +31,7 @@ namespace MeshLib {
 		double totalEnergy();
 		bool adjustPointVisualOneStep();
 		void iterativelyAdjustPoint();
+		bool dynamicStep = false;
 
 	private:
 		MeshType * pMesh;
