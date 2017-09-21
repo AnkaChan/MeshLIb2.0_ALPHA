@@ -32,6 +32,7 @@ namespace MeshLib {
 		bool adjustPointVisualOneStep();
 		void iterativelyAdjustPoint();
 		bool dynamicStep = false;
+		void setDynamicStepSize(double newSize);
 
 	private:
 		MeshType * pMesh;
@@ -39,6 +40,7 @@ namespace MeshLib {
 		double halfedgeStringEnergy(HE * pHE);
 		double step = 0.001;
 		double Epsion = 0.00001;
+		double dynamicStepSize = 50;
 	};
 
 	template <typename If>
@@ -112,6 +114,7 @@ namespace MeshLib {
 		int fixedVId0 = 1;
 		int fixedVId1 = numV / 2;
 		int fixedVId2 = numV - 2;
+		double minErr = 1000000000;
 
 		double formalEnergy, currentEnergy;
 		currentEnergy = totalEnergy();
@@ -134,7 +137,9 @@ namespace MeshLib {
 				CPoint d = P - nP / totalK;
 				CPoint tangentComponent = d - (P * d) * P;
 				pV->newPos = P - step * tangentComponent;
-				tangentComponent /= sqrt(tangentComponent.norm());
+				if (!dynamicStep) {
+					tangentComponent /= sqrt(tangentComponent.norm());
+				}
 				//tangentComponent /= tangentComponent.norm();
 				newCenter += pV->newPos;
 			}
@@ -152,8 +157,22 @@ namespace MeshLib {
 				count = 0;
 				std::cout << "New Harmonic Energy: " << currentEnergy << ". Step ERR: " << abs(currentEnergy - formalEnergy) << "\n";
 			}
+			if (dynamicStep) {
+				if (abs(currentEnergy - formalEnergy) < minErr) {
+					minErr = abs(currentEnergy - formalEnergy);
+					if (dynamicStepSize * minErr < step) {
+						step = dynamicStepSize * minErr;
+					}
+				}
+			}
 		} while (abs(currentEnergy - formalEnergy) > Epsion);
 		std::cout << "Algorithm has converged" << std::endl;
+	}
+
+	template<typename V, typename E, typename F, typename HE>
+	inline void SphericalHarmonicMapCore<V, E, F, HE>::setDynamicStepSize(double newSize)
+	{
+		dynamicStepSize = newSize;
 	}
 
 	template<typename V, typename E, typename F, typename HE>
@@ -177,7 +196,9 @@ namespace MeshLib {
 			}
 			CPoint d = P - nP / totalK;
 			CPoint tangentComponent = d - (P * d) * P;
-			tangentComponent /= sqrt(tangentComponent.norm());
+			if (!dynamicStep) {
+				tangentComponent /= sqrt(tangentComponent.norm());
+			}
 			pV->newPos = P - step * tangentComponent;
 			newCenter += pV->newPos;
 		}
@@ -189,6 +210,7 @@ namespace MeshLib {
 		}
 		formalEnergy = currentEnergy;
 		currentEnergy = totalEnergy();
+		
 		std::cout << "New Harmonic Energy: " << currentEnergy << std::endl;
 		if (abs(currentEnergy - formalEnergy) > Epsion) {
 			return false;

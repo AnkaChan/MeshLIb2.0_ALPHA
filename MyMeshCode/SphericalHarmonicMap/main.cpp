@@ -65,8 +65,9 @@ int main(int argc, char** argv) {
 	shMapper.setInputMesh(pMesh);
 	viewer.show();
 	shMapper.guassianMap();
-	shMapper.setStep(0.0001);
-	shMapper.setStopEpsion(0.0000001);
+	shMapper.setStep(0.003);
+	shMapper.setStopEpsion(0.00000001);
+	shMapper.dynamicStep = true;
 	//shMapper.centerVisualMap(CPoint(-0.560882, -0.630, 0));
 	//shMapper.centerVisualMap(CPoint(0,0,0));
 	viewer.show();

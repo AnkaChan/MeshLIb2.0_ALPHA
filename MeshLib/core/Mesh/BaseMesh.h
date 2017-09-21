@@ -294,7 +294,10 @@ namespace MeshLib {
 	{
 
 		std::fstream f(filename, std::fstream::in);
-		if (f.fail()) return;
+		if (f.fail()) {
+			fprintf(stderr, "Error in opening file %s\n", input);
+			exit();
+		}
 
 		char cmd[1024];
 
@@ -503,7 +506,7 @@ namespace MeshLib {
 		if (is.fail())
 		{
 			fprintf(stderr, "Error in opening file %s\n", input);
-			return;
+			exit();
 		}
 
 		char buffer[MAX_LINE];
