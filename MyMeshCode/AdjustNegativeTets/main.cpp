@@ -12,37 +12,25 @@
 
 #include <MeshLib/core/TetMesh/tet.h>
 		 
-#include <MeshLib/core/TetMesh/titerators.h>
 #include <MeshLib/core/TetMesh/titerators2.h>
-#include <MeshLib/algorithm/Shelling/TetSheller.h>
-#include <MeshLib/core/Geometry/Circumsphere.h>
 #include <MeshLib/core/Geometry/Point.h>
 
-#include "D3Parameterization.h"
-#include "GLTetViewReverseShelling.h"
-
+#include <MeshLib/toolbox/FileIO.h>
+#include "AdjuestNegative.h"
 
 using namespace MeshLib;
 using namespace MeshLib::TMeshLib;
 
-class CTetParaShelling : public CTetShelling , public _tetParameterization {};
-
-typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFaceD3Parameterization, CTetParaShelling> TIf;
-typedef CTetSheller<TIf> CTSheller;
-typedef D3Parameterization<TIf> D3Para;
+typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFace, CTet> TIf;
 typedef TIterators<TIf> TIt;
+typedef NegativeAdjust<TIf> CNegativeAdjuster;
 typedef TIf::TMeshType MyTMesh;
 
-D3Para * pd3Para;
 TIf::TMeshPtr pMesh(new TIf::TMeshType);
-std::shared_ptr<std::list<CTetParaShelling *>> pShellingList;
 TIf::TMeshType& mesh = *pMesh;
 int argcG;
 char ** argvG;
-struct Sphere {
-	CPoint center;
-	double radius;
-} sphere;
+
 
 int main(int argc, char ** argv)
 {
@@ -53,34 +41,17 @@ int main(int argc, char ** argv)
 		std::cout << "Please give a input directory." << std::endl;
 		return 0;
 	}
+	FileParts fp = fileparts(argv[1]);
+
 	mesh._load_t(argv[1]);
 	std::cout << "Load done.\n";
-	CTSheller sheller(pMesh);
-	//CTetShelling * p_startTet = pMesh->idTet(10000);
-	std::list<TIf::TPtr> beginList;
-
-	auto isBoundaryTet = [&sheller](TIf::TPtr pTet) {
-		if (sheller.numFaceOnSurfaceInShelling(pTet) > 0) {
-			return true;
-		}
-		return false;
-	};
-
-	auto pBoundryTetIter = std::find_if<>(pMesh->tets().begin(), pMesh->tets().end(), isBoundaryTet);
-
-	beginList.push_back(*pBoundryTetIter);
-	sheller.shellingBreadthFirstGreedy(beginList);
-
-	pShellingList = sheller.getShellingOrder();
+	CNegativeAdjuster NAjuster;
+	NAjuster.setInputTMesh(pMesh);
+	NAjuster.adjust();
 	
-	D3Para d3Para(pMesh, pShellingList);
-	pd3Para = &d3Para;
-	sphere.center = CPoint(0,0,0);
-	sphere.radius = 1.0;
+	std::string outPath = fp.path + fp.name + "_non_negative.t";
+	pMesh->_write_t(outPath.c_str(), true);
 
-	init_openGL();
-	//mesh._write_t("D:\\Data\\tet\\FastOutDemo.t");
-	//std::cout << "Save done.\n";
 	getchar();
 	return 0;
 }

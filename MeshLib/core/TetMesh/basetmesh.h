@@ -22,6 +22,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <iomanip>
 
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
@@ -83,7 +84,7 @@ namespace MeshLib
 			/*!
 			Write tet mesh to a .t file
 			*/
-			void _write_t(const char * filename);
+			void _write_t(const char * filename, bool highPrecision = false);
 
 			/*!
 				access the list of half faces
@@ -1123,7 +1124,7 @@ namespace MeshLib
 		};
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		void CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::_write_t(const char * output)
+		void CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::_write_t(const char * output, bool highPrecision)
 		{
 			//write traits to string, add by Wei Chen, 11/23/2015
 			for (std::list<VertexType*>::iterator vIter = m_pVertices.begin(); vIter != m_pVertices.end(); vIter++)
@@ -1152,6 +1153,10 @@ namespace MeshLib
 				return;
 			}
 
+			if (highPrecision) {
+				_os << std::setiosflags(std::ios::fixed);
+			}
+
 			for (std::list<VertexType*>::iterator vIter = m_pVertices.begin(); vIter != m_pVertices.end(); vIter++)
 			{
 				VertexType * pV = *vIter;
@@ -1159,7 +1164,12 @@ namespace MeshLib
 				_os << "Vertex " << pV->id();
 				for (int k = 0; k < 3; k++)
 				{
-					_os << " " << p[k];
+					if (highPrecision) {
+						_os << " " << std::setprecision(16) << p[k];
+					}
+					else {
+						_os << " " << p[k];
+					}
 				}
 				if (pV->string().size() > 0)
 				{
