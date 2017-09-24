@@ -506,7 +506,7 @@ namespace MeshLib {
 		if (is.fail())
 		{
 			fprintf(stderr, "Error in opening file %s\n", input);
-			exit();
+			exit(0);
 		}
 
 		char buffer[MAX_LINE];

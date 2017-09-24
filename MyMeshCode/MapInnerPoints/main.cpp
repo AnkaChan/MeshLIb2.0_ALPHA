@@ -29,5 +29,4 @@ int main(int argc, char ** argv) {
 
 	string outPath = fp.path + fp.name + "_mapped.t";
 	pOriginalTMesh->_write_t(outPath.c_str());
-	getchar();
 }
