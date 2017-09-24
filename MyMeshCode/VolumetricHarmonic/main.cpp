@@ -32,5 +32,5 @@ int main(int argc, char ** argv) {
 	VHMapper.setStep(0.00001);
 	VHMapper.setInitialMap(pInitialMapTMesh);
 	VHMapper.adjustVertices();
-	pTMesh->_write_t(outPath.c_str());
+	pTMesh->_write_t(outPath.c_str(), true);
 }
