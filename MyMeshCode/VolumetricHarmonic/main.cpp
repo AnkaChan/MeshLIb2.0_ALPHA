@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
 	char * inPath = argv[1];
 	char * initialMapPath = argv[2];
 	FileParts fp = fileparts(inPath);
-	std::string outPath = fp.path + fp.name + "_sphereHamonic.t";
+	std::string outPath = fp.path + fp.name + "_sphereHarmonic.t";
 	CVolumetricHarmonicMap VHMapper;
 	TIf::TMeshPtr pTMesh = new TIf::TMeshType;
 	pTMesh->_load_t(inPath);

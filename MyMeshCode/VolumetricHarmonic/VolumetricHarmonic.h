@@ -27,6 +27,7 @@ namespace MeshLib {
 			void calculateEdgeWeights();
 			void setInitialMap(TMeshType* pInitalMapTMesh);
 			void adjustVertices();
+			bool dynamicStep = false;
 			void setEpison(double newEpison) {
 				epison = newEpison;
 			};

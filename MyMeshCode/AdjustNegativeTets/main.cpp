@@ -50,6 +50,7 @@ int main(int argc, char ** argv)
 	NAjuster.adjust();
 	
 	std::string outPath = fp.path + fp.name + "_non_negative.t";
+	std::cout << "Save to: " << outPath;
 	pMesh->_write_t(outPath.c_str(), true);
 
 	getchar();
