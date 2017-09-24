@@ -16,13 +16,13 @@ namespace MeshLib {
 		class CEdgeVHarmonic : public CEdge, public _edgeVHarmonic {};
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		class VolumetricHarmonicCore {
+		class NAVolumetricHarmonicCore {
 		private:
 			typedef TInterface<TV, V, HE, TE, E, HF, F, T> TIf;
 			typedef CTMesh< TV, V, HE, TE, E, HF, F, T > TMeshType;
 			typedef TIterators<TIf> TIt;
 		public:
-			VolumetricHarmonicCore() {};
+			NAVolumetricHarmonicCore() {};
 			void setpTMesh(TMeshType * new_pTMesh);
 			void calculateEdgeWeights();
 			void setInitialMap(TMeshType* pInitalMapTMesh);
@@ -39,15 +39,18 @@ namespace MeshLib {
 			TMeshType * pTMesh;
 			double epison;
 			double step;
+			bool isAvaliblePosition(V * pV);
+			CPoint getVertexDirection();
+			bool getVNeiNegativeTets(V* pV, std::list<T*>& neiTetList)
 		};
 
 		template <typename TIf>
-		class VolumetricHarmonic : public VolumetricHarmonicCore<typename TIf::TVType, typename TIf::VType, typename TIf::HEType,
+		class NAVolumetricHarmonic : public NAVolumetricHarmonicCore<typename TIf::TVType, typename TIf::VType, typename TIf::HEType,
 			typename TIf::TEType, typename TIf::EType, typename TIf::HFType, typename TIf::FType, typename TIf::TType>
 		{};
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline void VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::setpTMesh(TMeshType * new_pTMesh)
+		inline void NAVolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::setpTMesh(TMeshType * new_pTMesh)
 		{
 			pTMesh = new_pTMesh;
 			/*for (TIf::VPtr pV : TIt::TM_VIterator(pTMesh)) {
@@ -55,7 +58,7 @@ namespace MeshLib {
 			}*/
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline void VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::calculateEdgeWeights()
+		inline void NAVolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::calculateEdgeWeights()
 		{
 			for (TIf::EPtr pE : TIt::TM_EIterator(pTMesh)) {
 				if (pE->boundary()) {
@@ -69,7 +72,7 @@ namespace MeshLib {
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline void VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::setInitialMap(TMeshType * pInitialMapTMesh)
+		inline void NAVolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::setInitialMap(TMeshType * pInitialMapTMesh)
 		{
 			for (TIf::VPtr pV : TIt::TM_VIterator(pTMesh)) {
 				TIf::VPtr pVImage = pInitialMapTMesh->idVertex(pV->id());
@@ -78,24 +81,21 @@ namespace MeshLib {
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		void VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::adjustVertices()
+		void NAVolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::adjustVertices()
 		{
 			double originalEnergy = 0;
 			double newEnergy = totalEnergy();
 			
 			while (abs(newEnergy - originalEnergy) > epison)
 			{
+				
 				for (auto pV : TIt::TM_VIterator(pTMesh)) {
 					CPoint nP;
 					CPoint& P = pV->position();
 					double totalK = 0;
+
 					if (!pV->boundary()) {
-						for (auto pNV : TIt::V_VIterator(pV)) {
-							TIf::EPtr pEV_NV = TIf::VertexEdge(pV, pNV);
-							nP += pNV->position()*pEV_NV->k;
-							totalK += pEV_NV->k;
-						}
-						CPoint d = P - nP / totalK;
+
 						pV->newPos = P - step * d;
 					}
 				}
@@ -112,7 +112,7 @@ namespace MeshLib {
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline double VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::totalEnergy()
+		inline double NAVolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::totalEnergy()
 		{
 			double energy = 0;
 			for (TIf::EPtr pE : TIt::TM_EIterator(pTMesh)) {
@@ -122,7 +122,7 @@ namespace MeshLib {
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
-		inline double VolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::edgeWeight(E * pE)
+		inline double NAVolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::edgeWeight(E * pE)
 		{
 			double w = 0;
 			for (TIf::TEPtr pTE : TIt::E_TEIterator(pE)) {
@@ -140,6 +140,31 @@ namespace MeshLib {
 				w += TIf::EdgeLength(TIf::TEdgeEdge(pTEOpposite)) * (cosTheta / sinTheta);
 			}
 			return w;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline bool NAVolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::isAvaliblePosition(V * pV)
+		{
+			return false;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline CPoint NAVolumetricHarmonicCore<TV, V, HE, TE, E, HF, F, T>::getVertexDirection()
+		{
+			std::list<T*> VNeiNegativeTets;
+			if (getVNeiNegativeTets(pV, VNeiNegativeTets)) {
+
+			}
+			else {
+				CPoint nP;
+				CPoint& P = pV->position();
+				double totalK = 0;
+				for (auto pNV : TIt::V_VIterator(pV)) {
+					TIf::EPtr pEV_NV = TIf::VertexEdge(pV, pNV);
+					nP += pNV->position()*pEV_NV->k;
+					totalK += pEV_NV->k;
+				}
+				CPoint d = P - nP / totalK;
+			}
+			return d;
 		}
 	}
 }
