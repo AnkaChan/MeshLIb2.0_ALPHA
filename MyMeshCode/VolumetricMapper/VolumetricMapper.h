@@ -2,7 +2,7 @@
 #include <MeshLib/core/Geometry/Point.h>
 
 namespace MeshLib {
-		struct TMeshLib::VolumetricMapperCore;
+		struct VolumetricMapperCore;
 		class CVolumetricMapper {
 		public:
 			CVolumetricMapper();
@@ -13,7 +13,6 @@ namespace MeshLib {
 			CPoint reverseMap(CPoint p);
 
 		private:
-			VolumetricMapperCore core;
-
+			VolumetricMapperCore * pCore;
 		};
 }
