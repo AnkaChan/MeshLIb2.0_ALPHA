@@ -91,10 +91,13 @@ namespace MeshLib {
 					k = 0;
 					int numFixPoints = 0;
 					for (auto pTV : TIt::T_TVIterator(pT)) {
-						CPoint & A = TIf::TVertexVertex(pTV)->position();
+						V * pV = TIf::TVertexVertex(pTV);
+						CPoint & A = pV->position();
 						CPoint newA = A;
 						newA += step * d[k];
-						newA = newA / newA.norm();
+						if (pV->boundary()) {
+							newA = newA / newA.norm();
+						}
 						if (isAvaliablePosition(newA, pTV)) {
 							A = newA;
 						}
@@ -122,8 +125,8 @@ namespace MeshLib {
 								<< "ATTENTION:\n";
 							cout << "Oriented Volume stops at negative value, failed.\n";
 							cout << "*****************************************************************\n";
-							//getchar();
-							//return false;
+							getchar();
+							break;
 						}
 					}
 					++numIterations;

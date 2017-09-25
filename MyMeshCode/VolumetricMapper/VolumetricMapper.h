@@ -14,6 +14,5 @@ namespace MeshLib {
 
 		private:
 			VolumetricMapperCore * pCore;
-
 		};
 }

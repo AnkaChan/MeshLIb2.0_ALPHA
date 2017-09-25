@@ -6,78 +6,79 @@
 #define SEARCH_COUNT 100
 
 namespace MeshLib {
-		struct _tetBary {
-			TMeshLib::CBaryCoordinates4D * pBaryCoord = NULL;
-			~_tetBary() {
-				if (pBaryCoord != NULL) {
-					delete pBaryCoord;
-				}
+	struct _tetBary {
+		TMeshLib::CBaryCoordinates4D * pBaryCoord = NULL;
+		~_tetBary() {
+			if (pBaryCoord != NULL) {
+				delete pBaryCoord;
 			}
-		};
+		}
+	};
 
-		class CTetWithBaryCoords : public TMeshLib::CTet, public _tetBary {};
 
-		struct KDTreeNodeTet {
-			TMeshLib::CTet * pT = NULL;
+	class CTetWithBaryCoords : public TMeshLib::CTet, public _tetBary {};
 
-			double data[3];
+	struct KDTreeNodeTet {
+		TMeshLib::CTet * pT = NULL;
 
-			KDTreeNodeTet() {}
-			KDTreeNodeTet(TMeshLib::CTet * newpT) {
-				pT = newpT;
-				CPoint c;
-				for (int i = 0; i < 4; ++i) {
-					c += pT->tvertex(i)->vert()->position();
-				}
-				c /= 4;
-				pT = newpT;
-				data[0] = c[0];
-				data[1] = c[1];
-				data[2] = c[2];
+		double data[3];
+
+		KDTreeNodeTet() {}
+
+		KDTreeNodeTet(TMeshLib::CTet * newpT) {
+			pT = newpT;
+			CPoint c;
+			for (int i = 0; i < 4; ++i) {
+				c += pT->tvertex(i)->vert()->position();
 			}
-			KDTreeNodeTet(double x, double y, double z) {
-				data[0] = x;
-				data[1] = y;
-				data[2] = z;
-			}
+			c /= 4;
+			pT = newpT;
+			data[0] = c[0];
+			data[1] = c[1];
+			data[2] = c[2];
+		}
+		KDTreeNodeTet(double x, double y, double z) {
+			data[0] = x;
+			data[1] = y;
+			data[2] = z;
+		}
 
-			double operator [] (int i) const {
-				return data[i];
-			}
+		double operator [] (int i) const {
+			return data[i];
+		}
 
-			bool operator == (const KDTreeNodeTet& p) const {
-				return data[0] == p[0] && data[1] == p[1] && data[2] == p[2];
-			}
+		bool operator == (const KDTreeNodeTet& p) const {
+			return data[0] == p[0] && data[1] == p[1] && data[2] == p[2];
+		}
 
-			friend std::ostream& operator << (std::ostream& s, const KDTreeNodeTet& p) {
-				return s << '(' << p[0] << ", " << p[1] << ", " << p[2] << ')';
-			}
-		};
+		friend std::ostream& operator << (std::ostream& s, const KDTreeNodeTet& p) {
+			return s << '(' << p[0] << ", " << p[1] << ", " << p[2] << ')';
+		}
+	};
 
-		using namespace TMeshLib;
-		typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFace, CTetWithBaryCoords> TIf;
-		typedef TIterators<TIf> TIt;
+	using namespace TMeshLib;
+	typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFace, CTetWithBaryCoords> TIf;
+	typedef TIterators<TIf> TIt;
+
+	struct VolumetricMapperCore {
+		VolumetricMapperCore() :
+			kdtreeSource(KDTreeNodeTet(-1, -1, -1), KDTreeNodeTet(1, 1, 1)),
+			kdtreeTarget(KDTreeNodeTet(-1, -1, -1), KDTreeNodeTet(1, 1, 1))
+		{};
+
+		TIf::TMeshPtr pSourceTM = NULL;
+		TIf::TMeshPtr pTargetTM = NULL;
+
+		typedef KD::Core<3, KDTreeNodeTet> CORETet;
+		KD::Tree<CORETet> kdtreeSource;
+		KD::Tree<CORETet> kdtreeTarget;
 
 
-		struct VolumetricMapperCore {
-			VolumetricMapperCore() :
-				kdtreeSource(KDTreeNodeTet(-1, -1, -1), KDTreeNodeTet(1, 1, 1)),
-				kdtreeTarget(KDTreeNodeTet(-1, -1, -1), KDTreeNodeTet(1, 1, 1))
-			{};
-
-			TIf::TMeshPtr pSourceTM = NULL;
-			TIf::TMeshPtr pTargetTM = NULL;
-
-			typedef KD::Core<3, KDTreeNodeTet> CORETet;
-			KD::Tree<CORETet> kdtreeSource;
-			KD::Tree<CORETet> kdtreeTarget;
-
-
-		};
+	};
 }
 
 using namespace MeshLib;
-using namespace TMeshLib;
+using namespace MeshLib::TMeshLib;
 
 MeshLib::CVolumetricMapper::CVolumetricMapper() :
 	pCore(new VolumetricMapperCore)
@@ -97,6 +98,7 @@ void MeshLib::CVolumetricMapper::readSourceTMesh(const char * dir)
 
 void MeshLib::CVolumetricMapper::readTargetTMesh(const char * dir)
 {
+
 	pCore->pTargetTM = new TIf::TMeshType;
 	pCore->pTargetTM->_load_t(dir);
 
@@ -108,6 +110,7 @@ void MeshLib::CVolumetricMapper::readTargetTMesh(const char * dir)
 
 CPoint MeshLib::CVolumetricMapper::map(CPoint p)
 {
+
 	if (pCore->pSourceTM == NULL) {
 		std::cerr << "Source TMesh hasn't been read.\n";
 		exit(0);
@@ -120,6 +123,7 @@ CPoint MeshLib::CVolumetricMapper::map(CPoint p)
 	int failureCount = 0;
 	CPoint4 bary;
 	CPoint imageP;
+
 	TIf::TPtr pTOnSource = NULL;
 	while (1) {
 		std::vector<KDTreeNodeTet> Tets = pCore->kdtreeSource.nearest(KDTreeNodeTet(p[0], p[1], p[2]), SEARCH_COUNT*(1 + failureCount));

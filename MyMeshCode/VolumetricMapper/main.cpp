@@ -3,6 +3,7 @@
 #include "VolumetricMapper.h"
 
 using namespace MeshLib;
+
 int main(int argc, char ** argv) {
 	if (argc < 4) {
 		cout << "Please give a path to surface mesh(.m), a path to source TMesh(.t), a path to target TMesh(.t) (in such order), and a interger of layers(default 5) . " << endl;
