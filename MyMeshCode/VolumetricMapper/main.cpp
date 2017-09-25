@@ -6,13 +6,28 @@ using namespace MeshLib;
 
 int main(int argc, char ** argv) {
 	if (argc < 4) {
-		cout << "Please give a path to surface mesh(.m), a path to source TMesh(.t), a path to target TMesh(.t) (in such order), and a interger of layers(default 5) . " << endl;
+		cout << "Please give a path to surface mesh(.m), a path to source TMesh(.t), a path to target TMesh(.t) (in such order), and a controlling arg(default 5) . " << endl;
+		cout << "For controlling arg, given a interger n larger than 1 will make this program output n layers . " << endl;
+		cout << "Given a float number f less than 1 will make this program output layer with depth f. " << endl;
+
 		return 0;
 	}
 	int numLayer = 5;
+	double arg;
+	double depth = 0.5;
 	if (argc == 5) {
-		numLayer = atoi(argv[4]);
-		//numLayer << ""
+		arg = atof(argv[4]);
+		if (arg > 1.0) {
+			numLayer = (int)arg;
+		}
+		else if (arg > 0) {
+			numLayer = 1;
+			depth = arg;
+		}
+		else {
+			cout << "Wrong arg: " << arg << "!";
+			return 0;
+		}
 	}
 
 	string surfaceMeshPath = argv[1];
@@ -32,8 +47,10 @@ int main(int argc, char ** argv) {
 
 	for (int i = 0; i < numLayer; i++)
 	{
-		//double depth = double(i + 1) / double(numLayer + 1);
-		double depth = 0.99;
+		if (numLayer != 1) {
+			depth = double(i + 1) / double(numLayer + 1);
+		}
+		//double depth = 0.99;
 		for (auto pV : ItGeneral::MVIterator(&oMesh)) {
 			CPoint oP = pV->point();
 			CPoint & tP = tMesh.idVertex(pV->id())->point();
