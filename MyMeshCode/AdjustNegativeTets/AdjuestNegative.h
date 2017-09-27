@@ -1,5 +1,8 @@
 #pragma once
 #include <iostream>
+#include <random>
+#include <ctime>
+#include <cmath>
 #include <MeshLib/core/TetMesh/TMeshLibHeaders.h>
 #include <MeshLib/toolbox/DebugSetting.h>
 using std::cout;
@@ -56,6 +59,15 @@ namespace MeshLib {
 				cout << "Adjusting tet " << pT->id() << ".\n";
 				cout << "Initial oriented volume: " << orientedVolume(pT) << ".\n";
 
+				if (orientedVolume(pT) < 0.00000000000000001) {
+					std::default_random_engine g(time(NULL));
+					std::uniform_real_distribution<double> randReal(-1, 1);
+					for (size_t i = 0; i < 4; i++)
+					{
+						pT->vertex(i)->position() += 0.00000001*CPoint(randReal(g), randReal(g), randReal(g));  
+					}
+				}
+
 				int numIterations = 0;
 				while (!OKTet(pT)) {
 					int k = 0;
@@ -85,7 +97,6 @@ namespace MeshLib {
 						//cout << "\nOriented volume after: " << AB * (AC ^ AD) << endl;
 						ShowInDebug(cout << "Move direction: " << d[k] << endl;);
 						++k;
-
 					}
 
 					k = 0;

@@ -1,0 +1,1 @@
+MapInnerPoints ../bimba.t ../bimba_sphere.t ../bimba_h.t

@@ -381,12 +381,15 @@ namespace MeshLib
 					pF->boundary() = true;
 					HalfFaceType * pH =
 						FaceLeftHalfFace(pF) == NULL ? FaceRightHalfFace(pF) : FaceLeftHalfFace(pF);
+					HalfEdgeType * pHE = (HalfEdgeType *)pH->half_edge();
 
 					for (int i = 0; i < 3; ++i)
 					{
+						EdgeType * pE = HalfEdgeEdge(pHE);
 						int vid = pH->key(i);
 						VertexType * v = idVertex(vid);
 						v->boundary() = true;
+						pE->boundary() = true;
 					}
 				}
 			}
@@ -607,12 +610,16 @@ namespace MeshLib
 					pF->boundary() = true;
 					HalfFaceType * pH =
 						FaceLeftHalfFace(pF) == NULL ? FaceRightHalfFace(pF) : FaceLeftHalfFace(pF);
+					//added by Anka, mark edge as boundary
+					HalfEdgeType * pHE = (HalfEdgeType *)pH->half_edge();
 
 					for (int i = 0; i < 3; ++i)
 					{
+						EdgeType * pE = HalfEdgeEdge(pHE);
 						int vid = pH->key(i);
 						VertexType * v = idVertex(vid);
 						v->boundary() = true;
+						pE->boundary() = true;
 					}
 				}
 			}

@@ -1,4 +1,4 @@
-file_name = 'lion';
+file_name = 'bimba';
 tet = importdata(['./mesh/' file_name '/' file_name '.1.ele']);
 vert = importdata(['./mesh/' file_name '/' file_name '.1.node']);
 fileID = fopen([file_name '.t'], 'w');

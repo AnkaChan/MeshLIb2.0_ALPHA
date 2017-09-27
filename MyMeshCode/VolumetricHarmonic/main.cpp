@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
 	char * inPath = argv[1];
 	char * initialMapPath = argv[2];
 	FileParts fp = fileparts(inPath);
-	std::string outPath = fp.path + fp.name + "_sphereHarmonic.t";
+	std::string outPath = fp.path + fp.name + "_sHarmonic.t";
 	CVolumetricHarmonicMap VHMapper;
 	TIf::TMeshPtr pTMesh = new TIf::TMeshType;
 	pTMesh->_load_t(inPath);
@@ -28,9 +28,12 @@ int main(int argc, char ** argv) {
 	pInitialMapTMesh->_load_t(initialMapPath);
 	VHMapper.setpTMesh(pTMesh);
 	VHMapper.calculateEdgeWeights();
-	VHMapper.setEpison(0.00001);
+	VHMapper.setEpison(0.00000001);
 	VHMapper.setStep(0.0001);
-	VHMapper.setInitialMap(pInitialMapTMesh);
-	VHMapper.adjustVertices();
+	VHMapper.setInitialMapOnBoundary(pInitialMapTMesh);
+	VHMapper.dynamicStep = true;
+
+	//VHMapper.setInitialMap(pInitialMapTMesh);
+	VHMapper.adjustVerticesBoundaryHarmonic();
 	pTMesh->_write_t(outPath.c_str(), true);
 }
