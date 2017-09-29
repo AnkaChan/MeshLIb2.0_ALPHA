@@ -44,6 +44,11 @@ namespace MeshLib {
 		ColorMode vertexColorMode = none;
 		//edge's coloring mode
 		ColorMode edgeColorMode = none;
+
+		bool  customFaceVisibility = false;
+		bool  customEdgeVisibility = false;
+		bool  customVertexVisibility = false;
+
 		//size of veretex
 		double vertexSize = 4.0;
 		//size of edge
@@ -138,6 +143,9 @@ namespace MeshLib {
 		void draw_faces() {
 			glBegin(GL_TRIANGLES);
 			for (auto pF : ITGL::MFIterator(pMesh)) {
+				if ((!pF->visible()) && m_glSetting.customFaceVisibility) {
+					continue;
+				}
 				for (auto pV : ITGL::FVIterator(pF)) {
 					CPoint pt = pV->point();
 					CPoint n;
@@ -176,6 +184,9 @@ namespace MeshLib {
 			//glEnable(GL_BLEND);
 			glDisable(GL_LIGHTING);
 			for (auto pE : ITGL::MEIterator(pMesh)) {
+				if ((!pE->visible()) && m_glSetting.customEdgeVisibility) {
+					continue;
+				}
 				glBegin(GL_LINES);
 				switch (m_glSetting.edgeColorMode) {
 				case GLSetting::ColorMode::defaultColor:
@@ -197,7 +208,11 @@ namespace MeshLib {
 		}
 
 		void draw_vertices() {
+			glDisable(GL_LIGHTING);
 			for (auto pV : ITGL::MVIterator(pMesh)) {
+				if ((!pV->visible()) && m_glSetting.customVertexVisibility) {
+					continue;
+				}
 				glPointSize(m_glSetting.vertexSize);
 				glBegin(GL_POINTS);
 				switch (m_glSetting.vertexColorMode) {
@@ -213,6 +228,7 @@ namespace MeshLib {
 				glVertex3f(pV->point()[0], pV->point()[1], pV->point()[2]);
 			}
 			glEnd();
+			glEnable(GL_LIGHTING);
 		}
 
 

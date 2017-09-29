@@ -23,6 +23,7 @@
 #include <map>
 #include <string>
 #include <iomanip>
+#include <iterator>
 
 #include "../Geometry/Point.h"
 #include "../Geometry/Point2.h"
@@ -103,6 +104,41 @@ namespace MeshLib
 			access list of vertices
 			*/
 			std::list<VertexType*> & vertices() { return m_pVertices; };
+
+			/*-------------------------------------------------------------*/
+			/* The vectors used in multi proceed */
+			/*!
+			access the list of half faces
+			*/
+			std::vector<HalfFaceType*>  half_faces_vec;
+			/*!
+			access the list of edges
+			*/
+			std::vector<EdgeType*>      edges_vec;
+			/*!
+			access list of faces
+			*/
+			std::vector<FaceType*>      faces_vec;
+			/*!
+			access list of vertices
+			*/
+			std::vector<VertexType*>    vertices_vec;
+
+			void prepare_for_mp() {
+#ifndef _OPENMP
+				std::cout << "OpenMP not supported\n";
+				return;
+#endif
+				if (half_faces_vec.empty())
+					std::copy(m_pHalfFaces.begin(), m_pHalfFaces.end(), std::back_inserter(half_faces_vec));
+				if (edges_vec.empty())
+					std::copy(m_pEdges.begin(), m_pEdges.end(), std::back_inserter(edges_vec));
+				if (faces_vec.empty())
+					std::copy(m_pFaces.begin(), m_pFaces.end(), std::back_inserter(faces_vec));
+				if (vertices_vec.empty())
+					std::copy(m_pVertices.begin(), m_pVertices.end(), std::back_inserter(vertices_vec));
+				std::cout << "Ready for multi-processing!" << std::endl;
+			};
 
 			/*! number of tets */
 			int numTets() { return m_nTets; };
@@ -390,6 +426,7 @@ namespace MeshLib
 						VertexType * v = idVertex(vid);
 						v->boundary() = true;
 						pE->boundary() = true;
+						pHE = HalfEdgeNext(pHE);
 					}
 				}
 			}
@@ -620,6 +657,7 @@ namespace MeshLib
 						VertexType * v = idVertex(vid);
 						v->boundary() = true;
 						pE->boundary() = true;
+						pHE = HalfEdgeNext(pHE);
 					}
 				}
 			}

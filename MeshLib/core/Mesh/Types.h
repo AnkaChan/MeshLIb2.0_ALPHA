@@ -30,8 +30,15 @@ namespace MeshLib {
 		CPoint2 uv;
 	};
 
-	class CVertexVisual : public CVertex, public _colorRGB {};
-	class CEdgeVisual : public CEdge, public _colorRGB {};
-	class CFaceVisual : public CFace, public _colorRGB {};
+	struct _visibility {
+		bool user_defined_visbility = false;
+		bool visible() {
+			return user_defined_visbility;;
+		};
+	};
+
+	class CVertexVisual : public CVertex, public _colorRGB, public _visibility {};
+	class CEdgeVisual : public CEdge, public _colorRGB, public _visibility {};
+	class CFaceVisual : public CFace, public _colorRGB, public _visibility {};
 
 }
