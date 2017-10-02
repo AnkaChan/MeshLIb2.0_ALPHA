@@ -29,55 +29,17 @@ int main(int argc, char ** argv) {
 	TIf::TMeshPtr pInitialMapTMesh = new TIf::TMeshType;
 	pInitialMapTMesh->_load_t(initialMapPath);
 	VHMapper.setpTMesh(pTMesh);
-	clock_t time1 = 0, time2 = 0;
-	clock_t startT, endT;
 
-	pTMesh->prepare_for_mp();
-	CPoint p;
-
-	startT = clock();
-
-#pragma omp parallel for
-	for (int j = 0; j < pTMesh->vertices_vec.size(); ++j) {
-		TIf::VPtr  pV = pTMesh->vertices_vec[j];
-		int sum = 0;
-		for (int k = 0; k < 1000000; ++k) {
-			sum += k;
-		}
-		pV->position()[0] = sum;
-	}
-
-	endT = clock();
-	time1 = endT - startT;
-	cout << p << endl;
-
-	p = CPoint();
-	startT = clock();
-	for (TIf::VPtr pV : TIt::TM_VIterator(pTMesh)) {
-		TIf::VPtr  pV = pTMesh->vertices_vec[j];
-		int sum = 0;
-		for (int k = 0; k < 1000000; ++k) {
-			sum += k;
-		}
-		pV->position()[0] = sum;
-	}
-	endT = clock();
-	time2 = endT - startT;
-
-	cout << p << endl;
-	cout << "Time 1:" << time1 << endl;
-	cout << "Time 2:" << time2 << endl;
-
-	getchar();
-
-	VHMapper.calculateEdgeWeights();
-	VHMapper.setEpison(0.00000000000001);
-	VHMapper.setStep(0.0001);
+	VHMapper.calculateEdgeWeightsBoundaryHarmonic();
+	VHMapper.setEpison(0.00000001);
+	VHMapper.setStep(0.00001);
 	VHMapper.setInitialMapOnBoundary(pInitialMapTMesh);
-	VHMapper.dynamicStep = true;
+	VHMapper.dynamicStep = false;
+	VHMapper.dynamicStepSize = 10;
 	//VHMapper.setInitialMap(pInitialMapTMesh);
 	//VHMapper.adjustVerticesBoundaryHarmonic();
-	VHMapper.adjustVerticesBoundaryHarmonic();
+	VHMapper.adjustVerticesBoundaryHarmonic_parallel();
 	pTMesh->_write_t(outPath.c_str(), true);
+	cout << "Save to :" << outPath << endl;
 	getchar();
 }

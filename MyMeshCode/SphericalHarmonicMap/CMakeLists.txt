@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(Harmonic)
+project(SphericalHarmonic)
 
 include_directories($ENV{MESHLIB2.0_PATH})
 
@@ -9,4 +9,4 @@ file(GLOB SRC
     "*.h"
     "*.cpp"
 )
-add_executable(Harmonic ${SRC})
+add_executable(SphericalHarmonic ${SRC})

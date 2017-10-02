@@ -151,6 +151,36 @@ namespace MeshLib {
 		*/
 		std::list<VertexPtr> & vertices() { return m_verts; };
 
+		/*!
+		Vectors used for random access in multi-processing .
+		*/
+		/*!
+		vector of the edges of the mesh.
+		*/							  
+		std::vector<EdgePtr>    edges_vec;
+		/*!							  _vec
+		vector of the faces of the mesh._vec
+		*/							  
+		std::vector<FacePtr>    faces_vec;
+		/*!
+		vector of the vertices of the mesh.
+		*/
+		std::vector<VertexPtr>  vertices_vec;
+
+		void prepare_for_parallel() {
+#ifndef _OPENMP
+			std::cout << "OpenMP not supported\n";
+			return;
+#endif
+			if (edges_vec.empty())
+				std::copy(m_edges.begin(), m_edges.end(), std::back_inserter(edges_vec));
+			if (faces_vec.empty())
+				std::copy(m_faces.begin(), m_faces.end(), std::back_inserter(faces_vec));
+			if (vertices_vec.empty())
+				std::copy(m_verts.begin(), m_verts.end(), std::back_inserter(vertices_vec));
+			std::cout << "Ready for multi-processing!" << std::endl;
+		}
+
 		/*
 			bool with_uv() { return m_with_texture; };
 			bool with_normal() { return m_with_normal; };
@@ -295,8 +325,8 @@ namespace MeshLib {
 
 		std::fstream f(filename, std::fstream::in);
 		if (f.fail()) {
-			fprintf(stderr, "Error in opening file %s\n", input);
-			exit();
+			fprintf(stderr, "Error in opening file %s\n", filename);
+			exit(0);
 		}
 
 		char cmd[1024];

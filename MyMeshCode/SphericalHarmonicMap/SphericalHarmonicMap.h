@@ -3,9 +3,10 @@
 #include "GuassianMap.h"
 #include <iostream>
 #include <cmath>
+#include <omp.h>
 
 #define STRING_EN(pE) (pE->k*pow((If::edgeVertex1(pE)->point()-If::edgeVertex2(pE)->point()).norm(),2))
-
+#define PRINTING_COUNT 1000
 namespace MeshLib {
 	struct _edgeSphericalHarmonic {
 		double k;
@@ -23,6 +24,7 @@ namespace MeshLib {
 	public:
 		SphericalHarmonicMapCore() {};
 		void setInputMesh(MeshType* newpMesh);
+		void setInitalMap(MeshType* newpMesh);
 		void map();
 		void guassianMap();
 		void centerVisualMap(CPoint center);
@@ -31,6 +33,7 @@ namespace MeshLib {
 		double totalEnergy();
 		bool adjustPointVisualOneStep();
 		void iterativelyAdjustPoint();
+		void iterativelyAdjustPoint_parallel();
 		bool dynamicStep = false;
 		void setDynamicStepSize(double newSize);
 
@@ -50,6 +53,16 @@ namespace MeshLib {
 	inline void SphericalHarmonicMapCore<V, E, F, HE>::setInputMesh(MeshType* newpMesh)
 	{
 		pMesh = newpMesh;
+		pMesh->prepare_for_parallel();
+	}
+
+	template<typename V, typename E, typename F, typename HE>
+	inline void SphericalHarmonicMapCore<V, E, F, HE>::setInitalMap(MeshType * pInitialMapMesh)
+	{
+		calculateStringConstraints();
+		for (If::VPtr pV : It::MVIterator(pMesh)) {
+			pV->point() = (pInitialMapMesh->idVertex(pV->id()))->point();
+		}
 	}
 
 	template<typename V, typename E, typename F, typename HE>
@@ -153,7 +166,7 @@ namespace MeshLib {
 			formalEnergy = currentEnergy;
 			currentEnergy = totalEnergy();
 			++count;
-			if (count >= 1000) {
+			if (count >= PRINTING_COUNT) {
 				count = 0;
 				std::cout << "New Harmonic Energy: " << currentEnergy << ". Step ERR: " << abs(currentEnergy - formalEnergy) << "\n";
 			}
@@ -162,6 +175,76 @@ namespace MeshLib {
 					minErr = abs(currentEnergy - formalEnergy);
 					if (dynamicStepSize * minErr < step) {
 						step = dynamicStepSize * minErr;
+					}
+				}
+			}
+		} while (abs(currentEnergy - formalEnergy) > Epsion);
+		std::cout << "Algorithm has converged" << std::endl;
+	}
+
+	template<typename V, typename E, typename F, typename HE>
+	inline void SphericalHarmonicMapCore<V, E, F, HE>::iterativelyAdjustPoint_parallel()
+	{
+		int numV = pMesh->vertices().size();
+
+		double minErr = 1000000000;
+		double newCenter_0, newCenter_1, newCenter_2;
+
+		double formalEnergy, currentEnergy;
+		currentEnergy = totalEnergy();
+		int count = 0;
+		do {
+			newCenter_0 = 0;
+			newCenter_1 = 0;
+			newCenter_2 = 0;
+#pragma omp parallel for reduction(+:newCenter_0, newCenter_1, newCenter_2)
+			for (int i = 0; i < numV; ++i) {
+				If::VPtr pV = pMesh->vertices_vec[i];
+				CPoint nP;
+				CPoint& P = pV->point();
+				double totalK = 0.0;
+
+				for (auto pNV : It::VVIterator(pV)) {
+					auto pE = If::vertexEdge(pV, pNV);
+					nP += pNV->point()*pE->k;
+					totalK += pE->k;
+				}
+				CPoint d = P - nP / totalK;
+				CPoint tangentComponent = d - (P * d) * P;
+				pV->newPos = P - step * tangentComponent;
+				if (!dynamicStep) {
+					tangentComponent /= sqrt(tangentComponent.norm());
+				}
+				//tangentComponent /= tangentComponent.norm();
+				newCenter_0 += pV->newPos[0];
+				newCenter_1 += pV->newPos[1];
+				newCenter_2 += pV->newPos[2];
+			}
+			CPoint newCenter(newCenter_0, newCenter_1, newCenter_2);
+			newCenter /= numV;
+
+#pragma omp parallel for
+			for (int i = 0; i < numV; ++i) {
+				If::VPtr pV = pMesh->vertices_vec[i];
+				CPoint& P = pV->point();
+				P = pV->newPos - newCenter;
+				P /= P.norm();
+			}
+			formalEnergy = currentEnergy;
+			currentEnergy = totalEnergy();
+			++count;
+			if (count >= PRINTING_COUNT) {
+				count = 0;
+				std::cout << "New Harmonic Energy: " << currentEnergy << ". Step ERR: " << abs(currentEnergy - formalEnergy) << "\n";
+			}
+			if (dynamicStep) {
+				if (abs(currentEnergy - formalEnergy) < minErr) {
+					minErr = abs(currentEnergy - formalEnergy);
+					if (dynamicStepSize * minErr < step) {
+#pragma omp critical 
+						{
+							step = dynamicStepSize * minErr;
+						}
 					}
 				}
 			}
