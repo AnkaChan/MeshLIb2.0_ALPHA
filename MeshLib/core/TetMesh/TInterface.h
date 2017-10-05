@@ -92,6 +92,8 @@ namespace MeshLib
 			static VertexType* EdgeVertex2(EdgeType * pEdge);
 			/*! length of the edge*/
 			static double EdgeLength(EdgeType * pEdge);
+			/*! squared length of the edge*/
+			static double EdgeLengthSquare(EdgeType * pEdge);
 
 			//Access HalfFace data memebers
 			/*! HalfFace->HalfEdge */
@@ -330,6 +332,12 @@ namespace MeshLib
 			VertexType * pV2 = EdgeVertex2(pEdge);
 
 			return (pV1->position() - pV2->position()).norm();
+		}
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline double TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeLengthSquare(EdgeType * pEdge)
+		{
+			return (EdgeVertex1(pEdge)->position() - EdgeVertex2(pEdge)->position()).norm2();
 		}
 
 		/*------------------------------------------------------------------------------------------------

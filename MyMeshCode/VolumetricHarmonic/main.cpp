@@ -32,7 +32,8 @@ int main(int argc, char ** argv) {
 
 	VHMapper.calculateEdgeWeightsBoundaryHarmonic();
 	VHMapper.setEpison(0.00000001);
-	VHMapper.setStep(0.00001);
+	VHMapper.setStep(0.1);
+	VHMapper.setStopGradientThreshold(0.000001);
 	VHMapper.setInitialMapOnBoundary(pInitialMapTMesh);
 	VHMapper.dynamicStep = false;
 	VHMapper.dynamicStepSize = 10;
