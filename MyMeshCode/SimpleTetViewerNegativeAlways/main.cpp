@@ -93,6 +93,16 @@ double orientedVolume(TIF::TPtr pT) {
 	double orientation_product = AB * (AC ^ AD);
 	return orientation_product;
 }
+
+int countBoundaryHF(TIF::TPtr pT) {
+	int numBHF = 0;
+	for (TIF::HFPtr pHF : TIT::T_HFIterator(pT)) {
+		if (TIF::HalfFaceDual(pHF) == NULL) {
+			++numBHF;
+		}
+	}
+	return numBHF;
+}
 int main(int argc, char **argv){
 	if (argc < 2) {
 		std::cout << "Please give a input file." << std::endl;
@@ -124,16 +134,44 @@ int main(int argc, char **argv){
 		++i;
 	}
 	int negativeCount = 0;
+	int type0count = 0;
+	int type1count = 0;
+	int type2count = 0;
 	for (auto pT : TIT::TM_TIterator(pTMesh)) {
 		//std::cout << "The oriented volume for Tet " << pT->id() << ": " << orientedVolume(pT) << std::endl;
 		double oT = orientedVolume(pT);
 		if (oT < 0) {
-			++i;
-			std::cout << "Negative oriented volume: " << oT << std::endl;
+			++negativeCount;
+			int numBF = countBoundaryHF(pT);
+			std::cout << "Negative oriented volume: " << oT << ". Type: " << numBF << "." << std::endl;
 			for (TIF::HFPtr pHF : TIT::T_HFIterator(pT)) {
-				pHF->color[0] = 0.9;
-				pHF->color[1] = 0.3;
-				pHF->color[2] = 0.3;
+				switch (numBF)
+				{
+				case 0:
+					pHF->color[0] = 0.9;
+					pHF->color[1] = 0.3;
+					pHF->color[2] = 0.3;
+					++type0count;
+					break;
+				case 1:
+					pHF->color[0] = 0.8;
+					pHF->color[1] = 0.8;
+					pHF->color[2] = 0.2;
+					++type1count;
+					break;
+				case 2:
+					pHF->color[0] = 0.2;
+					pHF->color[1] = 0.8;
+					pHF->color[2] = 0.2;
+					++type2count;
+					break;
+				default:
+					pHF->color[0] = 0.2;
+					pHF->color[1] = 0.2;
+					pHF->color[2] = 0.8;
+					break;
+				}
+				
 			}
 			pT->alwaysVisible = true;
 			//getchar();
@@ -146,7 +184,14 @@ int main(int argc, char **argv){
 			}
 		}
 	}
+	// Ugly but just let me use this.
+	type0count /= 4;
+	type1count /= 4;
+	type2count /= 4;
 	std::cout << "Totally " << negativeCount << " of negative oriented volume." << std::endl;
+	std::cout << "There is: " << type0count << " of type 0 tets." << std::endl;
+	std::cout << "There is: " << type1count << " of type 1 tets." << std::endl;
+	std::cout << "There is: " << type2count << " of type 2 tets." << std::endl;
 	pOverlapT = pTMesh->idTet(4);
 
 	tViewer.setMeshP1ointer(pTMesh);

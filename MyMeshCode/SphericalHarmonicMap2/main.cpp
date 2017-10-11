@@ -90,6 +90,7 @@ int main(int argc, char** argv) {
 	//shMapper.guassianMap();
 	shMapper.setStep(0.01);
 	shMapper.setStopEpsion(0.00000001);
+	shMapper.setStopGradientThreshold(0.0001);
 	//shMapper.dynamicStep = true;
 	//shMapper.centerVisualMap(CPoint(-0.560882, -0.630, 0));
 	//shMapper.centerVisualMap(CPoint(0,0,0));
@@ -97,7 +98,7 @@ int main(int argc, char** argv) {
 	pMapper = &shMapper;
 	//viewer.setUserIdleFunc(shMapIdlefunc);
 	//shMapper.iterativelyAdjustPoint();
-	shMapper.iterativelyAdjustPoint();
+	shMapper.iterativelyAdjustPoint_parallel();
 	viewer.show();
 	std::string outPath = fp.path + fp.name + "Spherical" + ".m";
 	std::string outPathObj = fp.path + fp.name + "Spherical" + ".obj";

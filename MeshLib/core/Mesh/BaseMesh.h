@@ -170,7 +170,6 @@ namespace MeshLib {
 		void prepare_for_parallel() {
 #ifndef _OPENMP
 			std::cout << "OpenMP not supported\n";
-			return;
 #endif
 			if (edges_vec.empty())
 				std::copy(m_edges.begin(), m_edges.end(), std::back_inserter(edges_vec));

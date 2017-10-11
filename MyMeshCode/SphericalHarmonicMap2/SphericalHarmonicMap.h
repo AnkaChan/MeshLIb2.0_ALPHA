@@ -6,7 +6,7 @@
 #include <omp.h>
 
 #define STRING_EN(pE) (pE->k*pow((If::edgeVertex1(pE)->point()-If::edgeVertex2(pE)->point()).norm(),2))
-#define PRINTING_COUNT 100
+#define PRINTING_COUNT 1000
 namespace MeshLib {
 	struct _edgeSphericalHarmonic {
 		double k;
@@ -192,8 +192,8 @@ namespace MeshLib {
 			}
 			if (count >= PRINTING_COUNT) {
 				count = 0;
-				std::cout << "New Harmonic Energy: " << currentEnergy << ". Step ERR: " << abs(currentEnergy - formalEnergy) << "\n";
-				std::cout << "Max gradient norm:" << maxGradientNorm << std::endl;
+				std::cout << "New Harmonic Energy: " << currentEnergy << "\n";
+				std::cout << "Step ERR: " << abs(currentEnergy - formalEnergy) << ". Max gradient norm: " << maxGradientNorm << std::endl;
 			}
 			updateStep();
 		} while (!hasConverged());
@@ -203,13 +203,13 @@ namespace MeshLib {
 	template<typename V, typename E, typename F, typename HE>
 	inline void SphericalHarmonicMapCore<V, E, F, HE>::iterativelyAdjustPoint_parallel()
 	{
-		double minErr = 1000000000;
 		double newCenter_0, newCenter_1, newCenter_2;
 
 		double formalEnergy, currentEnergy;
 		currentEnergy = totalEnergy();
 		int count = 0;
 		do {
+			maxGradientNorm = 0;
 			newCenter_0 = 0;
 			newCenter_1 = 0;
 			newCenter_2 = 0;
@@ -228,9 +228,13 @@ namespace MeshLib {
 				CPoint d = P - nP / totalK;
 				CPoint tangentComponent = d - (P * d) * P;
 				pV->newPos = P - step * tangentComponent;
-				if (!dynamicStep) {
-					tangentComponent /= sqrt(tangentComponent.norm());
+				double dNorm = tangentComponent.norm();
+				if (dNorm > maxGradientNorm) {
+					maxGradientNorm = dNorm;
 				}
+				/*if (!dynamicStep) {
+					tangentComponent /= sqrt(tangentComponent.norm());
+				}*/
 				//tangentComponent /= tangentComponent.norm();
 				newCenter_0 += pV->newPos[0];
 				newCenter_1 += pV->newPos[1];
@@ -249,22 +253,17 @@ namespace MeshLib {
 			formalEnergy = currentEnergy;
 			currentEnergy = totalEnergy();
 			++count;
+			if (abs(currentEnergy - formalEnergy) < minErr) {
+				minErr = abs(currentEnergy - formalEnergy);
+			}
 			if (count >= PRINTING_COUNT) {
 				count = 0;
-				std::cout << "New Harmonic Energy: " << currentEnergy << ". Step ERR: " << abs(currentEnergy - formalEnergy) << "\n";
+				std::cout << "New Harmonic Energy: " << currentEnergy << "\n";
+				std::cout << "Step ERR: " << abs(currentEnergy - formalEnergy) << ". Max gradient norm: " << maxGradientNorm << std::endl;
 			}
-			if (dynamicStep) {
-				if (abs(currentEnergy - formalEnergy) < minErr) {
-					minErr = abs(currentEnergy - formalEnergy);
-					if (dynamicStepSize * minErr < step) {
-#pragma omp critical 
-						{
-							step = dynamicStepSize * minErr;
-						}
-					}
-				}
-			}
-		} while (abs(currentEnergy - formalEnergy) > Epsion);
+
+			updateStep();
+		} while (!hasConverged());
 		std::cout << "Algorithm has converged" << std::endl;
 	}
 
