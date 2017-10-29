@@ -69,7 +69,7 @@ namespace MeshLib {
 		int gButton;
 		int startx, starty;
 		enum ShadeFlag { _vertex, _face };
-		ShadeFlag shadeFlag = _face;
+		ShadeFlag shadeFlag = _vertex;
 		GLfloat  faceDefaultColor[3] = { 0.7, 0.7, 0.8 };
 		GLfloat  edgeDefaultColor[3] = { 0.5, 0.5, 0.1 };
 		GLfloat  vertexDefaultColor[3] = { 0.8, 0.0, 0.0 };
@@ -167,7 +167,15 @@ namespace MeshLib {
 						glColor3fv(faceDefaultColor);
 						break;
 					case GLSetting::ColorMode::userDefined:
-						glColor3f(pF->color[0], pF->color[1], pF->color[2]);
+						switch (shadeFlag)
+						{
+						case _face:
+							glColor3f(pF->color[0], pF->color[1], pF->color[2]);
+							break;
+						case _vertex:
+							glColor3f(pV->color[0], pV->color[1], pV->color[2]);
+							break;
+						}
 						break;
 					default:
 						break;

@@ -51,17 +51,32 @@ namespace MeshLib {
 			}
 
 			int x_floor = u * (double)imgCols;
+			int x_cell;
+			if (x_floor < imgCols - 1) {
+				x_cell = x_floor + 1;
+			}
+			else {
+				x_cell = imgCols - 1;
+			}
+
 			int y_floor = v * (double)imgRows;
+			int y_cell;
+			if (y_floor < imgRows - 1) {
+				y_cell = y_floor + 1;
+			}
+			else {
+				y_cell = imgRows  - 1;
+			}
 
 			double lambda1 = u * (double)imgCols - (double)x_floor; 
-			double lambda2 = v * (double)imgCols - (double)y_floor;
+			double lambda2 = v * (double)imgRows - (double)y_floor;
 
 			float R1, B1, G1, R2, B2, G2, R3, B3, G3, R4, B4, G4;
 
-			pImage->GetRgbPixel(x_floor, y_floor, &R1, &G1, &B1);
-			pImage->GetRgbPixel(x_floor+1, y_floor, &R2, &G2, &B2);
-			pImage->GetRgbPixel(x_floor, y_floor+1, &R3, &G3, &B3);
-			pImage->GetRgbPixel(x_floor+1, y_floor+1, &R4, &G4, &B4);
+			pImage->GetRgbPixel(y_floor, x_floor, &R1, &G1, &B1);
+			pImage->GetRgbPixel(y_floor, x_cell, &R2, &G2, &B2);
+			pImage->GetRgbPixel(y_cell, x_floor, &R3, &G3, &B3);
+			pImage->GetRgbPixel(y_cell, x_cell, &R4, &G4, &B4);
 
 
 			r = rectangle_interpolation(R1, R2, R3, R4, lambda1, lambda2);

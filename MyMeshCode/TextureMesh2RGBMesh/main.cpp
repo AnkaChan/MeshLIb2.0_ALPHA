@@ -39,6 +39,7 @@ int main(int argc, char** argv) {
 	CTextureMapper<CVertexVisual, CEdge, CFace, CHalfEdge> textureMapper(pMesh, &rgbImage);
 	textureMapper.mapTextureToRGB();
 
-	CSimpleMeshViewer viewer(pMesh);
+	CSimpleMeshViewer viewer(pMesh, true, true);
+	viewer.setting().faceColorMode = GLSetting::userDefined;
 	viewer.show();
 }
