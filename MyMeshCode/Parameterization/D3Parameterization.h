@@ -13,20 +13,32 @@
 #include <list>
 #include <random>
 #include <cmath>
+#include <array>
 
 #define PI 3.1415926535897932
 
 namespace MeshLib {
 	namespace TMeshLib {
+		class _edgeParameterization {
+			double s2HarmonicWeight = 0;
+		};
+
+		class _vertexParameterization {
+		public:
+			bool isBoundaryInPara = false;
+		};
+		class CVertexD3Parameterization : public CVertex, public _faceParameterization {};
+
 		class _faceParameterization {
 		public:
 			bool isBoundaryInPara = false;
 		};
+		class CFaceD3Parameterization : public CFace, public _faceParameterization {};
+
 		class _tetParameterization {
 		public:
 			bool mapped;
 		};
-		class CFaceD3Parameterization : public CFace, public _faceParameterization {};
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		class D3ParameterizationCore {
@@ -61,6 +73,7 @@ namespace MeshLib {
 
 			/* return true if succeeded */
 			bool mapNextTetToSphereRand();
+			void sphericalHarmonicForBoundary();
 			double setMinAngleDegree(double newMinAngle);
 
 			CTetCircumSphere getCircumSphere() { return m_circumSphere; };
@@ -71,11 +84,19 @@ namespace MeshLib {
 
 			std::shared_ptr<std::list<T *>> m_pShellingList;
 			std::set<HF *> boundaryFacesSet;
+
+			std::set<V *> boundaryVSet;
+			void putInBoundaryVSet(V* pBoundaryV);
+			void outBoundaryVset(V* pNonBoundaryV);
+
 			typename TIf::TMeshPtr m_pTMesh;
 			CTetCircumSphere m_circumSphere;
 			typename std::list<T *>::iterator m_TIter;
 
 			void normalizeTMesh2CircumSphere();
+
+			void calculateS2HarmonicEdgeWeights();
+			void findENeiBoundaryHFs(E* pE, std::vector<HF*> bHFs);
 
 			int countIntersectionFace(T * pNextT);
 			void map1Point(T * pNextT);
@@ -91,6 +112,7 @@ namespace MeshLib {
 			void makeBoundary(HF * pHF);
 			void removerFromBoundary(HF * pHF);
 			bool isBoundary(HF * pHF);
+			bool isBoundary(E * pE);
 			double directedVolume(CPoint Image, HF * pHF);
 			double orientedVolume(T* pT);
 			bool adjustVertices(T* pT, HF** overlapedHFs);
@@ -136,6 +158,11 @@ namespace MeshLib {
 			return true;
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::sphericalHarmonicForBoundary()
+		{
+			
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::setMinAngleDegree(double newMinAngle)
 		{
 			minAngle = PI * newMinAngle / 180.0;
@@ -143,11 +170,39 @@ namespace MeshLib {
 			return maxCosAngle;
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::putInBoundaryVSet(V * pBoundaryV)
+		{
+			boundaryVSet.insert(pBoundaryV);
+			pBoundaryV->isBoundaryInPara = true;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::outBoundaryVset(V * pNonBoundaryV)
+		{
+			boundaryVSet.erase(pNonBoundaryV);
+			pNonBoundaryV->isBoundaryInPara = false;
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::normalizeTMesh2CircumSphere()
 		{
 			for (TIf::VPtr pV : TIt::TM_VIterator(m_pTMesh)) {
 				CPoint &p = pV->position();
 				p = (p - m_circumSphere.getCenter()) / m_circumSphere.getRaduis();
+			}
+		}
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline void D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::calculateS2HarmonicEdgeWeights()
+		{
+			for (TIf::EPtr pE : TIt::TM_EIterator(m_pTMesh)) {
+				if (isBoundary(pE)) {
+					std::vector<HF*> ENeiBoundaryHFs;
+					findENeiBoundaryHFs(pE, ENeiBoundaryHFs);
+					assert(ENeiBoundaryHFs.size() == 2);
+
+					pE->s2HarmonicWeight = s2FaceHarmonicWeight(pE, ENeiBoundaryHFs[0]) + s2FaceHarmonicWeight(pE, ENeiBoundaryHFs[1]);
+				}
+				else {
+					pE->s2HarmonicWeight = 0;
+				}
 			}
 		}
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
@@ -173,6 +228,7 @@ namespace MeshLib {
 			pImage = pickCentricPoint(pHF);
 
 			V * pV = TIf::TVertexVertex(TIf::HalfFaceOppositeTVertex(pHF));
+			putInBoundaryVSet(pV);
 			pV->position() = pImage;
 			removerFromBoundary(TIf::HalfFaceDual( pHF ));
 
@@ -306,6 +362,15 @@ namespace MeshLib {
 		}
 
 		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
+		inline bool D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::isBoundary(E * pE)
+		{
+			V* pV1 = TIf::EdgeVertex1(pE);
+			V* PV2 = TIf::EdgeVertex2(pE);
+
+			return (pV1->isBoundaryInPara && pV2->isBoundaryInPara);
+		}
+
+		template<typename TV, typename V, typename HE, typename TE, typename E, typename HF, typename F, typename T>
 		inline double D3ParameterizationCore<TV, V, HE, TE, E, HF, F, T>::directedVolume(CPoint Image, HF * pHF)
 		{
 			CPoint v[4];
@@ -420,7 +485,7 @@ namespace MeshLib {
 						A = newA;
 					}
 					else {
-56						numFixPoints++;
+						numFixPoints++;
 					}
 					++k;
 				}

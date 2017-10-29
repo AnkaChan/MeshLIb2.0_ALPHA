@@ -27,7 +27,7 @@ using namespace MeshLib::TMeshLib;
 
 class CTetParaShelling : public CTetShelling , public _tetParameterization {};
 
-typedef TInterface<CTVertex, CVertex, CHalfEdge, CTEdge, CEdge, CHalfFace, CFaceD3Parameterization, CTetParaShelling> TIf;
+typedef TInterface<CTVertex, CVertexD3Parameterization , CHalfEdge, CTEdge, CEdge, CHalfFace, CFaceD3Parameterization, CTetParaShelling> TIf;
 typedef CTetSheller<TIf> CTSheller;
 typedef D3Parameterization<TIf> D3Para;
 typedef TIterators<TIf> TIt;
