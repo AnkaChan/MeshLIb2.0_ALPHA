@@ -13,6 +13,8 @@
 #include <MeshLib/core/bmp/RgbImage.h>
 #define MAX(a,b) ((a)>(b) ? (a) : (b))
 
+#undef min
+#undef max
 /*
 * CSimpleMeshViewer is designed to visualize mesh in a much easier way.
 * It is simple to use, just need a pointer to your mesh, which is derived from MeshLib::CBaseMesh.
