@@ -581,7 +581,7 @@ namespace MeshLib {
 		}
 		center = center / m_pM->vertices().size();
 		CPoint scale = max - min;
-		double l = MAX(scale[0], MAX(scale[1], scale[2])) / 2;
+		double l = MAX(scale[0], MAX(scale[1], scale[2])) / 4;
 		for (auto pV : IT::MVIterator(m_pM)) {
 			pV->point() = (pV->point() - center) / l;
 		}

@@ -8,7 +8,7 @@
 #include "TextureMapper.h"
 using namespace MeshLib;
 
-typedef CInterface<CVertexVisual, CEdge, CFace, CHalfEdge> If;
+typedef CInterface<CVertexVisual, CEdgeVisual, CFaceVisual, CHalfEdge> If;
 typedef CIterators<If> It;
 If::MeshPtr pMesh = new If::MeshType; 
 
@@ -24,6 +24,7 @@ int main(int argc, char** argv) {
 
 	if (meshFileParts.ext == ".m") {
 		pMesh->read_m(inMeshFile.c_str());
+		std::cout << "Load mesh: " << inMeshFile << std::endl;
 	}
 	else if (meshFileParts.ext == ".obj") {
 		pMesh->read_obj(inMeshFile.c_str());
@@ -35,8 +36,9 @@ int main(int argc, char** argv) {
 
 	RgbImage rgbImage;
 	rgbImage.LoadBmpFile(inTextureFile.c_str());
+	std::cout << "Load texture file: " << inTextureFile << std::endl;
 
-	CTextureMapper<CVertexVisual, CEdge, CFace, CHalfEdge> textureMapper(pMesh, &rgbImage);
+	CTextureMapper<CVertexVisual, CEdgeVisual, CFaceVisual, CHalfEdge> textureMapper(pMesh, &rgbImage);
 	textureMapper.mapTextureToRGB();
 
 	CSimpleMeshViewer viewer(pMesh, true, true);

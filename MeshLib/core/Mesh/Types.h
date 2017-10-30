@@ -6,8 +6,17 @@
 #include "../Mesh/Face.h"
 #include "../Parser/parser.h"
 
+#define FACE_DEFUALT_COLOR 0.7, 0.7, 0.8 
+#define EDGE_DEFUALT_COLOR 0.5, 0.5, 0.1 
+#define VERTEX_DEFUALT_COLOR 0.8, 0.0, 0.0 
+
 namespace MeshLib {
 	struct _colorRGB {
+		_colorRGB() {};
+		_colorRGB(float R, float G, float B) :
+			r(R), g(G), b(B)
+		{};
+
 		union
 		{
 			struct
@@ -49,6 +58,8 @@ namespace MeshLib {
 
 	class CVertexVisual : public CVertex, public _colorRGB, public _visibility {
 	public:
+		CVertexVisual() : _colorRGB(VERTEX_DEFUALT_COLOR) {};
+			
 		void _from_string()
 		{
 			static std::stringstream _sstream;
@@ -74,7 +85,17 @@ namespace MeshLib {
 			}
 		}
 	};
-	class CEdgeVisual : public CEdge, public _colorRGB, public _visibility {};
-	class CFaceVisual : public CFace, public _colorRGB, public _visibility {};
+	class CEdgeVisual : public CEdge, public _colorRGB, public _visibility {
+	public:
+		CEdgeVisual() :
+			_colorRGB(EDGE_DEFUALT_COLOR)
+		{};
+	};
+	class CFaceVisual : public CFace, public _colorRGB, public _visibility {
+	public:
+		CFaceVisual() :
+			_colorRGB(FACE_DEFUALT_COLOR)
+		{};
+	};
 
 }

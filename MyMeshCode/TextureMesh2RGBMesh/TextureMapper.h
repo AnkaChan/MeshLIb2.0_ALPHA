@@ -13,7 +13,7 @@ namespace MeshLib {
 	template<typename V, typename E, typename F, typename H>
 	class CTextureMapper {
 	private:
-		typedef CInterface<CVertexVisual, CEdge, CFace, CHalfEdge> If;
+		typedef CInterface<V, E, F, H> If;
 		typedef CIterators<If> It;
 		typedef CBaseMesh<V, E, F, H> CMesh;
 		typedef CBaseMesh<V, E, F, H> * CMeshPtr;
