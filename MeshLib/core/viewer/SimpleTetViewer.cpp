@@ -506,7 +506,7 @@ void init_openGL()
 CSimpleTetViewer::CSimpleTetViewer()
 {
 }
-void CSimpleTetViewer::setMeshP1ointer(void * pM, bool toNormalize)
+void CSimpleTetViewer::setMeshPointer(void * pM, bool toNormalize)
 {
 	m_pM = (TIFGL::TMeshPtr)pM;
 	pTMesh = m_pM;

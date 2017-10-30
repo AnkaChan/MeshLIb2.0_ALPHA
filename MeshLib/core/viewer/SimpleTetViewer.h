@@ -51,7 +51,7 @@ namespace MeshLib {
 			* \param toNormalizer : wether to normalize your mesh
 			*/
 			CSimpleTetViewer();
-			void setMeshP1ointer(void * pM, bool toNormalize = false);
+			void setMeshPointer(void * pM, bool toNormalize = false);
 
 			void normalizeTMesh();
 			/*
