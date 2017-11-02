@@ -58,7 +58,7 @@ namespace MeshLib
 		*/
 
 		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		class CTMesh : public TInterface<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		class CTMesh : public TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>
 		{
 		public:
 			/*!
@@ -684,6 +684,7 @@ namespace MeshLib
 		};
 
 		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+
 		HalfFaceType* CTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::_construct_half_face(TVertexType ** pTV)
 		{
 			HalfFaceType * pHF = new HalfFaceType;

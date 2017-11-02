@@ -5,6 +5,7 @@
 #include "../Mesh/Edge.h"
 #include "../Mesh/Face.h"
 #include "../Parser/parser.h"
+#include <sstream>
 
 #define FACE_DEFUALT_COLOR 0.7, 0.7, 0.8 
 #define EDGE_DEFUALT_COLOR 0.5, 0.5, 0.1 
@@ -83,6 +84,13 @@ namespace MeshLib {
 					_sstream >> r >> g >> b;
 				}
 			}
+		}
+
+		void _to_string() 
+		{
+			std::stringstream ss;
+			ss << "rgb=(" << r << " " << g << " " << b << ")"  << "  uv =(" << m_uv[0] << " " << m_uv[1] << ")";
+			m_string = ss.str();
 		}
 	};
 	class CEdgeVisual : public CEdge, public _colorRGB, public _visibility {
