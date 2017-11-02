@@ -7,7 +7,8 @@ namespace MeshLib
 	{
 		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
 		class CTMesh;
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, 
+			template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
 		struct TInterface {
 		public:
 			typedef TVertexType     TVType;
@@ -28,7 +29,7 @@ namespace MeshLib
 			typedef HalfFaceType *  HFPtr;
 			typedef FaceType     *  FPtr;
 
-			typedef CTMesh<TVType, VType, HEType, TEType, EType, HFType, FType, TType> TMeshType;
+			typedef MeshTemplate<TVType, VType, HEType, TEType, EType, HFType, FType, TType> TMeshType;
 			typedef TMeshType * TMeshPtr;
 
 			//Access Vertex data members
@@ -68,6 +69,8 @@ namespace MeshLib
 			static TVertexType * HalfEdgeTSource(HalfEdgeType * pHalfEdge);
 			/*! HalfEdge->target tvertex */
 			static TVertexType * HalfEdgeTTarget(HalfEdgeType * pHalfEdge);
+			/*! HalfEdge->tet */
+			static TetType * HalfEdgeTet(HalfEdgeType * pHalfEdge);
 			/*! HalfEdge->dual halfedge */
 			static HalfEdgeType * HalfEdgeDual(HalfEdgeType * pHalfEdge);
 			/*! HalfEdge->next HalfEdge */
@@ -130,32 +133,37 @@ namespace MeshLib
 		/*------------------------------------------------------------------------------------------------
 		Access Vertex data members
 		--------------------------------------------------------------------------------------------------*/
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<EdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexEdgeList(VertexType * pVertex)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType,
+			template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline std::list<EdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::VertexEdgeList(VertexType * pVertex)
 		{
 			return (std::list<EdgeType*>*) pVertex->edges();
 		};
 
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<TEdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexTEdgeList(VertexType * pVertex)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType,
+			template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline std::list<TEdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::VertexTEdgeList(VertexType * pVertex)
 		{
 			return (std::list<TEdgeType*>*) pVertex->tedges();
 		};
 
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<HalfFaceType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexHalfFaceList(VertexType * pVertex)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType,
+			template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline std::list<HalfFaceType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::VertexHalfFaceList(VertexType * pVertex)
 		{
 			return (std::list<HalfFaceType*>*) pVertex->HalfFaces();
 		};
 
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<TVertexType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexTVertexList(VertexType * pVertex)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType,
+			template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline std::list<TVertexType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::VertexTVertexList(VertexType * pVertex)
 		{
 			return (std::list<TVertexType*>*) pVertex->tvertices();
 		};
 
-		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::VertexEdge(VertexType * v1, VertexType * v2)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, 
+			template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::VertexEdge(VertexType * v1, VertexType * v2)
 		{
 			std::list<EdgeType*> * vEdgeList = VertexEdgeList(v1);
 
@@ -180,63 +188,63 @@ namespace MeshLib
 		/*------------------------------------------------------------------------------------------------
 		Access TVertex data members
 		--------------------------------------------------------------------------------------------------*/
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TVertexVertex(TVertexType * pTVertex)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TVertexVertex(TVertexType * pTVertex)
 		{
 			return (VertexType*)pTVertex->vert();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TetType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TVertexTet(TVertexType * pTVertex)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TetType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TVertexTet(TVertexType * pTVertex)
 		{
 			return (TetType*)pTVertex->tet();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TVertexHalfEdge(TVertexType * pTVertex)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TVertexHalfEdge(TVertexType * pTVertex)
 		{
 			return (HalfEdgeType*)pTVertex->halfedge();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TVertexOppositeHalfFace(TVertexType * pTVertex)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TVertexOppositeHalfFace(TVertexType * pTVertex)
 		{
 			return (HalfFaceType*)pTVertex->halfedge()->next()->dual()->half_face();
 		}
 		/*------------------------------------------------------------------------------------------------
 		Access TEdge data members
 		--------------------------------------------------------------------------------------------------*/
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeLeftHalfEdge(TEdgeType * pTEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TEdgeLeftHalfEdge(TEdgeType * pTEdge)
 		{
 			return (HalfEdgeType*)pTEdge->left();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeRightHalfEdge(TEdgeType * pTEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TEdgeRightHalfEdge(TEdgeType * pTEdge)
 		{
 			return (HalfEdgeType*)pTEdge->right();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeEdge(TEdgeType * pTEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TEdgeEdge(TEdgeType * pTEdge)
 		{
 			return (EdgeType*)pTEdge->edge();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeDualTEdge(TEdgeType * pTEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TEdgeDualTEdge(TEdgeType * pTEdge)
 		{
 			return (TEdgeType*)pTEdge->dual();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TetType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeTet(TEdgeType * pTEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TetType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TEdgeTet(TEdgeType * pTEdge)
 		{
 			return (TetType*)pTEdge->tet();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeLeftHalfFace(TEdgeType * pTEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TEdgeLeftHalfFace(TEdgeType * pTEdge)
 		{
 			return HalfEdgeHalfFace(TEdgeLeftHalfEdge(pTEdge));
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TEdgeRightHalfFace(TEdgeType * pTEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TEdgeRightHalfFace(TEdgeType * pTEdge)
 		{
 			return HalfEdgeHalfFace(TEdgeRightHalfEdge(pTEdge));
 		}
@@ -244,89 +252,95 @@ namespace MeshLib
 		/*------------------------------------------------------------------------------------------------
 		Access HalfEdge data members
 		--------------------------------------------------------------------------------------------------*/
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeSource(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeSource(HalfEdgeType * pHalfEdge)
 		{
 			return (VertexType*)pHalfEdge->source();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeTarget(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeTarget(HalfEdgeType * pHalfEdge)
 		{
 			return (VertexType*)pHalfEdge->target();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TVertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeTSource(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TVertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeTSource(HalfEdgeType * pHalfEdge)
 		{
 			return (TVertexType*)pHalfEdge->tSource();
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TVertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeTTarget(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TVertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeTTarget(HalfEdgeType * pHalfEdge)
 		{
 			return (TVertexType*)pHalfEdge->tTarget();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeDual(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TetType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeTet(HalfEdgeType * pHalfEdge)
+		{
+			return (TetType *)HalfEdgeTTarget(pHalfEdge)->tet();
+		}
+
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeDual(HalfEdgeType * pHalfEdge)
 		{
 			return (HalfEdgeType*)pHalfEdge->dual();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeNext(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeNext(HalfEdgeType * pHalfEdge)
 		{
 			return (HalfEdgeType*)pHalfEdge->next();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgePrev(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgePrev(HalfEdgeType * pHalfEdge)
 		{
 			return (HalfEdgeType*)pHalfEdge->prev();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeEdge(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline EdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeEdge(HalfEdgeType * pHalfEdge)
 		{
 			return (EdgeType*)pHalfEdge->tedge()->edge();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeTEdge(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeTEdge(HalfEdgeType * pHalfEdge)
 		{
 			return (TEdgeType*)pHalfEdge->tedge();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeHalfFace(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeHalfFace(HalfEdgeType * pHalfEdge)
 		{
 			return (HalfFaceType*)pHalfEdge->half_face();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfEdgeVec(HalfEdgeType * pHalfEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfEdgeVec(HalfEdgeType * pHalfEdge)
 		{
 			return HalfEdgeTarget(pHalfEdge)->position() - HalfEdgeSource(pHalfEdge)->position();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline std::list<TEdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeTEdgeList(EdgeType * pEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline std::list<TEdgeType*> * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::EdgeTEdgeList(EdgeType * pEdge)
 		{
 			return (std::list<TEdgeType*>*) pEdge->edges();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeVertex1(EdgeType * pEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::EdgeVertex1(EdgeType * pEdge)
 		{
 			return (VertexType*)pEdge->vertex1();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeVertex2(EdgeType * pEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::EdgeVertex2(EdgeType * pEdge)
 		{
 			return (VertexType*)pEdge->vertex2();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline double TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeLength(EdgeType * pEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline double TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::EdgeLength(EdgeType * pEdge)
 		{
 			VertexType * pV1 = EdgeVertex1(pEdge);
 			VertexType * pV2 = EdgeVertex2(pEdge);
@@ -334,8 +348,8 @@ namespace MeshLib
 			return (pV1->position() - pV2->position()).norm();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline double TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::EdgeLengthSquare(EdgeType * pEdge)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline double TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::EdgeLengthSquare(EdgeType * pEdge)
 		{
 			return (EdgeVertex1(pEdge)->position() - EdgeVertex2(pEdge)->position()).norm2();
 		}
@@ -343,40 +357,40 @@ namespace MeshLib
 		/*------------------------------------------------------------------------------------------------
 		Access HalfFace data members
 		--------------------------------------------------------------------------------------------------*/
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFaceHalfEdge(HalfFaceType * pHalfFace)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfEdgeType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfFaceHalfEdge(HalfFaceType * pHalfFace)
 		{
 			return (HalfEdgeType*)pHalfFace->half_edge();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline FaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFaceFace(HalfFaceType * pHalfFace)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline FaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfFaceFace(HalfFaceType * pHalfFace)
 		{
 			return (FaceType*)pHalfFace->face();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TetType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFaceTet(HalfFaceType * pHalfFace)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TetType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfFaceTet(HalfFaceType * pHalfFace)
 		{
 			return (TetType*)pHalfFace->tet();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFaceDual(HalfFaceType * pHalfFace)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfFaceDual(HalfFaceType * pHalfFace)
 		{
 			return (HalfFaceType*)pHalfFace->dual();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TVertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFaceOppositeTVertex(HalfFaceType * pHalfFace)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TVertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfFaceOppositeTVertex(HalfFaceType * pHalfFace)
 		{
 			HalfEdgeType * pHE = HalfFaceHalfEdge(pHalfFace);
 			HalfEdgeType * pHEDualNext = HalfEdgeNext(HalfEdgeDual(pHE));
 
 			return HalfEdgeTTarget(pHEDualNext);
 		}
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline void TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFace3Points(HalfFaceType * pHF, CPoint * v)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline void TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfFace3Points(HalfFaceType * pHF, CPoint * v)
 		{
 			HalfEdgeType * pHE = HalfFaceHalfEdge(pHF);
 			v[0] = HalfEdgeSource(pHE)->position();
@@ -384,8 +398,8 @@ namespace MeshLib
 			v[2] = HalfEdgeTarget(HalfEdgeNext(pHE))->position();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::HalfFaceNormal(HalfFaceType * pHF)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::HalfFaceNormal(HalfFaceType * pHF)
 		{
 			HalfEdgeType * pHE1 = HalfFaceHalfEdge(pHF);;
 			HalfEdgeType * pHE2 = HalfEdgeNext(pHE1);;
@@ -401,14 +415,14 @@ namespace MeshLib
 		/*------------------------------------------------------------------------------------------------
 		Access Face data members
 		--------------------------------------------------------------------------------------------------*/
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::FaceLeftHalfFace(FaceType * pFace)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::FaceLeftHalfFace(FaceType * pFace)
 		{
 			return (HalfFaceType*)pFace->left();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::FaceRightHalfFace(FaceType * pFace)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::FaceRightHalfFace(FaceType * pFace)
 		{
 			return (HalfFaceType*)pFace->right();
 		}
@@ -416,26 +430,26 @@ namespace MeshLib
 		/*------------------------------------------------------------------------------------------------
 		Access Tetrahedron data members
 		--------------------------------------------------------------------------------------------------*/
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TetHalfFace(TetType * pT, int j)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline HalfFaceType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TetHalfFace(TetType * pT, int j)
 		{
 			return (HalfFaceType*)pT->half_face(j);
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline TVertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TetTVertex(TetType * pT, int j)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline TVertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TetTVertex(TetType * pT, int j)
 		{
 			return (TVertexType*)pT->tvertex(j);
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TetVertex(TetType * pT, int j)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline VertexType * TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TetVertex(TetType * pT, int j)
 		{
 			return (VertexType*)pT->tvertex(j)->vert();
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline double TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TetOrientedVolume(TetType * pT)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline double TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TetOrientedVolume(TetType * pT)
 		{
 			CPoint A = pT->vertex(0)->position();
 			CPoint B = pT->vertex(1)->position();
@@ -449,8 +463,8 @@ namespace MeshLib
 			return orientation_product;;
 		}
 
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::TetCentroid(TetType * pT)
+		template <typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType, template<typename, typename, typename, typename, typename, typename, typename, typename> typename MeshTemplate = CTMesh>
+		inline CPoint TInterface<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType, MeshTemplate>::TetCentroid(TetType * pT)
 		{
 			CPoint centroid;
 			for (int i = 0; i < 4, ++i) {

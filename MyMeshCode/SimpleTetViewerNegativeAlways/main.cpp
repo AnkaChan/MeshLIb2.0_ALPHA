@@ -194,7 +194,7 @@ int main(int argc, char **argv){
 	std::cout << "There is: " << type2count << " of type 2 tets." << std::endl;
 	pOverlapT = pTMesh->idTet(4);
 
-	tViewer.setMeshP1ointer(pTMesh);
+	tViewer.setMeshPointer(pTMesh);
 	tViewer.normalizeTMesh();
 	tViewer.setUserKeyFunc(myKeyFunc);
 	tViewer.show();
