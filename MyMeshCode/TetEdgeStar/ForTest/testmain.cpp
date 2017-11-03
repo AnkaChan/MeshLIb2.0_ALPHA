@@ -25,9 +25,12 @@ int main(int argc, char **argv) {
 
 	TIf::TMeshPtr pTMesh = new TIf::TMeshType;
 	string inFile = standardSlash(argv[1]);
-
 	pTMesh->_load_t(inFile.c_str(), true);
 
+	TIf::TPtr pT = pTMesh->tets().front();
+	pTMesh->deleteTet(pT);
 
 
+
+	cout << "Done!" << endl;
 }

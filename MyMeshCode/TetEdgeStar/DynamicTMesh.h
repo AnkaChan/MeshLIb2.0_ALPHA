@@ -1,5 +1,6 @@
 #pragma once
 #include <MeshLib/core/TetMesh/basetmesh.h>
+#include <MeshLib/core/TetMesh/TIterators2.h>
 #include <Array>
 namespace MeshLib {
 	namespace TMeshLib {
@@ -31,8 +32,10 @@ namespace MeshLib {
 
 
 		protected:
-			void dynamic_construct_tet();
+			typedef TInterface <TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType> TIf;
+			typedef TIterators<TIf> TIt;
 
+			void dynamic_construct_tet();
 			FMap fMap;
 			HFMap hfMap;
 			HEMap heMap;
@@ -169,10 +172,91 @@ namespace MeshLib {
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline void CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::deleteTet(TetType * pT)
+		{
+			// first step: delete 4 halffaces, and corresponding face if face becomes empty
+			KeyVec hfkey, fkey;
+			hfkey.reserve(3);
+			fkey.reserve(3);
+			for (int i = 0; i < 4; ++i) {
+				HalfFaceType * pHF = (HalfFaceType *)pT->half_face(i);
+				hfkey.clear();
+				getKey(pHF, hfkey);
+				hfMap.erase(hfkey);
+				// delete pHF from corresponding face
+				FaceType * pF = HalfFaceFace(pHF);
+				fkey.clear();
+				getKey(pF, fkey);
+				if (pF->left() == pHF) {
+					pF->SetLeft(NULL);
+				}
+				else {
+					pF->SetRight(NULL);
+				}
+				//if face becomes empty, delete face
+				if (pF->left() == NULL && pF->right() == NULL) {
+					fMap.erase(fkey);
+					delete pF;
+				}
+			}
+
+			// second step: delete tedge, halfedge, and edge if it becomes empty
+			KeyVec keyL, keyR, ekey;
+			keyL.reserve(3);
+			keyR.reserve(3);
+			for (TEdgeType * pTE : TIt::T_TEIterator(pT)) {
+				bool edge_empty = false;
+				HalfEdgeType *pHEL = (HalfEdgeType *) pTE->left();
+				HalfEdgeType *pHER = (HalfEdgeType *) pTE->right();
+
+				keyL.clear();
+				keyR.clear();
+				getKey(pHEL, keyL);
+				getKey(pHER, keyR);
+				heMap.erase(keyL);
+				heMap.erase(keyR);
+				delete pHEL;
+				delete pHER;
+
+				EdgeType * pE = TEdgeEdge(pTE);
+				std::list<TEdgeType*> * pTEList = EdgeTEdgeList(pE);
+				pTEList->remove(pTE);
+				ekey.clear();
+				if (pTEList->empty()) {
+					getKey(pE, ekey);
+					edge_empty = true;
+				}
+
+				KeyVec tekey;
+				getKey(pTE, tekey);
+				teMap.erase(tekey);
+				delete pTE;
+				if (edge_empty) {
+					eMap.erase(ekey);
+					delete pE;
+				}
+			}
+			
+			// third step: to delete all the tvertices
+			for (int i = 0; i < 4; ++i) {
+				TVertexType * pTV = (TVertexType *)pT->tvertex(i);
+				std::list<TVertexType*> * pTVList = VertexTVertexList(TVertexVertex(pTV));
+				// delete pTV from corresponding vertex's TVertexList
+				pTVList->remove(pTV);
+				delete pTV;
+			}
+
+			//at last, delete tet
+			m_map_Tets.erase(pT->id());
+			delete pT;
+		}
+
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
 		inline void CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::make2StandardFKey(KeyVec & key)
 		{
 			std::sort(key.begin(), key.end());
-
+			 
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
