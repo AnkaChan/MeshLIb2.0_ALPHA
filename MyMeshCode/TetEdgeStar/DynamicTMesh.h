@@ -35,12 +35,18 @@ namespace MeshLib {
 			typedef TInterface <TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType> TIf;
 			typedef TIterators<TIf> TIt;
 
-			void dynamic_construct_tet();
+			TetType* dynamic_construct_tet(int  v[4]);
+			HalfFaceType* dynamic_construct_half_face(TVertexType ** pTV);
+			FaceType dynamic_construct_face(HalfFaceType * pHF);
 			FMap fMap;
 			HFMap hfMap;
 			HEMap heMap;
 			EMap eMap;
 			TEMap teMap;
+
+			std::list<FaceType*> newCreatedFaces;
+			std::list<HalfFaceType*> newCreatedHFs;
+			std::list<EdgeType*> newCreatedEdges;
 
 			/*
 				get face's key, which is a std::vector<int> of size 3, contains id of its three vertices,
@@ -124,51 +130,6 @@ namespace MeshLib {
 		inline VertexType * CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::faceStar(EdgeType * pTE, CPoint2 splitPoint)
 		{
 			return NULL;
-		}
-
-		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline void CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::tetEdgeSplit(TEdgeType * pSplitTE, VertexType * pSplitV, TetType ** pNewTets)
-		{
-			TetType * pT = TEdgeTet(pSplitTE);
-
-			std::array<int, 4> T0, T1, T2;
-			for (int i = 0; i < 4; i++) {
-				VertexType * pV = pT->vertex(i);
-				T0[i] = pV->id();
-			}
-
-			deleteTet(pT);
-
-			VertexType * pVOnTE1 = TEdgeVertex1(pSplitTE);
-			VertexType * pVOnTE2 = TEdgeVertex2(pSplitTE);
-			int id1 = pVOnTE1->id(), id2 = pVOnTE2->id();
-
-			T1 = T0;
-			T2 = T0;
-
-			for (int i = 0; i < 4; i++) {
-				if (T1[i] == id1) {
-					T1[i] = pSplitV->id();
-					break;
-				}
-			}
-			for (int i = 0; i < 4; i++) {
-				if (T2[i] == id2) {
-					T2[i] = pSplitV->id();
-					break;
-				}
-			}
-
-			TetType pNewT1 = new TetType;
-			TetType pNewT2 = new TetType;
-
-			_construct_tet(pNewT1, maxTId + 1, T1.data());
-			_construct_tet(pNewT2, maxTId + 2, T2.data());
-			maxTId += 2;
-
-			pNewTets[0] = pNewT1;
-			pNewTets[1] = pNewT2;
-
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
@@ -282,6 +243,135 @@ namespace MeshLib {
 			default:
 				break;
 			}
+		}
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		TetType* CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::dynamic_construct_tet(int  v[4])
+		{
+			//set the tet->id
+			++maxTId;
+			pT->id() = maxTId;
+			//set TVertices of the Tet
+
+			for (int k = 0; k < 4; k++)
+			{
+				TVertexType * pTV = new TVertexType();
+				pT->setTVertex(pTV, k);
+				pTV->id() = k;
+
+				VertexType * pV = m_map_Vertices[v[k]];
+				
+				pV->tvertices()->push_back(pTV);
+
+				pTV->set_tet(pT);
+			}
+
+			//set half faces
+			int order[4][3] = { { 1, 2, 3 },{ 2, 0, 3 },{ 0, 1, 3 },{ 1, 0, 2 } };
+
+			TVertexType   * pTV[3];
+			HalfFaceType * pHF[4];
+
+			for (int i = 0; i < 4; i++)
+			{
+				for (int k = 0; k < 3; k++)
+				{
+					pTV[k] = TetTVertex(pT, order[i][k]);
+				}
+				pT->setHalfFace(dynamic_construct_half_face(pTV), i);
+				pHF[i] = TetHalfFace(pT, i);
+			}
+
+		}
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		HalfFaceType* CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::dynamic_construct_half_face(TVertexType ** pTV)
+		{
+			HalfFaceType * pHF = new HalfFaceType;
+			assert(pHF != NULL);
+
+			VertexType * pV[3];
+
+			for (int i = 0; i < 3; i++)
+			{
+				pV[i] = TVertexVertex(pTV[i]);
+			}
+
+			HalfEdgeType * pH[3];
+			for (int i = 0; i < 3; i++)
+			{
+				pH[i] = new HalfEdgeType;
+				assert(pH[i] != NULL);
+				m_pHalfEdges.push_back(pH[i]);
+
+				pH[i]->SetHalfFace(pHF);
+				pH[i]->SetSource(pTV[i]);
+				pH[i]->SetTarget(pTV[(i + 1) % 3]);
+				pTV[i]->set_halfedge(pH[i]);
+			}
+
+			for (int i = 0; i < 3; i++)
+			{
+				pH[i]->SetNext(pH[(i + 1) % 3]);
+				pH[i]->SetPrev(pH[(i + 2) % 3]);
+			}
+
+			pHF->SetHalfEdge(pH[0]);
+
+			for (int i = 0; i < 3; i++)
+			{
+				pHF->key(i) = pV[i]->id();
+			}
+
+			//bubble
+
+			for (int i = 0; i < 2; i++)
+			{
+				for (int j = 0; j < 2 - i; j++)
+				{
+					if (pHF->key(j) > pHF->key(j + 1))
+					{
+						int tmp = pHF->key(j);
+						pHF->key(j) = pHF->key(j + 1);
+						pHF->key(j + 1) = tmp;
+					}
+				}
+			}
+
+			assert(pHF->key(0) < pHF->key(1));
+			assert(pHF->key(1) < pHF->key(2));
+
+			//find or create halfface's face
+			KeyVec fKey;
+			fKey.push_back(pHF->key(0));
+			fKey.push_back(pHF->key(1));
+			fKey.push_back(pHF->key(2));
+			auto iterF = fMap.find(fKey);
+			if (iterF != fMap.end()) {
+				//if the face exists, it must contain only one halfface.
+				FaceType * pF = *iterF;
+				pHF->SetFace(pF);
+				if (pF->left() == NULL) {
+					pF->SetLeft(pHF);
+					pHF->setDual(pF->right());
+				}
+				else {
+					pF->SetRight(pHF);
+					pHF->setDual(pF->left());
+				}
+			}
+			else {
+				//if the face does not exist, we create a new face, and set this halfface as left
+				dynamic_construct_face()
+
+			}
+			return pHF;
+		}
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline FaceType CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::dynamic_construct_face(HalfFaceType * pHF)
+		{
+
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
