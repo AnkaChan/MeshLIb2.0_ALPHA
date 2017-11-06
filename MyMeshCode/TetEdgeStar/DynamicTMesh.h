@@ -282,6 +282,7 @@ namespace MeshLib {
 				pHF[i] = TetHalfFace(pT, i);
 			}
 
+
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
@@ -362,8 +363,8 @@ namespace MeshLib {
 			}
 			else {
 				//if the face does not exist, we create a new face, and set this halfface as left
-				dynamic_construct_face()
-
+				dynamic_construct_face();
+					
 			}
 			return pHF;
 		}
