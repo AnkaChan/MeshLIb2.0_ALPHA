@@ -30,14 +30,18 @@ namespace MeshLib {
 			void make2StandardFKey(KeyVec & key);
 			void make2StandardHFKey(KeyVec & key);
 
+			TetType* dynamic_construct_tet(int  v[4]);
+
+
 
 		protected:
 			typedef TInterface <TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType> TIf;
 			typedef TIterators<TIf> TIt;
 
-			TetType* dynamic_construct_tet(int  v[4]);
 			HalfFaceType* dynamic_construct_half_face(TVertexType ** pTV);
-			FaceType dynamic_construct_face(HalfFaceType * pHF);
+			FaceType* dynamic_construct_face(KeyVec& fkey);
+			EdgeType* dynamic_construct_edge(KeyVec& fkey);
+			TEdgeType* dynamic_construct_tedge(KeyVec& tekey);
 			FMap fMap;
 			HFMap hfMap;
 			HEMap heMap;
@@ -217,7 +221,6 @@ namespace MeshLib {
 		inline void CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::make2StandardFKey(KeyVec & key)
 		{
 			std::sort(key.begin(), key.end());
-			 
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
@@ -250,6 +253,7 @@ namespace MeshLib {
 		{
 			//set the tet->id
 			++maxTId;
+			TetType* pT = new TetType;
 			pT->id() = maxTId;
 			//set TVertices of the Tet
 
@@ -264,6 +268,7 @@ namespace MeshLib {
 				pV->tvertices()->push_back(pTV);
 
 				pTV->set_tet(pT);
+				pTV->set_vert(pV);
 			}
 
 			//set half faces
@@ -282,7 +287,102 @@ namespace MeshLib {
 				pHF[i] = TetHalfFace(pT, i);
 			}
 
+			//Seting the dual half edges
 
+			for (int i = 0; i < 3; i++)
+			{
+				HalfEdgeType * pH0 = HalfFaceHalfEdge(pHF[i]);
+				pH0 = HalfEdgeNext(pH0);
+				HalfEdgeType * pH1 = HalfFaceHalfEdge(pHF[(i + 1) % 3]);
+				pH1 = HalfEdgePrev(pH1);
+
+				pH0->SetDual(pH1);
+				pH1->SetDual(pH0);
+
+				KeyVec teKey;
+				teKey.push_back(pT->id());
+				int teIds[2];
+				teIds[0] = HalfEdgeSource(pH0)->id();
+				teIds[1] = HalfEdgeTarget(pH0)->id();
+				if (teIds[0] < teIds[1]) {
+					teKey.push_back(teIds[0]);
+					teKey.push_back(teIds[1]);
+				}
+				else {
+					teKey.push_back(teIds[1]);
+					teKey.push_back(teIds[0]);
+				}
+
+				TEdgeType * pTE = dynamic_construct_tedge(teKey);
+				assert(pTE != NULL);
+				pTE->SetTet(pT);
+				pH0->SetTEdge(pTE);
+				pH1->SetTEdge(pTE);
+
+				if (pH0->source()->id() < pH0->target()->id())
+				{
+					pTE->SetLeft(pH0);
+					pTE->SetRight(pH1);
+				}
+				else
+				{
+					pTE->SetLeft(pH1);
+					pTE->SetRight(pH0);
+				}
+
+				pTE->key(0) = pTE->left()->source()->id();
+				pTE->key(1) = pTE->left()->target()->id();
+
+				VertexType * v = m_map_Vertices[pTE->key(0)];
+				v->tedges()->push_back(pTE);
+			}
+
+			HalfEdgeType * pH0 = HalfFaceHalfEdge(pHF[3]);
+			for (int i = 0; i < 3; i++)
+			{
+				HalfEdgeType * pH1 = HalfFaceHalfEdge(pHF[2 - i]);
+				pH0->SetDual(pH1);
+				pH1->SetDual(pH0);
+
+				KeyVec teKey;
+				teKey.push_back(pT->id());
+				int teIds[2];
+				teIds[0] = HalfEdgeSource(pH0)->id();
+				teIds[1] = HalfEdgeTarget(pH0)->id();
+				if (teIds[0] < teIds[1]) {
+					teKey.push_back(teIds[0]);
+					teKey.push_back(teIds[1]);
+				}
+				else {
+					teKey.push_back(teIds[1]);
+					teKey.push_back(teIds[0]);
+				}
+
+				TEdgeType * pTE = dynamic_construct_tedge(teKey);
+				assert(pTE != NULL);
+				//set TEdge->Tet
+				pTE->SetTet(pT);
+				//set HalfEdge->TEdge
+				pH0->SetTEdge(pTE);
+				pH1->SetTEdge(pTE);
+
+				if (pH0->source()->id() < pH0->target()->id())
+				{
+					pTE->SetLeft(pH0);
+					pTE->SetRight(pH1);
+				}
+				else
+				{
+					pTE->SetLeft(pH1);
+					pTE->SetRight(pH0);
+				}
+				pTE->key(0) = pTE->left()->source()->id();
+				pTE->key(1) = pTE->left()->target()->id();
+
+				pH0 = HalfEdgeNext(pH0);
+			}
+			//markNewBoundarys();
+			return pT;
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
@@ -303,7 +403,6 @@ namespace MeshLib {
 			{
 				pH[i] = new HalfEdgeType;
 				assert(pH[i] != NULL);
-				m_pHalfEdges.push_back(pH[i]);
 
 				pH[i]->SetHalfFace(pHF);
 				pH[i]->SetSource(pTV[i]);
@@ -350,29 +449,63 @@ namespace MeshLib {
 			auto iterF = fMap.find(fKey);
 			if (iterF != fMap.end()) {
 				//if the face exists, it must contain only one halfface.
-				FaceType * pF = *iterF;
+				FaceType * pF = iterF->second;
 				pHF->SetFace(pF);
 				if (pF->left() == NULL) {
 					pF->SetLeft(pHF);
-					pHF->setDual(pF->right());
+					pHF->SetDual(pF->right());
 				}
 				else {
 					pF->SetRight(pHF);
-					pHF->setDual(pF->left());
+					pHF->SetDual(pF->left());
 				}
 			}
 			else {
 				//if the face does not exist, we create a new face, and set this halfface as left
-				dynamic_construct_face();
-					
+				FaceType * pF = dynamic_construct_face(fKey);
+				pF->SetLeft(pHF);
 			}
 			return pHF;
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
-		inline FaceType CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::dynamic_construct_face(HalfFaceType * pHF)
+		inline EdgeType * CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::dynamic_construct_edge(KeyVec & eKey)
 		{
+			EdgeType* pE = new EdgeType;
+			eMap.insert(EMapPair(eKey, pE));
+			return pE;
+		}
 
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline FaceType* CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::dynamic_construct_face(KeyVec& fKey)
+		{
+			FaceType* pF = new FaceType;
+
+			fMap.insert(FMapPair(fKey, pF));
+			newCreatedFaces.push_back(pF);
+			return pF;
+		}
+
+		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>
+		inline TEdgeType * CDynamicTMesh<TVertexType, VertexType, HalfEdgeType, TEdgeType, EdgeType, HalfFaceType, FaceType, TetType>::dynamic_construct_tedge(KeyVec & tekey)
+		{
+			TEdgeType * pTE= new TEdgeType;
+			teMap.insert(TEMapPair(tekey, pTE));
+
+			KeyVec eKey = { tekey[1], tekey[2] };
+
+			EMap::iterator eIter = eMap.find(eKey);
+			EdgeType * pE;
+			if (eIter != eMap.end()) {
+				pE = eIter->second;
+			}
+			else {
+				pE = dynamic_construct_edge(eKey); 
+			}
+			pTE->SetEdge(pE);
+			std::list<TEdgeType*>* pTEList = (std::list<TEdgeType*>*)pE->edges();
+			pTEList->push_back(pTE);
+			return pTE;
 		}
 
 		template<typename TVertexType, typename VertexType, typename HalfEdgeType, typename TEdgeType, typename EdgeType, typename HalfFaceType, typename FaceType, typename TetType>

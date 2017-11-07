@@ -30,6 +30,8 @@ int main(int argc, char **argv) {
 	TIf::TPtr pT = pTMesh->tets().front();
 	pTMesh->deleteTet(pT);
 
+	int tet[4] = { 1, 2, 3, 4 };
+	pTMesh->dynamic_construct_tet(tet);
 
 
 	cout << "Done!" << endl;
